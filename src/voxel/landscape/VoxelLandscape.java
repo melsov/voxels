@@ -200,6 +200,7 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
     @Override
     public void simpleInitApp() 
     {
+        
 //    	viewPort.addProcessor(new WireProcessor(assetManager));
 //    	viewPort.removeProcessor(...); // KEEP FOR REFERENCE: COULD PERHAPS USE THIS TO TOGGLE WIRE FRAMES
 

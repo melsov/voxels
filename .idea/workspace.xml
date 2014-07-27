@@ -79,8 +79,8 @@
       <file leaf-file-name="VoxelLandscape.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.44295302" vertical-offset="2190" max-vertical-offset="5205">
-              <caret line="207" column="19" selection-start-line="207" selection-start-column="19" selection-end-line="207" selection-end-column="19" />
+            <state vertical-scroll-proportion="0.34228188" vertical-offset="2190" max-vertical-offset="5220">
+              <caret line="202" column="8" selection-start-line="202" selection-start-column="8" selection-end-line="202" selection-end-column="8" />
               <folding />
             </state>
           </provider>
@@ -938,8 +938,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.44295302" vertical-offset="2190" max-vertical-offset="5205">
-          <caret line="207" column="19" selection-start-line="207" selection-start-column="19" selection-end-line="207" selection-end-column="19" />
+        <state vertical-scroll-proportion="0.34228188" vertical-offset="2190" max-vertical-offset="5220">
+          <caret line="202" column="8" selection-start-line="202" selection-start-column="8" selection-end-line="202" selection-end-column="8" />
           <folding />
         </state>
       </provider>
