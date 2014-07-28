@@ -2,19 +2,21 @@ package voxel.landscape.map.light;
 
 import voxel.landscape.Chunk;
 import voxel.landscape.Coord3;
-import voxel.landscape.collection.MapByte3D;
-import voxel.landscape.collection.chunkarray.ChunkByte3D;
+import voxel.landscape.collection.MapNibble3D;
+import voxel.landscape.collection.chunkarray.ChunkNibble3D;
 
 public class LightMap {
-	private MapByte3D lights = new MapByte3D();
-	
+//	private MapByte3D lights = new MapByte3D();
+
+    private MapNibble3D lights = new MapNibble3D();
+
 	public boolean SetMaxLight(byte light, Coord3 pos) {
 		return SetMaxLight(light, pos.x, pos.y, pos.z);
 	}
 	public boolean SetMaxLight(byte light, int x, int y, int z) {
 		Coord3 chunkPos = Chunk.ToChunkPosition(x, y, z);
-		Coord3 localPos = Chunk.toChunkLocalCoord(x, y, z); 
-		ChunkByte3D chunk = lights.GetChunkInstance(chunkPos);
+		Coord3 localPos = Chunk.toChunkLocalCoord(x, y, z);
+        ChunkNibble3D chunk = lights.GetChunkInstance(chunkPos);
 		byte oldLight = (byte) chunk.Get(localPos);
 		if(oldLight < light) {
 			chunk.Set(light, localPos);

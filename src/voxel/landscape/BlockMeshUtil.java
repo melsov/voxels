@@ -1,12 +1,11 @@
 package voxel.landscape;
 
-import java.util.Arrays;
-
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.map.light.BuildUtils;
 
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
+import java.util.Arrays;
 
 // GLSL driven grass movement and footprints!!
 
@@ -54,9 +53,15 @@ public class BlockMeshUtil
 			ret.x = .75f;
 			ret.y = .25f;
 		}
+        else if (BlockType.LANTERN.equals(btype)) {
+            ret.x = .5f;
+            ret.y = .75f;
+        }
 		else if (BlockType.BEDROCK.equals(btype)) {
 			ret.x = .75f;
 		}
+
+
 		mset.texMapOffsets.addAll(Arrays.asList(ret,ret,ret,ret));
 	}
 	private static void FaceNormalsForDirection(MeshSet mset, int dir) {

@@ -1,7 +1,6 @@
 package voxel.landscape.collection.chunkarray;
 
 import voxel.landscape.Chunk;
-import voxel.landscape.util.Asserter;
 
 public class ChunkUByte2D extends ChunkPrimitiveType2D
 {
@@ -9,8 +8,6 @@ public class ChunkUByte2D extends ChunkPrimitiveType2D
 	
 	@Override
 	public void Set(int val, int x, int z) {
-		Asserter.assertTrue(val >= 0, "Ubyte takes only positive values");
-		Asserter.assertTrue(val < 256, "Ubyte takes only values between 0 and 255 inclusive");
 		chunk[z][x] = (byte)val;
 	}
 	@Override

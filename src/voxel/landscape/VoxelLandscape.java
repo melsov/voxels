@@ -26,10 +26,12 @@ import voxel.landscape.collection.ColumnMap;
 import voxel.landscape.debugmesh.DebugChart;
 import voxel.landscape.debugmesh.DebugChart.DebugShapeType;
 import voxel.landscape.debugmesh.IDebugGet3D;
+import voxel.landscape.debugutil.GUIInfo;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.map.debug.Array2DViewer;
 import voxel.landscape.map.light.ChunkSunLightComputer;
 import voxel.landscape.player.Audio;
+import voxel.landscape.player.B;
 import voxel.landscape.player.Player;
 
 import java.awt.*;
@@ -38,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.System.out;
+import static java.lang.Thread.sleep;
 
 
 // TODO: Separate world builder and game logic, everything else...
@@ -45,7 +48,8 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
 {
 	private static boolean UseTextureMap =  true;
 	private boolean debugInfoOn = false;
-    private static boolean COMPILE_CHUNK_DATA_ASYNC = true;
+    private static boolean ADD_CHUNKS_DYNAMICALLY = false;
+    private static boolean COMPILE_CHUNK_DATA_ASYNC = false;
 
 	private TerrainMap terrainMap = new TerrainMap();
 	private ColumnMap columnMap = new ColumnMap();
@@ -55,6 +59,7 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
 	private Node overlayNode = new Node("overlay_node");
 	private boolean generatingBlockData = false;
 	private List<Coord2> columnsToBeBuilt = new ArrayList<Coord2>();
+
 	private static Coord2 screenDims;
 	
 	private CameraNode camNode;
@@ -97,10 +102,10 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
 		Texture2D skyTex = TexFromBufferedImage(OnePixelBufferedImage(new java.awt.Color(.3f,.6f,1f,1f)));
 		rootNode.attachChild(SkyFactory.createSky( assetManager, skyTex , true) );
 		
-		Coord3 hedgeMin = Coord3.Zero; 
-		Coord3 minChCo = terrainMap.getMinChunkCoord().add(hedgeMin);
-		Coord3 maxChCo = new Coord3(2, 0, 2);
+		Coord3 minChCo = Coord3.Zero;
+		Coord3 maxChCo = new Coord3(4, 0, 4);
 
+        long startTime = System.currentTimeMillis();
 		for(int i = minChCo.x; i < maxChCo.x; ++i)
 		{
 			for(int j = minChCo.z; j < maxChCo.z; ++j)
@@ -108,8 +113,13 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
 				generateColumnData(i,j);
 				buildColumn(i,j);
 			}
-		} 
-		/*
+		}
+        long endTime = System.currentTimeMillis();
+        long genTime = endTime - startTime;
+        float seconds = genTime/1000f;
+        B.bugln("\ninitial gen took millis: " + genTime + "\n or seconds: " + seconds);
+
+        /*
 		 * debugging
 		 */
 		if (!debugInfoOn) return;
@@ -126,7 +136,12 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
 	@Override
 	public void notifyThreadComplete(ResponsiveRunnable responsiveRunnable) {
 		if (responsiveRunnable.getClass() == AsyncGenerateColumnData.class) {
-			AsyncGenerateColumnData async = (AsyncGenerateColumnData) responsiveRunnable;
+            try {
+                sleep(4000); //EXPERI: THIS SHOULD SLOW DOWN PRODUCTION
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            AsyncGenerateColumnData async = (AsyncGenerateColumnData) responsiveRunnable;
 			Coord2 asynccoord = new Coord2(async.getX(), async.getZ());
 			columnsToBeBuilt.add(asynccoord);
 			generatingBlockData = false;
@@ -185,13 +200,15 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
 			attachMeshToScene(ch);
 		}
 	}
-	
+
 	/* Use the main event loop to trigger repeating actions. */
     @Override
     public void simpleUpdate(float tpf) 
     {
-    	makeMoreWorld();
-        if (COMPILE_CHUNK_DATA_ASYNC) buildRestOfColumns();
+        if (ADD_CHUNKS_DYNAMICALLY) {
+            makeMoreWorld();
+            if (COMPILE_CHUNK_DATA_ASYNC) buildRestOfColumns();
+        }
     }
 
     /*
@@ -200,7 +217,7 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
     @Override
     public void simpleInitApp() 
     {
-        
+
 //    	viewPort.addProcessor(new WireProcessor(assetManager));
 //    	viewPort.removeProcessor(...); // KEEP FOR REFERENCE: COULD PERHAPS USE THIS TO TOGGLE WIRE FRAMES
 
@@ -232,6 +249,9 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
 
         setDisplayFps(true);
         setDisplayStatView(true);
+
+        GUIInfo guiInfo = new GUIInfo(guiNode, assetManager.loadFont("Interface/Fonts/Console.fnt"));
+        guiNode.addControl(guiInfo);
     }
 
 

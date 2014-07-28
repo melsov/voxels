@@ -1,5 +1,7 @@
 package voxel.landscape;
 
+import voxel.landscape.map.light.SunLightComputer;
+
 import java.awt.Color;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -9,8 +11,9 @@ public enum BlockType {
 	NON_EXISTENT (0), 
 	AIR (1), DIRT(2), 
 	GRASS(3), SAND(4), 
-	STONE(5), CAVESTONE(6), 
-	BEDROCK(7);
+	STONE(5), CAVESTONE(6),
+    LANTERN(7),
+	BEDROCK(8);
 	
 	BlockType(int i) {
 		integer = i;
@@ -21,9 +24,11 @@ public enum BlockType {
 		for (BlockType bt : EnumSet.allOf(BlockType.class))
 			lookup.put(bt.integer, bt);
 	}
-	public static BlockType get(int intt) {
-		return (BlockType) lookup.get(intt);
+
+	public static BlockType get(int i) {
+		return (BlockType) lookup.get(i);
 	}
+
 	public static Color debugColor(int i) {
 		switch(BlockType.get(i)) {
 		case  NON_EXISTENT:
@@ -40,6 +45,8 @@ public enum BlockType {
 			return new Color(.4f, .4f, .4f);
 		case CAVESTONE:
 			return new Color(.3f, .5f, .3f);
+        case LANTERN:
+            return new Color(.9f, 1f, .3f);
 		case BEDROCK:
 			return new Color(.2f,.2f,.2f);
 		default:
@@ -62,6 +69,7 @@ public enum BlockType {
 	public static boolean IsAirOrNonExistent(int i) {
 		return i == BlockType.AIR.ordinal() || i == BlockType.NON_EXISTENT.ordinal();
 	}
+
 	public static boolean IsSolid(int i) {
 		return !IsAirOrNonExistent(i);
 	}
@@ -73,7 +81,8 @@ public enum BlockType {
 	public float getFloat() { return (float) this.ordinal(); }
 	
 	public static int LightLevelForType(int type) {
-		return 0;
+        if (type == BlockType.LANTERN.ordinal()) return SunLightComputer.MAX_LIGHT;
+        return 0;
 	}
 
 

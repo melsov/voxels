@@ -1,6 +1,4 @@
-package voxel.landscape.collection;
-
-import java.lang.reflect.Array;
+package voxel.landscape.collection.unused;
 
 import voxel.landscape.Chunk;
 import voxel.landscape.Coord3;
@@ -8,7 +6,7 @@ import voxel.landscape.collection.chunkarray.Chunk3D;
 
 public class Map3D<I> {
 	
-	private List3D<Chunk3D<I>> chunks; 
+	private List3D<Chunk3D<I>> chunks;
 	private I defaultValue;
 	private Class<I> type;
 	

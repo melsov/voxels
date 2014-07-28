@@ -1,4 +1,4 @@
-package voxel.landscape.collection;
+package voxel.landscape.collection.unused;
 
 import voxel.landscape.Coord2;
 

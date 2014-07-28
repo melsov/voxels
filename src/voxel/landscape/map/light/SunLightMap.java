@@ -2,15 +2,16 @@ package voxel.landscape.map.light;
 
 import voxel.landscape.Chunk;
 import voxel.landscape.Coord3;
-import voxel.landscape.collection.MapByte3D;
+import voxel.landscape.collection.MapNibble3D;
 import voxel.landscape.collection.MapPrimitive2D;
-import voxel.landscape.collection.chunkarray.ChunkByte3D;
+import voxel.landscape.collection.chunkarray.ChunkNibble3D;
 import voxel.landscape.collection.chunkarray.ChunkUByte2D;
 
 public class SunLightMap 
 {	
 	private MapPrimitive2D<ChunkUByte2D> rays = new MapPrimitive2D<ChunkUByte2D>((byte) 0, ChunkUByte2D.class);
-	private MapByte3D lights = new MapByte3D((byte) 0);
+//	private MapByte3D lights = new MapByte3D((byte) 0);
+    private MapNibble3D lights = new MapNibble3D((byte) 0);
 	
 	public void SetSunHeight(int height, int x, int z) {
 		rays.Set(height, x, z);
@@ -33,8 +34,8 @@ public class SunLightMap
 		Coord3 localPos = Chunk.toChunkLocalCoord(x, y, z);
 		
 		if( IsSunLight(chunkPos, localPos, y) ) return false;
-		
-		ChunkByte3D chunkLightMap = lights.GetChunkInstance(chunkPos);
+
+        ChunkNibble3D chunkLightMap = lights.GetChunkInstance(chunkPos);
 		byte oldLight = (byte) chunkLightMap.Get(localPos);
 		if(oldLight < light) {
 			chunkLightMap.Set(light, localPos);
@@ -68,8 +69,8 @@ public class SunLightMap
 	}
 	public byte GetLight(Coord3 chunkPos, Coord3 localPos, int worldY) {
 		if(IsSunLight(chunkPos, localPos, worldY)) return SunLightComputer.MAX_LIGHT;
-		
-		ChunkByte3D chunkLightMap = lights.GetChunk(chunkPos);
+
+        ChunkNibble3D chunkLightMap = lights.GetChunk(chunkPos);
 		if(chunkLightMap != null) {
 			byte light = (byte) chunkLightMap.Get(localPos);
 			return (byte) Math.max(SunLightComputer.MIN_LIGHT, light);

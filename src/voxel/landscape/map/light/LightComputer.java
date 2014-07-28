@@ -1,16 +1,15 @@
 package voxel.landscape.map.light;
 
+import voxel.landscape.BlockType;
+import voxel.landscape.Coord3;
+import voxel.landscape.Direction;
+import voxel.landscape.map.TerrainMap;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import voxel.landscape.Coord3;
-import voxel.landscape.Direction;
-import voxel.landscape.BlockType;
-import voxel.landscape.map.TerrainMap;
-
 public class LightComputer 
 {
-	
 	public static final byte MIN_LIGHT = 1;
 	public static final byte MAX_LIGHT = 15;
 	public static final byte STEP_LIGHT = 1;

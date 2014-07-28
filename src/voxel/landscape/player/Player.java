@@ -41,15 +41,18 @@ public class Player
     private static float halfWidthXZ = .35f;
     private static Vector3f playerBodyOffset = new Vector3f(halfWidthXZ,-height*.75f,halfWidthXZ);
 
+    private static int FLY_MODE = 1;
 	private static float MOVE_SPEED = 8f;
     private Vector3f inputVelocity = Vector3f.ZERO;
     private float jumpVelocity = 0f;
     private static final float JUMP_VELOCITY= 6f;
-    private static final float gravity = 3.7f;
+    private static final float REAL_GRAVITY = 3.7f;
+    private static float gravity = REAL_GRAVITY * FLY_MODE;
     private Vector3f velocity = Vector3f.ZERO;
     private boolean grounded = false;
     private boolean jumping = false;
     private boolean headBump = false;
+    private byte blockInHandType = (byte) BlockType.SAND.ordinal();
 
     private float adjustNear = .001f;
     private float adjustLeftRight = .001f;
@@ -62,7 +65,7 @@ public class Player
 
     private boolean debugPlaceCoord = false;
 
-
+//TODO: add fly cam mode...
     private ActionListener userInputListener = new ActionListener() {
     	public void onAction(String name, boolean keyPressed, float tpf) {
     		if (name.equals("Break") && !keyPressed) {
@@ -77,10 +80,12 @@ public class Player
                 debugPlaceCoord = !debugPlaceCoord;
             }
             else if (name.equals("Down") && !keyPressed) {
+                toggleBlockInHandType();
             }
             else if (name.equals("Right") && !keyPressed) {
             }
             else if (name.equals("Left") && !keyPressed) {
+                toggleFlyMode();
             }
             else if (name.equals("Inventory") && !keyPressed) {
             }
@@ -91,10 +96,21 @@ public class Player
         Coord3 home = new Coord3(1,0,1);
         playerNode.setLocalTranslation(new Vector3f(home.x,terrainMap.GetMaxY(home.x,home.z) + 4,home.z));
     }
+    private void toggleFlyMode() {
+        FLY_MODE = FLY_MODE == 1 ? 0 : 1;
+        if (FLY_MODE==1) {
+            gravity = 0f;
+        } else {
+            gravity = REAL_GRAVITY;
+        }
+    }
+    private void toggleBlockInHandType() {
+        blockInHandType = (byte)(blockInHandType == BlockType.SAND.ordinal() ? BlockType.LANTERN.ordinal() : BlockType.SAND.ordinal());
+    }
     private AnalogListener analogListener = new AnalogListener() {
         public void onAnalog(String name, float keyPressed, float tpf) {
 
-            if (name.equals("jump") && grounded && !jumping && jumpVelocity < .01 ) {
+            if (FLY_MODE != 1 && name.equals("jump") && grounded && !jumping && jumpVelocity < .01  ) {
                 jumping = true;
                 jumpVelocity = JUMP_VELOCITY;
             }
@@ -127,9 +143,11 @@ public class Player
             /*
             TODO: resolve jump, move direction weirdness (look at Unity character controllers)
              */
+            float velY = move.y;
+            move.y = 0;
             Quaternion camro = cam.getRotation();
-            turnInputToCamera(camro.mult(move));
-            inputVelocity.y = move.y;
+            turnInputToCamera(camro.mult(move.clone()));
+            inputVelocity.y = velY;
         }
     };
     private void turnInputToCamera(Vector3f camV) {
@@ -295,7 +313,7 @@ public class Player
     	Coord3 placeCo = Coord3.FromVector3f( vhit);
     	if (placeCo == null) return;
     	audio.playBreakCompleteSound();
-    	terrainMap.SetBlockAndRecompute((byte) BlockType.GRASS.ordinal(), placeCo);
+    	terrainMap.SetBlockAndRecompute(blockInHandType, placeCo);
     }
 	/*
 	 * updating JMonkey geometry bounds and checking collisions are computationally expensive...
@@ -321,8 +339,7 @@ public class Player
     		Vector3f oppdir = direction.mult(-1f);
             Vector3f corner = DistToCorner(hitV, direction);
             Vector3f relEscape = RelativeEscapeVector(corner, oppdir);
-//    		float escapeLength = .dot(oppdir);
-    		Vector3f escapeTheBlock = hitV.add(relEscape); // oppdir.mult(escapeLength));
+    		Vector3f escapeTheBlock = hitV.add(relEscape);
     		Vector3f escapeNudge = VektorUtil.Sign(oppdir).mult(VektorUtil.MaskClosestToWholeNumber(escapeTheBlock).mult(.5f));
     		return escapeTheBlock.add(escapeNudge);
     	}

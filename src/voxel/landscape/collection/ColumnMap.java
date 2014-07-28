@@ -1,11 +1,13 @@
 package voxel.landscape.collection;
 
 import voxel.landscape.Coord3;
+import voxel.landscape.collection.coordmap.HashCoord2D;
 
 public class ColumnMap {
 
-	private List2D<ColumnChunk> columns = new List2D<ColumnChunk>(ColumnChunk.class);
-	
+//	private List2D<ColumnChunk> columns = new List2D<ColumnChunk>(ColumnChunk.class);
+
+    private HashCoord2D<ColumnChunk> columns = new HashCoord2D<ColumnChunk>(ColumnChunk.class);
 	public void SetBuilt(int x, int z) {
 		GetColumnChunk(x, z).built = true;
 	}
@@ -13,7 +15,6 @@ public class ColumnMap {
 	public boolean IsBuilt(int x, int z) {
 		return GetColumnChunk(x, z).built;
 	}
-	
 	
 	public Coord3 GetClosestEmptyColumn(int cx, int cz, int rad) {
 		Coord3 center = new Coord3(cx, 0, cz);
@@ -34,15 +35,9 @@ public class ColumnMap {
 		}
 		return closest;
 	}
-	
-	
+
 	private ColumnChunk GetColumnChunk(int x, int z) {
 		return columns.GetInstance(x, z);
 	}
-	
-	
-//	public class ColumnChunk {
-//		public boolean built = false;
-//	}
 	
 }

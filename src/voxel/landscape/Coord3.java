@@ -119,4 +119,8 @@ public class Coord3
     public boolean equal(Coord3 other) {
         return x==other.x && y==other.y && z==other.z;
     }
+    @Override
+    public int hashCode() {
+        return (z << 20) | ((y & 1023) << 10) | (x & 1023);
+    }
 }

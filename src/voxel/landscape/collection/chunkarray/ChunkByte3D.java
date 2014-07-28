@@ -5,7 +5,7 @@ import voxel.landscape.Coord3;
 
 public class ChunkByte3D extends ChunkPrimitiveType3D 
 {
-	private volatile byte[][][] chunk = new byte[Chunk.CHUNKDIMS.x][Chunk.CHUNKDIMS.y][Chunk.CHUNKDIMS.z];
+	private byte[][][] chunk = new byte[Chunk.XLENGTH][Chunk.YLENGTH][Chunk.ZLENGTH];
 	
 	@Override
 	public void Set(int val, Coord3 pos) {

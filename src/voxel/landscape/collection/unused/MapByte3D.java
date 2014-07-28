@@ -1,4 +1,4 @@
-package voxel.landscape.collection;
+package voxel.landscape.collection.unused;
 
 import voxel.landscape.Chunk;
 import voxel.landscape.Coord3;
@@ -6,7 +6,7 @@ import voxel.landscape.collection.chunkarray.ChunkByte3D;
 
 public class MapByte3D 
 {
-	private volatile List3D<ChunkByte3D> chunks; 
+	private volatile List3D<ChunkByte3D> chunks;
 	private byte defaultValue;
 	
 	public MapByte3D() {

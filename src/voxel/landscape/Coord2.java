@@ -53,11 +53,17 @@ public class Coord2
 		return equals((Coord2) other);
 	}
 	public boolean equals(Coord2 other) { return x == other.x && y == other.y; }
-	
+	public Coord2 copy() { return new Coord2(x,y); }
 	public Vector3f toVec3XZ() {
 		return new Vector3f(x,0,y);
 	}
 	public Vector2f toVector2f() { return new Vector2f(x,y); }
 	
 	public String toString() { return String.format("Coord2:x: %d y: %d", x,y); }
+
+    @Override
+    public int hashCode() {
+        return (y << 16) | (x & 0xff);
+    }
+
 }
