@@ -1,3 +1,5 @@
+package voxel.landscape.tests;
+
 import com.jme3.app.SimpleApplication;
 
 /**

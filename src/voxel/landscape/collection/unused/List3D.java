@@ -1,6 +1,7 @@
 package voxel.landscape.collection.unused;
 
-import voxel.landscape.Coord3;
+import voxel.landscape.coord.Coord3;
+import voxel.landscape.util.Asserter;
 
 import java.lang.reflect.Array;
 /*
@@ -10,14 +11,15 @@ import java.lang.reflect.Array;
 public class List3D<T> 
 {
 	private Coord3 min, max;
-	private T list[][][];
+	private T list[][][]; // n-dimensional array NOT GOOD in java! (huge overhead)
 	private Class<T> type;
 	
 	public List3D(Class<T> _type) { this( new Coord3(0), new Coord3(0), _type); }
 	
 	@SuppressWarnings("unchecked")
 	public List3D(Coord3 _min, Coord3 _max, Class<T> _type) {
-		this.min = _min; this.max = _max;
+        Asserter.assertFalseAndDie("Don't use this!");
+        this.min = _min; this.max = _max;
 		this.type = _type;
 		Coord3 size = getSize();
 		list = (T[][][]) Array.newInstance(_type, size.x, size.y, size.z);

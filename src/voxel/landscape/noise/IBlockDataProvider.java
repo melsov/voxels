@@ -1,6 +1,6 @@
 package voxel.landscape.noise;
 
-import voxel.landscape.Coord3;
+import voxel.landscape.coord.Coord3;
 
 public interface IBlockDataProvider 
 {

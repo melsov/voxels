@@ -1,13 +1,5 @@
 package voxel.landscape.chunkbuild;
 
-import voxel.landscape.BlockMeshUtil;
-import voxel.landscape.BlockType;
-import voxel.landscape.Chunk;
-import voxel.landscape.Coord3;
-import voxel.landscape.Direction;
-import voxel.landscape.MeshSet;
-import voxel.landscape.map.TerrainMap;
-
 import com.google.common.primitives.Floats;
 import com.google.common.primitives.Ints;
 import com.jme3.math.Vector2f;
@@ -15,6 +7,14 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
+import com.jme3.bounding.BoundingBox;
+import voxel.landscape.*;
+import voxel.landscape.coord.Coord3;
+import voxel.landscape.map.TerrainMap;
+import voxel.landscape.Chunk;
+
+import static voxel.landscape.Chunk.*;
+import static voxel.landscape.Chunk.XLENGTH;
 
 public class ChunkBuilder 
 {
@@ -39,11 +39,11 @@ public class ChunkBuilder
 		
 		Coord3 worldPosBlocks = chunk.originInBlockCoords();
 
-		for(i = 0; i < Chunk.XLENGTH; ++i)
+		for(i = 0; i < XLENGTH; ++i)
 		{
-			for(j = 0; j < Chunk.ZLENGTH; ++j)
+			for(j = 0; j < ZLENGTH; ++j)
 			{
-				for (k = 0; k < Chunk.YLENGTH; ++k) 
+				for (k = 0; k < YLENGTH; ++k)
 				{
 					xin = i + worldPosBlocks.x; yin = k  + worldPosBlocks.y; zin = j  + worldPosBlocks.z;
 					posi = new Coord3(i,k,j);
@@ -90,11 +90,25 @@ public class ChunkBuilder
 		}
 		bigMesh.clearBuffer(Type.Color);
 		bigMesh.setBuffer(Type.Color, 4, Floats.toArray(mset.colors));
-		
+
 //		bigMesh.setDynamic();
 //		bigMesh.setMode(Mesh.Mode.Triangles);
-//		bigMesh.updateBound();
+        BoundingBox bbox = new BoundingBox(new Vector3f(0,0,0), new Vector3f(XLENGTH, YLENGTH, ZLENGTH));
+        bigMesh.setBound(bbox);
+		bigMesh.updateBound();
+
 	}
+
+
+    public static void ClearBuffers(Mesh bigMesh) {
+        if (bigMesh == null) return;
+        bigMesh.clearBuffer(Type.Position);
+        bigMesh.clearBuffer(Type.TexCoord);
+        bigMesh.clearBuffer(Type.TexCoord2);
+        bigMesh.clearBuffer(Type.Index);
+        bigMesh.clearBuffer(Type.Normal);
+        bigMesh.clearBuffer(Type.Color);
+    }
 	
 	private static boolean IsFaceVisible(TerrainMap terrainMap, Coord3 woco, int direction) {
 		byte btype = (byte) terrainMap.lookupOrCreateBlock(woco.add(Direction.DirectionCoordForDirection(direction))); 

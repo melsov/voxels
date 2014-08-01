@@ -1,7 +1,5 @@
 package voxel.landscape.coord;
 
-import voxel.landscape.Coord3;
-
 import com.jme3.math.Vector3f;
 import static java.lang.Math.*;
 
@@ -37,7 +35,7 @@ public class VektorUtil {
 
     public static Vector3f MaskClosestToWholeNumber(Vector3f v) {
     	Vector3f test = VektorUtil.Abs(VektorUtil.Round(v).subtract(v) );
-    	Vector3f result = Vector3f.UNIT_X;
+    	Vector3f result = Vector3f.UNIT_X.clone();
     	if (test.y < test.x && test.y < test.z) {
     		result = Vector3f.UNIT_Y;
     	} else if (test.z < test.x) {

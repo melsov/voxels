@@ -1,6 +1,8 @@
 package voxel.landscape.player;
 
 import com.jme3.export.Savable;
+import com.jme3.input.InputManager;
+import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.material.Material;
@@ -14,7 +16,11 @@ import com.jme3.scene.Node;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.CameraControl;
 import com.jme3.scene.shape.Box;
-import voxel.landscape.*;
+import voxel.landscape.BlockType;
+import voxel.landscape.Direction;
+import voxel.landscape.VoxelLandscape;
+import voxel.landscape.coord.Coord2;
+import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.VektorUtil;
 import voxel.landscape.map.TerrainMap;
 
@@ -24,8 +30,8 @@ import java.util.List;
 public class Player 
 {
     private TerrainMap terrainMap;
-    private Camera cam;
-    private Node terrainNode;
+//    private Camera cam;
+//    private Node terrainNode;
     private Audio audio;
     private VoxelLandscape app;
     private PlayerControl playerControl = new PlayerControl();
@@ -33,22 +39,25 @@ public class Player
     //    private Geometry[] triMarkerSpheres = new Geometry[3];
     private Node playerNode;
     private Node headNode;
-    private Node overlayNode;
+//    private Node overlayNode;
     public static final int BREAK_BLOCK_RADIUS = 50;
-    private CameraNode camNode;
+//    private CameraNode camNode;
 
-    private static float height = 1.9f;
+    private static float height = 1.0f;
     private static float halfWidthXZ = .35f;
-    private static Vector3f playerBodyOffset = new Vector3f(halfWidthXZ,-height*.75f,halfWidthXZ);
+    private static Vector3f playerBodyOffset = new Vector3f(halfWidthXZ,-height*.85f,halfWidthXZ);
 
+    private static int AUTO_MOVE = 0;
     private static int FLY_MODE = 1;
-	private static float MOVE_SPEED = 8f;
-    private Vector3f inputVelocity = Vector3f.ZERO;
+    private static final float NORMAL_MOVE_SPEED = 5f;
+    private static final float FLY_MODE_MOVE_SPEED = 15f;
+	private static float MOVE_SPEED = NORMAL_MOVE_SPEED;
+    private Vector3f inputVelocity = Vector3f.ZERO.clone();
     private float jumpVelocity = 0f;
     private static final float JUMP_VELOCITY= 6f;
-    private static final float REAL_GRAVITY = 3.7f;
-    private static float gravity = REAL_GRAVITY * FLY_MODE;
-    private Vector3f velocity = Vector3f.ZERO;
+    private static final float REAL_GRAVITY = 5f;
+    private static float gravity = REAL_GRAVITY;
+    private Vector3f velocity = Vector3f.ZERO.clone();
     private boolean grounded = false;
     private boolean jumping = false;
     private boolean headBump = false;
@@ -62,6 +71,8 @@ public class Player
     private boolean leftMouseDown = false;
     private boolean rightMouseDown = false;
     private Vector2f startMousePosition = new Vector2f();
+    private InputManager inputManager;
+    private KeyInput keyInput;
 
     private boolean debugPlaceCoord = false;
 
@@ -98,11 +109,17 @@ public class Player
     }
     private void toggleFlyMode() {
         FLY_MODE = FLY_MODE == 1 ? 0 : 1;
+        doSettingsForFlyMode();
+    }
+    private void doSettingsForFlyMode() {
         if (FLY_MODE==1) {
             gravity = 0f;
+            MOVE_SPEED = FLY_MODE_MOVE_SPEED;
         } else {
             gravity = REAL_GRAVITY;
+            MOVE_SPEED = NORMAL_MOVE_SPEED;
         }
+
     }
     private void toggleBlockInHandType() {
         blockInHandType = (byte)(blockInHandType == BlockType.SAND.ordinal() ? BlockType.LANTERN.ordinal() : BlockType.SAND.ordinal());
@@ -115,7 +132,7 @@ public class Player
                 jumpVelocity = JUMP_VELOCITY;
             }
 
-            Vector3f move = Vector3f.ZERO;
+            Vector3f move = Vector3f.ZERO.clone();
             leftMouseDown = rightMouseDown = false;
             if (name.equals("moveForward") ) {
                 move.z = MOVE_SPEED;
@@ -140,12 +157,13 @@ public class Player
             } else if (name.equals("rmb")) {
                 rightMouseDown = true;
             }
+
             /*
             TODO: resolve jump, move direction weirdness (look at Unity character controllers)
              */
             float velY = move.y;
             move.y = 0;
-            Quaternion camro = cam.getRotation();
+            Quaternion camro = headNode.getLocalRotation().clone(); // cam.getRotation();
             turnInputToCamera(camro.mult(move.clone()));
             inputVelocity.y = velY;
         }
@@ -177,6 +195,9 @@ public class Player
     }
     private void movePlayer(float tpf) {
         Vector3f pos = playerNode.getLocalTranslation().clone();
+        if (AUTO_MOVE == 1) {
+            inputVelocity.x = MOVE_SPEED;
+        }
         Vector3f scaledV = inputVelocity.clone();
         if ((grounded && jumpVelocity < .01) || headBump) {
             jumpVelocity = 0f;
@@ -217,7 +238,7 @@ public class Player
 
             Vector3f corner = edge.toVector3();
             if (xzdir.x < 0 || xzdir.z < 0) {
-                corner = corner.add(Direction.UNIT_XZ); //doesn't matter which dir since the other dir will be zeroed out.
+                corner = corner.add(Direction.UNIT_XZ.clone()); //doesn't matter which dir since the other dir will be zeroed out.
             }
             proposedLoc = proposedLoc.add(corner.subtract(xzEdgePos).mult(VektorUtil.Abs(xzunitdir)));
         }
@@ -229,7 +250,7 @@ public class Player
             pco = Coord3.FromVector3f(proposedLoc.subtract(0, .1f, 0));
             if (BlockType.IsSolid(terrainMap.lookupBlock(pco))) {
                 gotGround = true;
-                proposedLoc.y = (pco.y + 1) + (jumping ? .11f : .1f);
+                proposedLoc.y = (pco.y + 1f) + (jumping ? .11f : .1f);
             }
 
             /* only look for ground in unimpeded directions (and only if we're not already grounded) */
@@ -239,7 +260,7 @@ public class Player
                 pco = Coord3.FromVector3f(proposedLoc.subtract(0, .1f, 0).add(xzdir));
                 if (BlockType.IsSolid(terrainMap.lookupBlock(pco))) {
                     gotGround = true;
-                    proposedLoc.y = (pco.y + 1) + (jumping ? .11f : .1f);
+                    proposedLoc.y = (pco.y + 1f) + (jumping ? .11f : .1f);
                     break;
                 }
             }
@@ -273,33 +294,39 @@ public class Player
         return proposedLoc.subtract(curLoc).subtract(playerBodyOffset);
     }
 
-
-    public Player(TerrainMap _terrainMap, Camera _camera, Node _worldNode, Audio _audio, VoxelLandscape _app, Node _overlayNode)
+    public Player(TerrainMap _terrainMap, Camera _camera, Audio _audio, VoxelLandscape _app, Node _overlayNode, Node _terrainNode)
     {
-    	terrainMap = _terrainMap; cam = _camera; terrainNode = _worldNode;
+        doSettingsForFlyMode();
+    	terrainMap = _terrainMap;
     	audio = _audio;
-    	terrainNode.addControl(playerControl);
+
     	app = _app;
-    	overlayNode = _overlayNode;
+
     	initBlockCursor();
-    	overlayNode.attachChild(blockCursor);
-    	initPlayerGeom();
-        adjustCamera();
+        _overlayNode.attachChild(blockCursor);
+    	initPlayerGeom(_camera, _terrainNode);
+
+        if (_camera != null)
+            adjustCamera(_camera);
     }
 
     public Node getPlayerNode() { return playerNode; }
+    public Node getCamNode() { return playerControl.getNode(); }
+    public Node getHeadNode() { return headNode; }
     public ActionListener getUserInputListener() { return userInputListener; }
     public AnalogListener getAnalogListener() { return analogListener; }
 
     private void moveBlockCursor() {
-    	Vector3f pos = stepThroughBlocksUntilHitSolid(cam.getLocation(), cam.getDirection(), false);
+
+//    	Vector3f pos = stepThroughBlocksUntilHitSolid(cam.getLocation(), cam.getDirection(), false);
+        Vector3f pos = stepThroughBlocksUntilHitSolid(false);
     	if (pos == null) pos = Vector3f.NEGATIVE_INFINITY;
     	pos = VektorUtil.Floor(pos);
         blockCursor.setLocalTranslation(pos);
     }
     private void handleBreakBlock() 
     {
-    	Vector3f vhit = stepThroughBlocksUntilHitSolid(cam.getLocation(), cam.getDirection(), false);
+    	Vector3f vhit = stepThroughBlocksUntilHitSolid(false);
     	if (vhit == null) return;
     	Coord3 hitV =Coord3.FromVector3f( vhit  ); 
     	if (hitV == null) return;
@@ -308,12 +335,16 @@ public class Player
     }
     private void handlePlaceBlock()
     {
-    	Vector3f vhit = stepThroughBlocksUntilHitSolid(cam.getLocation(), cam.getDirection(), true);
+    	Vector3f vhit = stepThroughBlocksUntilHitSolid(true);
     	if (vhit == null) return;
     	Coord3 placeCo = Coord3.FromVector3f( vhit);
     	if (placeCo == null) return;
     	audio.playBreakCompleteSound();
     	terrainMap.SetBlockAndRecompute(blockInHandType, placeCo);
+    }
+    private Vector3f stepThroughBlocksUntilHitSolid(boolean wantPlaceBlock) {
+        //    	Vector3f pos = stepThroughBlocksUntilHitSolid(cam.getLocation(), cam.getDirection(), wantPlaceBlock);
+        return stepThroughBlocksUntilHitSolid(playerControl.getLocation(), playerControl.getDirection(), wantPlaceBlock);
     }
 	/*
 	 * updating JMonkey geometry bounds and checking collisions are computationally expensive...
@@ -375,7 +406,7 @@ public class Player
       Material mark_mat = app.wireFrameMaterialWithColor(ColorRGBA.Black); 
       blockCursor.setMaterial(mark_mat);
     }
-    private void initPlayerGeom()
+    private void initPlayerGeom(Camera _cam, Node _terrainNode)
     {
 
 //        Box box = new Box(Vector3f.ZERO, new Vector3f(halfWidthXZ*2f,height,halfWidthXZ*2f));
@@ -394,20 +425,25 @@ public class Player
         headNode = new Node("head_node");
         playerNode.attachChild(headNode);
 
-        camNode = new CameraNode("cam_node", cam);
-        //This mode means that camera copies the movements of the target:
-        camNode.setControlDir(CameraControl.ControlDirection.SpatialToCamera);
-        headNode.attachChild(camNode);
+        CameraNode camNode;
+        if (_cam != null) {
+            camNode = new CameraNode("cam_node", _cam);
+            headNode.attachChild(camNode);
+            //This mode means that camera copies the movements of the target:
+            camNode.setControlDir(CameraControl.ControlDirection.SpatialToCamera);
+            camNode.lookAt(headNode.getLocalTranslation(), Vector3f.UNIT_Y.clone());
+            camNode.addControl(playerControl);
+        } else {
+//            headNode.addControl(playerControl);
+            _terrainNode.addControl(playerControl);
+        }
         headNode.setLocalTranslation(0, 0, 0);
-        camNode.lookAt(headNode.getLocalTranslation(), Vector3f.UNIT_Y);
 
-    	terrainNode.attachChild(playerNode);
+//    	terrainNode.attachChild(playerNode);
     	playerNode.setLocalTranslation(new Vector3f(0,50,40));
     }
 
-    public void adjustCamera()
-    {
-
+    public void adjustCamera(Camera _camera) {
         Coord2 dims = app.getScreenDims();
         float aspect = dims.y/(float)dims.x;
         float near = .12f; ;
@@ -416,26 +452,23 @@ public class Player
         float top = right* aspect;
         float bottom = -top;
         float far = 1000.0f;
-//        left = cam.getFrustumLeft() - adjustLeftRight ;
-//        right = cam.getFrustumRight() + adjustLeftRight;
-//        top = cam.getFrustumTop() + adjustTopBottom;
-//        bottom = cam.getFrustumBottom() - adjustTopBottom;
-//        near = cam.getFrustumNear() + adjustNear;
-//        far = cam.getFrustumFar();
-//        B.bug(String.format(" left: %g right: %g \n top: %g bottom: %g \n near: %g far: %g \n flip: %g\n", left, right, top, bottom, near, far, flip));
-        cam.setFrustum(near, far, left, right, top, bottom);
+        _camera.setFrustum(near, far, left, right, top, bottom);
     }
 
     public class PlayerControl extends AbstractControl implements Cloneable, Savable
     {
     	private float timeSinceUpdate = 0;
-    	private static final float TIMEPERUPDATE = .25f;
+    	private static final float TIME_PER_UPDATE = .15f;
+
+        private Node getNode() { return (Node) getSpatial(); }
+        private Vector3f getLocation() { return getSpatial().getWorldTranslation().clone(); }
+        private Vector3f getDirection() { return getSpatial().getWorldRotation().clone().mult(Vector3f.UNIT_Z); }
 		@Override
 		protected void controlUpdate(float tpf) {
 			timeSinceUpdate += tpf;
-			if (timeSinceUpdate > TIMEPERUPDATE) {
+			if (timeSinceUpdate > TIME_PER_UPDATE) {
 				timeSinceUpdate = 0;
-				moveBlockCursor(); 
+				moveBlockCursor();
 			}
             rotatePlayerHead();
 			movePlayer(tpf);
@@ -445,4 +478,36 @@ public class Player
 		protected void controlRender(RenderManager arg0, ViewPort arg1) {
 		}
     }
+
+//
+//    /*
+//     * Mouse inputs
+//     */
+//    private void setupInputs() {
+//        inputManager.addMapping("Break", new KeyTrigger(KeyInput.KEY_T), new MouseButtonTrigger(MouseInput.BUTTON_LEFT) );
+//        inputManager.addMapping("Place", new KeyTrigger(KeyInput.KEY_G), new MouseButtonTrigger(MouseInput.BUTTON_RIGHT) );
+//        inputManager.addMapping("GoHome", new KeyTrigger(KeyInput.KEY_H));
+//        inputManager.addMapping("Up", new KeyTrigger(KeyInput.KEY_I));
+//        inputManager.addMapping("Down", new KeyTrigger(KeyInput.KEY_K));
+//        inputManager.addMapping("Right", new KeyTrigger(KeyInput.KEY_J));
+//        inputManager.addMapping("Left", new KeyTrigger(KeyInput.KEY_L));
+//        inputManager.addMapping("Inventory", new KeyTrigger(KeyInput.KEY_E));
+//        inputManager.addListener(this.getUserInputListener(), "Break", "Place", "GoHome", "Up", "Down", "Right", "Left", "Inventory");
+//    }
+//
+//    private void setupWASDInput() {
+//        inputManager.addMapping("moveForward", new KeyTrigger(keyInput.KEY_UP), new KeyTrigger(keyInput.KEY_W));
+//        inputManager.addMapping("moveBackward", new KeyTrigger(keyInput.KEY_DOWN), new KeyTrigger(keyInput.KEY_S));
+//        inputManager.addMapping("moveRight", new KeyTrigger(keyInput.KEY_RIGHT), new KeyTrigger(keyInput.KEY_D));
+//        inputManager.addMapping("moveLeft", new KeyTrigger(keyInput.KEY_LEFT), new KeyTrigger(keyInput.KEY_A));
+//        inputManager.addMapping("moveUp",  new KeyTrigger(keyInput.KEY_Q));
+//        inputManager.addMapping("moveDown",  new KeyTrigger(keyInput.KEY_Z));
+//        inputManager.addMapping("jump",  new KeyTrigger(keyInput.KEY_SPACE));
+//        inputManager.addMapping("lmb", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+//        inputManager.addMapping("rmb", new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
+//        inputManager.addListener(this.getAnalogListener(),
+//                "moveForward", "moveBackward", "moveRight", "moveLeft", "moveDown", "moveUp", "jump",
+//                "lmb", "rmb");
+//    }
+
 }

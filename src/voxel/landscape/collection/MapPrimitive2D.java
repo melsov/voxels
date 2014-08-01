@@ -2,22 +2,22 @@ package voxel.landscape.collection;
 
 
 import voxel.landscape.Chunk;
-import voxel.landscape.Coord3;
+import voxel.landscape.coord.Coord3;
 import voxel.landscape.collection.chunkarray.ChunkPrimitiveType2D;
-import voxel.landscape.collection.coordmap.HashCoord2D;
+import voxel.landscape.collection.coordmap.HashMapCoord2D;
 
 public class MapPrimitive2D<T extends ChunkPrimitiveType2D> 
 {
 //	private List2D<T> chunks;
 
-    private HashCoord2D<T> chunks;
+    private HashMapCoord2D<T> chunks;
 	private byte defaultValue;
 	private Class<T> type;
 
 	public MapPrimitive2D(byte defaultValue, Class<T> _type) {
 		type = _type;
 //		chunks = new List2D<T>(type);
-        chunks = new HashCoord2D<T>(type);
+        chunks = new HashMapCoord2D<T>(type);
 		this.defaultValue = defaultValue;
 	}
 	
@@ -42,5 +42,8 @@ public class MapPrimitive2D<T extends ChunkPrimitiveType2D>
 	public T GetChunk(int x, int z) {
 		return chunks.SafeGet(x, z);
 	}
+
+    public void RemoveChunk(int x, int z) { chunks.Remove(x,z); }
+
 }
 

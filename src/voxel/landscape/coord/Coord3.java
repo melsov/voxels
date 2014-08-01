@@ -1,8 +1,8 @@
-package voxel.landscape;
+package voxel.landscape.coord;
 
 import com.jme3.math.Vector3f;
 
-public class Coord3 
+public class Coord3 implements ICoordXZ
 {
 	public int x,y,z;
 	
@@ -122,5 +122,15 @@ public class Coord3
     @Override
     public int hashCode() {
         return (z << 20) | ((y & 1023) << 10) | (x & 1023);
+    }
+
+    @Override
+    public int getX() {
+        return x;
+    }
+
+    @Override
+    public int getZ() {
+        return z;
     }
 }

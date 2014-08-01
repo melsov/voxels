@@ -7,7 +7,7 @@ import com.sudoplay.joise.module.ModuleCombiner.CombinerType;
 import com.sudoplay.joise.module.ModuleFractal.FractalType;
 import voxel.landscape.BlockType;
 import voxel.landscape.Chunk;
-import voxel.landscape.Coord2;
+import voxel.landscape.coord.Coord2;
 import voxel.landscape.map.TerrainMap;
 
 import javax.imageio.ImageIO;
@@ -24,7 +24,7 @@ import java.io.IOException;
  * at a given x and z
  * 
  * it has two ways of doing this:
- * "SimplexNoiseMode" : do some math to generate 'smooth' random numbers
+ * "NoiseModule" : do some math to generate 'smooth' random numbers
  * "ImageMode" : read the pixels in an image and base the terrain data off of them.
  */
 
@@ -33,29 +33,29 @@ import java.io.IOException;
 public class TerrainDataProvider
 {
 	public enum Mode {
-		SimplexNoiseMode, ImageMode
+        NoiseModule, ImageMode
 	}
 	
-	private Mode mode = Mode.SimplexNoiseMode;
+	private Mode mode = Mode.NoiseModule;
 	private BufferedImage buffIm;
 	Coord2 buffiDims;
 
 	Module noiseModule;
-	public static final double WORLD_TO_VERTICAL_NOISE_SCALE = TerrainMap.GetWorldHeightInBlocks() * 2.2;
-    public static final double WORLD_TO_HORIZONTAL_NOISE_SCALE = Chunk.XLENGTH * 2d;
+	public static final double WORLD_TO_VERTICAL_NOISE_SCALE = TerrainMap.GetWorldHeightInBlocks(); // * 2.2;
+    public static final double WORLD_TO_HORIZONTAL_NOISE_SCALE = Chunk.XLENGTH * 16d;
 
     private static final int ARGB_POS_MAX = (256*256*256);
 	private static final int ARGB_POS_ONE_CHANNEL_MAX = 256;
 	
 	public TerrainDataProvider() 
 	{
-		this(Mode.SimplexNoiseMode); // misnomer
+		this(Mode.NoiseModule); // misnomer
 	}
 	
 	public TerrainDataProvider(Mode _mode)
 	{
 		mode = _mode;
-		if (mode== Mode.ImageMode)
+		if (mode == Mode.ImageMode)
 		{
 			String heightMapSrc = "inputTexturesMP/heightMapTex.png";
 			buffIm = getBufferedImage(heightMapSrc);

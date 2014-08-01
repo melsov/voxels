@@ -3,7 +3,7 @@ package voxel.landscape.map.light;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 
-import voxel.landscape.Coord3;
+import voxel.landscape.coord.Coord3;
 import voxel.landscape.Chunk;
 import voxel.landscape.Direction;
 import voxel.landscape.map.TerrainMap;

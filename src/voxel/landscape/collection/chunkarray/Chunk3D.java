@@ -3,7 +3,7 @@ package voxel.landscape.collection.chunkarray;
 import java.lang.reflect.Array;
 
 import voxel.landscape.Chunk;
-import voxel.landscape.Coord3;
+import voxel.landscape.coord.Coord3;
 
 
 @SuppressWarnings("hiding")

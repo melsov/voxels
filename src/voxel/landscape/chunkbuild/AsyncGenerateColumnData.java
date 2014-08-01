@@ -3,6 +3,9 @@ package voxel.landscape.chunkbuild;
 import voxel.landscape.collection.ColumnMap;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.map.light.ChunkSunLightComputer;
+import voxel.landscape.noise.TerrainDataProvider;
+
+import static java.lang.Thread.sleep;
 
 public class AsyncGenerateColumnData extends ResponsiveRunnable
 {
@@ -10,6 +13,7 @@ public class AsyncGenerateColumnData extends ResponsiveRunnable
 	private int x,z;
 	private TerrainMap terrainMap;
 	private ColumnMap columnMap;
+    private TerrainDataProvider dataProvider = new TerrainDataProvider();
 	public AsyncGenerateColumnData(final TerrainMap _terrainMap, final ColumnMap _columnMap, int xx, int zz) {
 		columnMap = _columnMap;
 		x = xx; z = zz;
@@ -17,7 +21,12 @@ public class AsyncGenerateColumnData extends ResponsiveRunnable
 	}
 	@Override
 	public void doRun() {
-		terrainMap.generateNoiseForChunkColumn(x,z);
+        try {
+            sleep(200); //temp...
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        terrainMap.generateNoiseForChunkColumn(x,z, dataProvider);
 		ChunkSunLightComputer.ComputeRays(terrainMap, x, z);
 		ChunkSunLightComputer.Scatter(terrainMap, columnMap, x, z); //TEST WANT
 	}

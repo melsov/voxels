@@ -2,6 +2,7 @@ package voxel.landscape;
 
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.map.light.BuildUtils;
 

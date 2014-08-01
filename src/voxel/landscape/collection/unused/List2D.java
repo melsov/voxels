@@ -1,6 +1,6 @@
 package voxel.landscape.collection.unused;
 
-import voxel.landscape.Coord2;
+import voxel.landscape.coord.Coord2;
 
 import java.lang.reflect.Array;
 

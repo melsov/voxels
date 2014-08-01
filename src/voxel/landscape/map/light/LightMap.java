@@ -1,7 +1,7 @@
 package voxel.landscape.map.light;
 
 import voxel.landscape.Chunk;
-import voxel.landscape.Coord3;
+import voxel.landscape.coord.Coord3;
 import voxel.landscape.collection.MapNibble3D;
 import voxel.landscape.collection.chunkarray.ChunkNibble3D;
 
@@ -24,14 +24,18 @@ public class LightMap {
 		}
 		return false;
 	}
-	
+	/*
+	 * Set
+	 */
 	public void SetLight(byte light, Coord3 pos) {
 		SetLight(light, pos.x, pos.y, pos.z);
 	}
 	public void SetLight(byte light, int x, int y, int z) {
 		lights.Set(light, x, y, z);
 	}
-	
+	/*
+	 * Get
+	 */
 	public byte GetLight(Coord3 pos) {
 		return GetLight(pos.x, pos.y, pos.z);
 	}
@@ -45,5 +49,13 @@ public class LightMap {
 		if(light < LightComputer.MIN_LIGHT) return LightComputer.MIN_LIGHT;
 		return light;
 	}
+
+    /*
+     * Remove
+     */
+    public void RemoveLightData(int x, int y, int z) {
+        lights.RemoveChunk(x,y,z);
+    }
+    public void RemoveLightData(Coord3 pos) { lights.RemoveChunk(pos); }
 	
 }

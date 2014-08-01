@@ -1,7 +1,7 @@
 package voxel.landscape.map.light;
 
 import voxel.landscape.Chunk;
-import voxel.landscape.Coord3;
+import voxel.landscape.coord.Coord3;
 import voxel.landscape.BlockType;
 import voxel.landscape.chunkbuild.ChunkBrain;
 import voxel.landscape.map.TerrainMap;

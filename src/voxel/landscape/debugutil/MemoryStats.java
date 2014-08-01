@@ -1,5 +1,7 @@
 package voxel.landscape.debugutil;
 
+import com.jme3.util.BufferUtils;
+
 import java.text.NumberFormat;
 
 /**
@@ -32,9 +34,11 @@ public class MemoryStats
         long freeMemory = runtime.freeMemory();
 
         sb.append("MEMORY(MB) free: " + format.format(freeMemory / ONE_MB) + " ");
-        sb.append("alloc'd: " + format.format(allocatedMemory / ONE_MB) + " ");
-        sb.append("max: " + format.format(maxMemory / ONE_MB) + " ");
-        sb.append("total free: " + format.format((freeMemory + (maxMemory - allocatedMemory)) / ONE_MB) + " ");
+        BufferUtils.printCurrentDirectMemory(sb);
+//        sb.append("alloc'd: " + format.format(allocatedMemory / ONE_MB) + " ");
+//        sb.append("max: " + format.format(maxMemory / ONE_MB) + " ");
+//        sb.append("total free: " + format.format((freeMemory + (maxMemory - allocatedMemory)) / ONE_MB) + " ");
+
         return sb.toString();
     }
 

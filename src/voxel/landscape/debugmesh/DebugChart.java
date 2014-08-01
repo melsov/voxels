@@ -16,8 +16,7 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 
 import voxel.landscape.BlockMeshUtil;
-import voxel.landscape.BlockType;
-import voxel.landscape.Coord3;
+import voxel.landscape.coord.Coord3;
 import voxel.landscape.MeshSet;
 import voxel.landscape.map.light.SunLightComputer;
 import voxel.landscape.util.Asserter;

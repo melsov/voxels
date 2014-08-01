@@ -1,10 +1,13 @@
 package voxel.landscape;
 
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
 import voxel.landscape.chunkbuild.ChunkBrain;
 import voxel.landscape.collection.ByteArray3D;
+import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * Owns a mesh representing a 
  * XLEN by YLEN by ZLEN piece of a voxel landscape.  
@@ -12,15 +15,14 @@ import voxel.landscape.map.TerrainMap;
  */
 public class Chunk 
 {
-	public Mesh mesh;
 	public Coord3 position;
 
 	private ByteArray3D blocks = new ByteArray3D(new Coord3(XLENGTH, YLENGTH, ZLENGTH));
-	
+//    private ConcurrentByteArray3D blocks = new ConcurrentByteArray3D(new Coord3(XLENGTH, YLENGTH, ZLENGTH));
+
 	public static final int SIZE_X_BITS = 4;
 	public static final int SIZE_Y_BITS = 4;
 	public static final int SIZE_Z_BITS = 4;
-	
 	/*
 	 * bitwise multiplication by a power of 2. literally we are sliding 1 to the left by SIZE_X_BITS.
 	 * Or in other words, 1 becomes binary 10000 which is decimal 16  
@@ -33,17 +35,30 @@ public class Chunk
 	public static Coord3 CHUNKDIMS = new Coord3(XLENGTH, YLENGTH, ZLENGTH);
 	private ChunkBrain chunkBrain;
 	private TerrainMap terrainMap;
+
+    private volatile boolean isAllAir = false;
+    public void setIsAllAir(boolean _allAir) {
+        isAllAir = _allAir;
+    }
+    public boolean getIsAllAir() { return isAllAir; }
+
+    private AtomicBoolean hasEverStartedBuilding = new AtomicBoolean(false);
+    public void setHasEverStartedBuilding(boolean _hasEver) { hasEverStartedBuilding = new AtomicBoolean(_hasEver); }
+    public AtomicBoolean getHasEverStartedBuilding() { return hasEverStartedBuilding; }
+
+    public static boolean USE_TEST_GEOMETRY = false;
 	
 	public Chunk(Coord3 _coord, TerrainMap _terrainMap)
 	{
 		position = _coord;
 		terrainMap = _terrainMap;
-		chunkBrain = new ChunkBrain(this);
+		chunkBrain = new ChunkBrain(this,ToWorldPosition( _coord.copy()));
 	}
 	
 	public Geometry getGeometryObject() {
-		return (Geometry) chunkBrain.getSpatial();
+		return chunkBrain.getGeometry();
 	}
+
 	public ChunkBrain getChunkBrain() { return chunkBrain; }
 	
 	public TerrainMap getTerrainMap() { return terrainMap; }

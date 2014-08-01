@@ -1,6 +1,8 @@
 package voxel.landscape;
 
-public class Axis 
+import voxel.landscape.coord.Coord3;
+
+public class Axis
 {
 	 public static final int X = 0,Y = 1,Z = 2;
 	 

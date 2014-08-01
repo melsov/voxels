@@ -1,10 +1,10 @@
-package voxel.landscape;
+package voxel.landscape.coord;
 
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 
 
-public class Coord2 
+public class Coord2 implements ICoordXZ
 {
 	public int x;
 	public int y;
@@ -21,8 +21,7 @@ public class Coord2
 	
 	public Coord2(double a, double b) { this((int) a, (int) b); }
 
-    public Coord2() {
-    }
+    public Coord2() {}
 
     public Coord2 multy(Coord2 other) {
 		return new Coord2(this.x * other.x, this.y * other.y);
@@ -66,4 +65,13 @@ public class Coord2
         return (y << 16) | (x & 0xff);
     }
 
+    @Override
+    public int getX() {
+        return x;
+    }
+
+    @Override
+    public int getZ() {
+        return y;
+    }
 }

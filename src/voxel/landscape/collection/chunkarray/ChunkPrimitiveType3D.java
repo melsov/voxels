@@ -1,6 +1,6 @@
 package voxel.landscape.collection.chunkarray;
 
-import voxel.landscape.Coord3;
+import voxel.landscape.coord.Coord3;
 
 public abstract class ChunkPrimitiveType3D {
 

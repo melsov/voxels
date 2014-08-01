@@ -1,4 +1,4 @@
-/*
+package playground;/*
  * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *

@@ -1,7 +1,7 @@
 package voxel.landscape.collection.chunkarray;
 
 import voxel.landscape.Chunk;
-import voxel.landscape.Coord3;
+import voxel.landscape.coord.Coord3;
 
 /**
  * Created by didyouloseyourdog on 7/28/14.

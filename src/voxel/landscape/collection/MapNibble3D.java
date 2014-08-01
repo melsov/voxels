@@ -1,9 +1,9 @@
 package voxel.landscape.collection;
 
 import voxel.landscape.Chunk;
-import voxel.landscape.Coord3;
+import voxel.landscape.coord.Coord3;
 import voxel.landscape.collection.chunkarray.ChunkNibble3D;
-import voxel.landscape.collection.coordmap.HashCoord3D;
+import voxel.landscape.collection.coordmap.HashMapCoord3D;
 
 /**
  * Created by didyouloseyourdog on 7/28/14.
@@ -11,7 +11,7 @@ import voxel.landscape.collection.coordmap.HashCoord3D;
 public class MapNibble3D
 {
 //    private List3D<ChunkByte3D> chunks = new List3D<ChunkNibble3D>(ChunkNibble3D.class);
-    private HashCoord3D<ChunkNibble3D> chunks = new HashCoord3D<ChunkNibble3D>(ChunkNibble3D.class);
+    private HashMapCoord3D<ChunkNibble3D> chunks = new HashMapCoord3D<ChunkNibble3D>(ChunkNibble3D.class);
     private byte defaultValue;
 
     public MapNibble3D() {
@@ -41,6 +41,11 @@ public class MapNibble3D
         ChunkNibble3D chunk = GetChunk(chunkPos);
         if(chunk != null) return chunk.Get(localPos);
         return defaultValue;
+    }
+
+    public void RemoveChunk(int x, int y, int z) { RemoveChunk(new Coord3(x,y,z)); }
+    public void RemoveChunk(Coord3 pos) {
+        chunks.Remove(pos);
     }
 
     public ChunkNibble3D GetChunkInstance(Coord3 pos) {

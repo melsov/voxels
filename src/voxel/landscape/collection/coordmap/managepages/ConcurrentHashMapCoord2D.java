@@ -1,25 +1,30 @@
-package voxel.landscape.collection.coordmap;
+package voxel.landscape.collection.coordmap.managepages;
 
-import voxel.landscape.Coord2;
+import voxel.landscape.coord.Coord2;
 
-import java.util.HashMap;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Created by didyouloseyourdog on 7/28/14.
+ * Created by didyouloseyourdog on 7/30/14.
  */
-public class HashCoord2D<T> {
+public class ConcurrentHashMapCoord2D<T>
+{
     private Class<T> type;
 
-    private HashMap<Coord2,T> table;
+    private ConcurrentHashMap<Coord2,T> table;
 
     @SuppressWarnings("unchecked")
-    public HashCoord2D( Class<T> _type) {
-        table = new HashMap<Coord2, T>(64*64);
+    public ConcurrentHashMapCoord2D(Class<T> _type) {
+        table = new ConcurrentHashMap<Coord2, T>(64*64, .75f, 4);
         type = _type;
     }
-//    public Coord2 GetSize() {
-//        return null;
-//    }
+    public int size() {
+        return table.size();
+    }
+    public Set<Coord2> keySet() {
+        return table.keySet();
+    }
     public void Set(T obj, Coord2 pos) {
         table.put(pos.copy(), obj);
     }
@@ -65,11 +70,9 @@ public class HashCoord2D<T> {
     public void AddOrReplace(T obj, int x, int y) {
         AddOrReplace(obj, new Coord2(x, y));
     }
-//
-//    public boolean IsCorrectIndex(Coord2 pos) {
-//        return IsCorrectIndex(pos.x, pos.y);
-//    }
-//    private boolean IsCorrectIndex(int x, int y) {
-//        return true;
-//    }
+
+    public void Remove(int x, int z) { Remove(new Coord2(x,z)); }
+    public void Remove(Coord2 key) {
+        table.remove(key);
+    }
 }

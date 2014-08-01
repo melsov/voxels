@@ -53,8 +53,7 @@ public enum BlockType {
 			return Color.BLACK;
 		}
 	}
-	
-	
+
 	public boolean equals(int i) {
 		return this.ordinal() == i;
 	}

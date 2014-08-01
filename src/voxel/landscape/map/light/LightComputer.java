@@ -1,7 +1,7 @@
 package voxel.landscape.map.light;
 
 import voxel.landscape.BlockType;
-import voxel.landscape.Coord3;
+import voxel.landscape.coord.Coord3;
 import voxel.landscape.Direction;
 import voxel.landscape.map.TerrainMap;
 

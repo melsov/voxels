@@ -1,25 +1,23 @@
 package voxel.landscape.map.light;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import voxel.landscape.BlockType;
 import voxel.landscape.Chunk;
-import voxel.landscape.Coord3;
 import voxel.landscape.Direction;
 import voxel.landscape.collection.ColumnMap;
+import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;
-import voxel.landscape.util.Asserter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class ChunkSunLightComputer 
 {
-	
 	private final static byte MIN_LIGHT = 1;
 	private final static byte MAX_LIGHT = 15;
 	private final static byte STEP_LIGHT = 1;
 	
-	private static ArrayList<Coord3> list = new ArrayList<Coord3>();
+//	private static ArrayList<Coord3> list = new ArrayList<Coord3>();
 	
 	public static void ComputeRays(TerrainMap map, int cx, int cz) {
 		int x1 = cx*Chunk.CHUNKDIMS.x - 1; // SIZE_X-1;
@@ -43,7 +41,8 @@ public class ChunkSunLightComputer
 		int z2 = z1 + Chunk.CHUNKDIMS.z + 2; 
 		
 		SunLightMap sunlightmap = map.GetSunLightmap();
-		list.clear();
+        List<Coord3> list = new ArrayList<Coord3>((int) (Chunk.XLENGTH*Chunk.ZLENGTH*Chunk.YLENGTH * .4));
+//		list.clear();
 		for(int x=x1; x<x2; x++) {
 			for(int z=z1; z<z2; z++) {
 				int maxY = ComputeMaxY(sunlightmap, x, z)+1;

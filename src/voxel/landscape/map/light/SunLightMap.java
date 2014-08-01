@@ -1,7 +1,7 @@
 package voxel.landscape.map.light;
 
 import voxel.landscape.Chunk;
-import voxel.landscape.Coord3;
+import voxel.landscape.coord.Coord3;
 import voxel.landscape.collection.MapNibble3D;
 import voxel.landscape.collection.MapPrimitive2D;
 import voxel.landscape.collection.chunkarray.ChunkNibble3D;
@@ -43,7 +43,7 @@ public class SunLightMap
 		}
 		return false;
 	}
-	
+
 	/*
 	 * Set
 	 */
@@ -77,6 +77,16 @@ public class SunLightMap
 		}
 		return SunLightComputer.MIN_LIGHT;
 	}
+    /*
+     * Remove
+     */
+    public void RemoveRays(int x, int z) {
+        rays.RemoveChunk(x,z);
+    }
+    public void RemoveLightData(int x, int y, int z) {
+        lights.RemoveChunk(x,y,z);
+    }
+    public void RemoveLightData(Coord3 pos) { lights.RemoveChunk(pos); }
 	
 	/*
 	 * DEBUG!!

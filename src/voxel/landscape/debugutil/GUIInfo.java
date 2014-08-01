@@ -47,7 +47,7 @@ public class GUIInfo extends AbstractControl {
     {
         if(timeDebug++ % 10 == 0) B.bugln(info);
         hudText.setText(info);             // the text
-        hudText.setLocalTranslation(300, hudText.getLineHeight(), 0); // position
+        hudText.setLocalTranslation(300, hudText.getLineHeight() + 50, 0); // position
     }
 
     @Override
