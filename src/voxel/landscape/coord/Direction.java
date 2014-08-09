@@ -1,7 +1,7 @@
-package voxel.landscape;
+package voxel.landscape.coord;
 
 import com.jme3.math.Vector3f;
-import voxel.landscape.coord.Coord3;
+import voxel.landscape.Axis;
 
 public class Direction {
 	public static final int XNEG = 0, XPOS = 1, YNEG = 2, YPOS = 3, ZNEG=4, ZPOS=5;
@@ -44,12 +44,8 @@ public class Direction {
     };
     public static final Vector3f UNIT_XZ = new Vector3f(1f,0f,1f);
 	
-	public static int OppositeDirection(int dir) 
-	{
-		if (dir % 2 == 0)
-		{
-			return dir + 1;
-		}
+	public static int OppositeDirection(int dir) {
+		if (dir % 2 == 0) return dir + 1;
 		return dir - 1;
 	}
 	
@@ -63,8 +59,7 @@ public class Direction {
 		return dir % 2 == 0;
 	}
 	
-	public static Vector3f AddToComponentAtAxis(Vector3f vec, float whatToAdd, int axis)
-	{
+	public static Vector3f AddToComponentAtAxis(Vector3f vec, float whatToAdd, int axis) {
 		if (axis == Axis.X)
 			vec.x += whatToAdd;
 		else if (axis == Axis.Y)
@@ -75,20 +70,16 @@ public class Direction {
 	}
 	
 	
-	public static int AxisForDirection(int dir)
-	{
-		if (dir <= Direction.XPOS)
-		{
+	public static int AxisForDirection(int dir) {
+		if (dir <= Direction.XPOS) {
 			return Axis.X;
 		}
-		if (dir <= Direction.YPOS)
-		{
+		if (dir <= Direction.YPOS) {
 			return Axis.Y;
 		}
-
 		return Axis.Z;
-
 	}
+
 	public static String ToString(int dir) {
 
 		switch(dir) {

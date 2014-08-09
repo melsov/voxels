@@ -7,10 +7,6 @@ import voxel.landscape.coord.Coord3;
 import java.util.Set;
 
 public class ColumnMap {
-
-//	private List2D<ColumnChunk> columns = new List2D<ColumnChunk>(ColumnChunk.class);
-//    private HashMapCoord2D<ColumnChunk> columns = new HashMapCoord2D<ColumnChunk>(ColumnChunk.class);
-
     private ConcurrentHashMapCoord2D<ColumnChunk> columns = new ConcurrentHashMapCoord2D<ColumnChunk>(ColumnChunk.class);
     public int columnCount() { return columns.size(); }
 

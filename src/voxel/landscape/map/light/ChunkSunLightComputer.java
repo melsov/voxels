@@ -2,7 +2,7 @@ package voxel.landscape.map.light;
 
 import voxel.landscape.BlockType;
 import voxel.landscape.Chunk;
-import voxel.landscape.Direction;
+import voxel.landscape.coord.Direction;
 import voxel.landscape.collection.ColumnMap;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;

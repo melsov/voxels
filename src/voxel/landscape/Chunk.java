@@ -6,8 +6,6 @@ import voxel.landscape.collection.ByteArray3D;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 /**
  * Owns a mesh representing a 
  * XLEN by YLEN by ZLEN piece of a voxel landscape.  
@@ -42,9 +40,9 @@ public class Chunk
     }
     public boolean getIsAllAir() { return isAllAir; }
 
-    private AtomicBoolean hasEverStartedBuilding = new AtomicBoolean(false);
-    public void setHasEverStartedBuilding(boolean _hasEver) { hasEverStartedBuilding = new AtomicBoolean(_hasEver); }
-    public AtomicBoolean getHasEverStartedBuilding() { return hasEverStartedBuilding; }
+    private volatile boolean hasEverStartedBuilding = false;
+    public void setHasEverStartedBuildingToTrue() { hasEverStartedBuilding = true; }
+    public boolean getHasEverStartedBuilding() { return hasEverStartedBuilding; }
 
     public static boolean USE_TEST_GEOMETRY = false;
 	
@@ -52,14 +50,22 @@ public class Chunk
 	{
 		position = _coord;
 		terrainMap = _terrainMap;
-		chunkBrain = new ChunkBrain(this,ToWorldPosition( _coord.copy()));
 	}
 	
 	public Geometry getGeometryObject() {
+        if (chunkBrain == null) return null;
 		return chunkBrain.getGeometry();
 	}
 
-	public ChunkBrain getChunkBrain() { return chunkBrain; }
+	public ChunkBrain getChunkBrain() {
+        if (chunkBrain == null) {
+            chunkBrain = new ChunkBrain(this);
+        }
+        return chunkBrain;
+    }
+    public ChunkBrain getChunkBrainPassively() {
+        return chunkBrain;
+    }
 	
 	public TerrainMap getTerrainMap() { return terrainMap; }
 	

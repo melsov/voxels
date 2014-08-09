@@ -2,7 +2,7 @@ package voxel.landscape.coord;
 
 import com.jme3.math.Vector3f;
 
-public class Coord3 implements ICoordXZ
+public final class Coord3 implements ICoordXZ
 {
 	public int x,y,z;
 	
@@ -56,13 +56,14 @@ public class Coord3 implements ICoordXZ
 	{
 		return new Coord3(this.x - other.x, this.y - other.y, this.z - other.z);		
 	}
-	
-	public Coord3 copy() {
+
+    @Override
+	public Coord3 clone() {
 		return new Coord3(this.x, this.y, this.z);
 	}
 	
 	public static Coord3 ZeroFlipsToOneNonZeroFlipsToZero(Coord3 coord) {
-		Coord3 co = coord.copy(); 
+		Coord3 co = coord.clone();
 		co.x = co.x != 0 ?  0 : 1;
 		co.y = co.y != 0 ?  0 : 1;
 		co.z = co.z != 0 ?  0 : 1;
@@ -83,9 +84,13 @@ public class Coord3 implements ICoordXZ
 	public double distanceSquared() {
 		return x*x + y*y;
 	}
+    public double distanceSquared(Coord3 other) {
+        return this.minus(other).distanceSquared();
+    }
 	public Coord3 sign() {
 		return new Coord3(Math.signum(x), Math.signum(y), Math.signum(z));
 	}
+    public Coord3 signNonZero() { return new Coord3(x < 0 ? -1 : 1, y < 0 ? -1 : 1, z < 0 ? -1 : 1 ); }
 	public static Coord3 Zero = new Coord3(0,0,0); 
 	public static Coord3 One = new Coord3(1,1,1); 
 	
@@ -94,7 +99,9 @@ public class Coord3 implements ICoordXZ
 		return new Vector3f(this.x, this.y, this.z);
 	}
 	public static Coord3 FromVector3f(Vector3f v) { return new Coord3(v.x, v.y, v.z); }
-	
+
+    public static Coord3 FromVector3fAdjustNegative(Vector3f v) { return Coord3.FromVector3f(VektorUtil.SubtractOneFromNegativeComponents(v)); }
+
     public static Coord3 GreatestDirectionCoord(Vector3f dir) {
     	Coord3 res = dir.x < 0 ? Coord3.xneg : Coord3.xpos;
     	if (Math.abs(dir.y) > Math.abs(dir.x) && Math.abs(dir.y) > Math.abs(dir.z)) {
@@ -105,23 +112,31 @@ public class Coord3 implements ICoordXZ
     	}
     	return res;
     }
+    public static Coord3 FlipZeroToOneMask(Coord3 c) {
+        return new Coord3(c.x == 0 ? 1 : 0,c.y == 0 ? 1 : 0,c.z == 0 ? 1 : 0 );
+    }
     
 	@Override
 	public String toString() { return String.format("Coord3 x: %d, y: %d, z: %d", x,y,z); }
 
     @Override
     public boolean equals(Object other) {
-        if (other.getClass() != Coord3.class) {
-            return false;
-        }
+        if ( !(other instanceof Coord3))  return false;
+        if (other == this) return true;
         return this.equal((Coord3) other);
     }
     public boolean equal(Coord3 other) {
         return x==other.x && y==other.y && z==other.z;
     }
+
+    /* chunk y ranges btwn -1 and 16, local block coords x,y,z are between -1 and 16. so y
+     * never needs more than 18 (-1 through 16) values which we can cover with 5 bits (2^5 = 32)
+     * so 'skimp' appropriately on y's bits... (only need first 5)
+      */
     @Override
     public int hashCode() {
-        return (z << 20) | ((y & 1023) << 10) | (x & 1023);
+        return (z & Integer.MIN_VALUE) | ((y & Integer.MIN_VALUE) >>> 1 ) | ((x & Integer.MIN_VALUE) >>> 2 ) |
+                ((z & 4095) << 17) | ((y & 31) << 12) | (x & 4095);
     }
 
     @Override

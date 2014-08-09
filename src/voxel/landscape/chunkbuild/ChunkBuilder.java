@@ -10,6 +10,7 @@ import com.jme3.util.BufferUtils;
 import com.jme3.bounding.BoundingBox;
 import voxel.landscape.*;
 import voxel.landscape.coord.Coord3;
+import voxel.landscape.coord.Direction;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.Chunk;
 
@@ -18,17 +19,17 @@ import static voxel.landscape.Chunk.XLENGTH;
 
 public class ChunkBuilder 
 {
-	public static MeshSet buildMesh(Chunk chunk, boolean lightOnly) {
-		return buildMesh(chunk, null, lightOnly);
-	}
-	public static MeshSet buildMesh(Chunk chunk, Mesh mesh)
-	{
-		return buildMesh(chunk, mesh, false);
-	}
+//	public static MeshSet buildMesh(Chunk chunk, MeshSet mset, MeshSet waterMSet, boolean lightOnly) {
+//		return buildMesh(chunk, mset, waterMSet, lightOnly);
+//	}
+//	public static MeshSet buildMesh(Chunk chunk, Mesh mesh)
+//	{
+//		return buildMesh(chunk, mesh, false);
+//	}
 	
-	public static MeshSet buildMesh(Chunk chunk, Mesh mesh, boolean lightOnly)
+	public static void buildMesh(Chunk chunk, MeshSet mset, MeshSet waterMSet, boolean lightOnly)
 	{
-		MeshSet mset = new MeshSet();
+//		MeshSet mset = new MeshSet();
 		
 		int xin = 0, yin = 0, zin = 0;
 		Coord3 posi;
@@ -53,7 +54,8 @@ public class ChunkBuilder
 					if (BlockType.AIR.equals(btype)) {
 						continue;
 					}
-					
+                    // TODO: if water ...
+                    // else ...
 					for (int dir = 0; dir <= Direction.ZPOS; ++dir) // Direction ZPOS = 5 (0 to 5 for the 6 sides of the column)
 					{
 						Coord3 worldcoord = new Coord3(xin, yin, zin);
@@ -66,8 +68,7 @@ public class ChunkBuilder
 				}
 			}
 		}
-//		ApplyMeshSet(mset, mesh, lightOnly);
-		return mset;
+//		return mset;
 	}
 	
 	public static void ApplyMeshSet(MeshSet mset, Mesh bigMesh, boolean lightOnly) {

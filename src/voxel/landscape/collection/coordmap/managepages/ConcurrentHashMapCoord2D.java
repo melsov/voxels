@@ -26,7 +26,7 @@ public class ConcurrentHashMapCoord2D<T>
         return table.keySet();
     }
     public void Set(T obj, Coord2 pos) {
-        table.put(pos.copy(), obj);
+        table.put(pos.clone(), obj);
     }
     public void Set(T obj, int x, int y) {
         Set(obj, new Coord2(x, y));

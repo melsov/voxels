@@ -23,6 +23,8 @@ public class Coord2 implements ICoordXZ
 
     public Coord2() {}
 
+
+
     public Coord2 multy(Coord2 other) {
 		return new Coord2(this.x * other.x, this.y * other.y);
 	}
@@ -52,17 +54,25 @@ public class Coord2 implements ICoordXZ
 		return equals((Coord2) other);
 	}
 	public boolean equals(Coord2 other) { return x == other.x && y == other.y; }
-	public Coord2 copy() { return new Coord2(x,y); }
+    @Override
+	public Coord2 clone() { return new Coord2(x,y); }
 	public Vector3f toVec3XZ() {
 		return new Vector3f(x,0,y);
 	}
 	public Vector2f toVector2f() { return new Vector2f(x,y); }
-	
+
+    public int distanceSquared(Coord2 other) { return other.minus(this).distanceSquared(); }
+    public int distanceSquared() { return x*x + y*y; }
+    public static Coord2 FromXZOfVector3f(Vector3f v) { return new Coord2(v.x,v.z); }
 	public String toString() { return String.format("Coord2:x: %d y: %d", x,y); }
 
     @Override
+//    public int hashCode() {
+//        return (y << 16) | (x & 0xff);
+//    }
     public int hashCode() {
-        return (y << 16) | (x & 0xff);
+        return (y & Integer.MIN_VALUE) | ((x & Integer.MIN_VALUE) >>> 1 ) |
+                ((y & 32765 ) << 14) | (x & 32765);
     }
 
     @Override

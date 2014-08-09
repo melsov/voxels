@@ -5,7 +5,7 @@ import com.jme3.math.Vector3f;
 
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.Chunk;
-import voxel.landscape.Direction;
+import voxel.landscape.coord.Direction;
 import voxel.landscape.map.TerrainMap;
 
 public class BuildUtils {

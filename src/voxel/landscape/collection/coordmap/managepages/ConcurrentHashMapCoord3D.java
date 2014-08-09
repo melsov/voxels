@@ -18,7 +18,7 @@ public class ConcurrentHashMapCoord3D<T>
         type = _type;
     }
     public void Set(T obj, Coord3 pos) {
-        table.put(pos.copy(), obj);
+        table.put(pos.clone(), obj);
     }
     public void Set(T obj, int x, int y, int z) {
         Set(obj, new Coord3(x, y, z));
@@ -51,6 +51,10 @@ public class ConcurrentHashMapCoord3D<T>
 
     public T SafeGet(Coord3 pos) {
         return Get(pos);
+    }
+
+    public T putIfKeyIsAbsent(Coord3 pos, T obj) {
+        return table.putIfAbsent(pos, obj);
     }
     public T SafeGet(int x, int y, int z) {
         return Get(x,y, z);

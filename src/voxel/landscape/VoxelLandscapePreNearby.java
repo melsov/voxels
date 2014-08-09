@@ -256,7 +256,7 @@ public class VoxelLandscapePreNearby extends SimpleApplication implements Thread
         buildThisChunk(ch);
     }
     private void buildThisChunk(Chunk ch) {
-        ch.setHasEverStartedBuilding(true);
+        ch.setHasEverStartedBuildingToTrue();
         if (!ch.getIsAllAir()) ch.getChunkBrain().SetDirty();
         attachMeshToScene(ch);
     }
@@ -283,7 +283,7 @@ public class VoxelLandscapePreNearby extends SimpleApplication implements Thread
                 B.bug("chunk null. no clearing/detaching");
                 continue;
             }
-            ch.getChunkBrain().clearMeshBuffers();
+            ch.getChunkBrain().clearMeshBuffersAndSetGeometryNull();
             detachFromScene(ch);
         }
         terrainMap.removeColumnData(x,z);

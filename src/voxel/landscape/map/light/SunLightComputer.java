@@ -1,12 +1,15 @@
 package voxel.landscape.map.light;
 
-import java.util.ArrayList;
-
 import voxel.landscape.BlockType;
 import voxel.landscape.coord.Coord3;
-import voxel.landscape.Direction;
+import voxel.landscape.coord.Direction;
 import voxel.landscape.map.TerrainMap;
 
+import java.util.ArrayList;
+
+/*
+ * Java port of Mr. Wishmaster's SunlightComputer
+ */
 public class SunLightComputer {
 	
 	public final static byte MIN_LIGHT = 1;

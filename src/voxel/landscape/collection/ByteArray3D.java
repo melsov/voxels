@@ -21,14 +21,13 @@ public class ByteArray3D
         SIZE_BITS_Z = LogBase2(_size.z);
     }
     private static int LogBase2(int n) {
-        Asserter.assertTrue(n>0, "Only positive allowed for finding log 2 ");
+        Asserter.assertTrue(n > 0);
         int pow = 0;
         for(int i = 0; i <= 31 ; i++) {
             pow = 1 << i;
             if (pow == n) return i;
-            Asserter.assertTrue(pow < n, "Sorry your number wasn't a power of 2");
+            Asserter.assertTrue(pow < n); //Make a big stink if somebody tries to have a non-power-of-two size.
         }
-        Asserter.assertFalseAndDie("This will/can never happen ");
         return Integer.MIN_VALUE;
     }
 	public Coord3 getSize() {

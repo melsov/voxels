@@ -11,7 +11,7 @@ varying vec2 texMapOffset;
 varying float shadow;
 
 void main(){
-	shadow = max(inColor.w, inColor.x);
+	shadow = max(inColor.z, inColor.w);
     gl_Position = g_WorldViewProjectionMatrix * vec4(inPosition, 1.0);
     texCoord = inTexCoord;
     texMapOffset = inTexCoord2;

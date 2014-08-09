@@ -27,7 +27,7 @@ class LightComputerUtils {
 	private static void SetChunkLightDirty(TerrainMap map, Coord3 chunkPos) {
 		Chunk chunk = map.GetChunk(chunkPos);
 		if(chunk == null) return;
-		ChunkBrain chunkBrain = chunk.getChunkBrain();
+		ChunkBrain chunkBrain = chunk.getChunkBrainPassively();
 		if(chunkBrain == null) return;
 		chunkBrain.SetLightDirty();
 	}

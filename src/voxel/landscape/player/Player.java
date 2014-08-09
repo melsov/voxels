@@ -17,11 +17,8 @@ import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.CameraControl;
 import com.jme3.scene.shape.Box;
 import voxel.landscape.BlockType;
-import voxel.landscape.Direction;
+import voxel.landscape.coord.*;
 import voxel.landscape.VoxelLandscape;
-import voxel.landscape.coord.Coord2;
-import voxel.landscape.coord.Coord3;
-import voxel.landscape.coord.VektorUtil;
 import voxel.landscape.map.TerrainMap;
 
 import java.util.ArrayList;
@@ -44,18 +41,18 @@ public class Player
 //    private CameraNode camNode;
 
     private static float height = 1.0f;
-    private static float halfWidthXZ = .35f;
+    private static float halfWidthXZ = .40f;
     private static Vector3f playerBodyOffset = new Vector3f(halfWidthXZ,-height*.85f,halfWidthXZ);
 
     private static int AUTO_MOVE = 0;
     private static int FLY_MODE = 1;
-    private static final float NORMAL_MOVE_SPEED = 5f;
+    private static final float NORMAL_MOVE_SPEED = 6f;
     private static final float FLY_MODE_MOVE_SPEED = 15f;
 	private static float MOVE_SPEED = NORMAL_MOVE_SPEED;
     private Vector3f inputVelocity = Vector3f.ZERO.clone();
     private float jumpVelocity = 0f;
-    private static final float JUMP_VELOCITY= 6f;
-    private static final float REAL_GRAVITY = 5f;
+    private static final float JUMP_VELOCITY= 11f;
+    private static final float REAL_GRAVITY = 10f;
     private static float gravity = REAL_GRAVITY;
     private Vector3f velocity = Vector3f.ZERO.clone();
     private boolean grounded = false;
@@ -222,12 +219,12 @@ public class Player
 
         /* check side walls */
         for (int i = 0; i < Direction.DirectionXZVector3fs.length; ++i) {
-            Vector3f xzunitdir = Direction.DirectionXZVector3fs[i];
+            Vector3f xzunitdir = Direction.DirectionXZVector3fs[i].clone();
             Vector3f xzdir = xzunitdir.mult(halfWidthXZ);
             Vector3f xzEdgePos = proposedLoc.add(xzdir);
-            Coord3 edge = Coord3.FromVector3f(xzEdgePos);
+            Coord3 edge = Coord3.FromVector3fAdjustNegative(xzEdgePos);
             boolean found_solid = BlockType.IsSolid(terrainMap.lookupBlock(edge));
-            if (!found_solid){ // look at head
+            if (!found_solid){ // check head level
                 edge.y++;
                 found_solid = BlockType.IsSolid(terrainMap.lookupBlock(edge));
             }
@@ -242,22 +239,22 @@ public class Player
             }
             proposedLoc = proposedLoc.add(corner.subtract(xzEdgePos).mult(VektorUtil.Abs(xzunitdir)));
         }
-
         /* check grounded */
         Coord3 pco = null;
         boolean gotGround = false;
         if (jumpVelocity < 0.001) {
-            pco = Coord3.FromVector3f(proposedLoc.subtract(0, .1f, 0));
+            pco = Coord3.FromVector3fAdjustNegative(proposedLoc.subtract(0, .1f, 0));
             if (BlockType.IsSolid(terrainMap.lookupBlock(pco))) {
                 gotGround = true;
                 proposedLoc.y = (pco.y + 1f) + (jumping ? .11f : .1f);
             }
 
-            /* only look for ground in unimpeded directions (and only if we're not already grounded) */
+            //only look for ground in unimpeded directions b/c our 'toe' can't be on an edge that
+            // we can't occupy (and only if we're not already grounded)
             if (!gotGround) for (Integer i : unimpededDirections) {
                 Vector3f xzunitdir = Direction.DirectionXZVector3fs[i];
                 Vector3f xzdir = xzunitdir.mult(halfWidthXZ);
-                pco = Coord3.FromVector3f(proposedLoc.subtract(0, .1f, 0).add(xzdir));
+                pco = Coord3.FromVector3fAdjustNegative(proposedLoc.subtract(0, .1f, 0).add(xzdir));
                 if (BlockType.IsSolid(terrainMap.lookupBlock(pco))) {
                     gotGround = true;
                     proposedLoc.y = (pco.y + 1f) + (jumping ? .11f : .1f);
@@ -268,11 +265,11 @@ public class Player
             if (!gotGround) jumping = false; // need.
         }
 
-        /* check for head bump */
+    // check for head bump
         boolean gotHeadBump = false;
         if (jumpVelocity > 0) {
             float headRoom = -playerBodyOffset.y + .7f;
-            pco = Coord3.FromVector3f(proposedLoc.add(0,headRoom,0));
+            pco = Coord3.FromVector3fAdjustNegative(proposedLoc.add(0, headRoom, 0));
             if (BlockType.IsSolid(terrainMap.lookupBlock(pco))){
                 proposedLoc.y = pco.y - headRoom - .1f;
                 jumpVelocity = 0;
@@ -281,7 +278,7 @@ public class Player
             if (!gotHeadBump) for (Integer i : unimpededDirections) {
                 Vector3f xzunitdir = Direction.DirectionXZVector3fs[i];
                 Vector3f xzdir = xzunitdir.mult(halfWidthXZ);
-                pco = Coord3.FromVector3f(proposedLoc.add(0,headRoom,0).add(xzdir));
+                pco = Coord3.FromVector3fAdjustNegative(proposedLoc.add(0, headRoom, 0).add(xzdir));
                 if (BlockType.IsSolid(terrainMap.lookupBlock(pco))){
                     proposedLoc.y = pco.y - headRoom - .1f;
                     jumpVelocity = 0;
@@ -317,10 +314,8 @@ public class Player
     public AnalogListener getAnalogListener() { return analogListener; }
 
     private void moveBlockCursor() {
-
-//    	Vector3f pos = stepThroughBlocksUntilHitSolid(cam.getLocation(), cam.getDirection(), false);
         Vector3f pos = stepThroughBlocksUntilHitSolid(false);
-    	if (pos == null) pos = Vector3f.NEGATIVE_INFINITY;
+    	if (pos == null) pos = Vector3f.NEGATIVE_INFINITY.clone();
     	pos = VektorUtil.Floor(pos);
         blockCursor.setLocalTranslation(pos);
     }
@@ -351,31 +346,25 @@ public class Player
 	 * So, instead, rely completely on block look-ups for placing/breaking/colliding
 	 */
     private Vector3f stepThroughBlocksUntilHitSolid(Vector3f start, Vector3f direction, boolean wantPlaceBlock) {
-    	byte block = (byte) BlockType.NON_EXISTENT.ordinal();
-    	start = start.add(new Vector3f(.5f,.5f,.5f));
-    	
-    	Coord3 hit = null;
-    	int scale = 0;
-    	Vector3f hitV = null;
-    	Vector3f cheatFracDir = direction.mult(.25f);
-    	while (BlockType.IsAirOrNonExistent(block)) {
-    		hitV = start.add( cheatFracDir.mult(scale));
-    		hit = Coord3.FromVector3f( hitV );
-    		block = terrainMap.lookupBlock(hit);
-    		scale++;
-    		if (scale > BREAK_BLOCK_RADIUS) return null;
-    	}
-
-    	if (wantPlaceBlock) {
-    		Vector3f oppdir = direction.mult(-1f);
-            Vector3f corner = DistToCorner(hitV, direction);
-            Vector3f relEscape = RelativeEscapeVector(corner, oppdir);
-    		Vector3f escapeTheBlock = hitV.add(relEscape);
-    		Vector3f escapeNudge = VektorUtil.Sign(oppdir).mult(VektorUtil.MaskClosestToWholeNumber(escapeTheBlock).mult(.5f));
-    		return escapeTheBlock.add(escapeNudge);
-    	}
-    	
-    	return hitV;
+    	byte block;
+    	start = start.add(new Vector3f(.5f,.5f,.5f)); //BECAUSE VOXELS ARE ACTUALLY CENTERED AROUND WHOLE NUMBER COORDS...
+    	Coord3 hit;
+    	Vector3f hitV;
+        hitV = start.clone();
+        MutableInteger hitFaceDirectionIn = wantPlaceBlock ? new MutableInteger() : null;
+        for(int count = 0; count < 40; ++count) {
+            hitV = VektorUtil.EscapePositionOnUnitGrid(hitV, direction, hitFaceDirectionIn);
+            hit = Coord3.FromVector3f(hitV);
+            block = terrainMap.lookupBlock(hit);
+            if (!BlockType.IsAirOrNonExistent(block)) {
+                if (wantPlaceBlock) {
+                    Coord3 placeRelCoord = Direction.DirectionCoordForDirection(Direction.OppositeDirection(hitFaceDirectionIn.integer));
+                    return Coord3.FromVector3fAdjustNegative(hitV.add(placeRelCoord.toVector3())).toVector3();
+                }
+                return hitV;
+            }
+        }
+    	return null;
     }
 	 /* CONSIDER: implement to replace 'cheat Frac Dir' */
     private static Vector3f[] ComputeSteps(Vector3f pos, Vector3f dir) {
@@ -385,16 +374,11 @@ public class Player
     	blockCorner = VektorUtil.Floor(blockCorner);
     	return null; 
     }
-    private static Vector3f DistToCorner(Vector3f pos, Vector3f dir) {
-    	Vector3f corner = EntryCorner(pos, dir);
-    	return corner.subtract(pos);
-    }
-    private static Vector3f RelativeEscapeVector(Vector3f cornerDistance, Vector3f dir) {
-        Vector3f lengths = VektorUtil.Abs(cornerDistance.divide(dir));
-        float length = lengths.x < lengths.y ? lengths.x : lengths.y;
-        length = length < lengths.z ? length : lengths.z;
-        return dir.mult(length);
-    }
+//    private static Vector3f DistToCorner(Vector3f pos, Vector3f dir) {
+//    	Vector3f corner = EntryCorner(pos, dir);
+//    	return corner.subtract(pos);
+//    }
+//
     private static Vector3f EntryCorner(Vector3f pos, Vector3f dir) {
     	Vector3f corner = VektorUtil.OneIfNeg(dir).add(pos);
     	return VektorUtil.Floor(corner);
@@ -406,15 +390,28 @@ public class Player
       Material mark_mat = app.wireFrameMaterialWithColor(ColorRGBA.Black); 
       blockCursor.setMaterial(mark_mat);
     }
+    private Geometry makePlayerGeometry() {
+        Box box = new Box(Vector3f.ZERO, new Vector3f(halfWidthXZ*2f,height,halfWidthXZ*2f));
+        Geometry playerGeom = new Geometry("player_geom", box);
+    	playerGeom.setMaterial(app.wireFrameMaterialWithColor(ColorRGBA.Blue));
+        return playerGeom;
+    }
+    private Geometry makeSmallBox() {
+        Box box = new Box(Vector3f.ZERO, new Vector3f(.2f,.2f,.2f));
+        Geometry playerGeom = new Geometry("small_geom", box);
+        playerGeom.setMaterial(app.wireFrameMaterialWithColor(ColorRGBA.Orange));
+        return playerGeom;
+    }
+    private void debugMoveHeadNodeUp() {
+        headNode.setLocalTranslation(-3, 5, -3);
+    }
+
     private void initPlayerGeom(Camera _cam, Node _terrainNode)
     {
-
-//        Box box = new Box(Vector3f.ZERO, new Vector3f(halfWidthXZ*2f,height,halfWidthXZ*2f));
-//        Geometry playerGeom = new Geometry("player_geom", box);
-//    	playerGeom.setMaterial(app.wireFrameMaterialWithColor(ColorRGBA.BlackNoAlpha));
     	playerNode = new Node("player_node");
-//    	playerNode.attachChild(playerGeom);
+    	playerNode.attachChild(makePlayerGeometry());
 
+        playerNode.attachChild(makeSmallBox());
 //        Box debugCamBox = new Box(Vector3f.ZERO, Vector3f.UNIT_XYZ.mult(.1f));
 //        Geometry debugCamGeom = new Geometry("debugCam", debugCamBox);
 //        debugCamGeom.setMaterial(app.wireFrameMaterialWithColor(ColorRGBA.Pink));
@@ -429,18 +426,15 @@ public class Player
         if (_cam != null) {
             camNode = new CameraNode("cam_node", _cam);
             headNode.attachChild(camNode);
+
             //This mode means that camera copies the movements of the target:
             camNode.setControlDir(CameraControl.ControlDirection.SpatialToCamera);
             camNode.lookAt(headNode.getLocalTranslation(), Vector3f.UNIT_Y.clone());
             camNode.addControl(playerControl);
         } else {
-//            headNode.addControl(playerControl);
             _terrainNode.addControl(playerControl);
         }
-        headNode.setLocalTranslation(0, 0, 0);
-
-//    	terrainNode.attachChild(playerNode);
-    	playerNode.setLocalTranslation(new Vector3f(0,50,40));
+    	playerNode.setLocalTranslation(new Vector3f(0,50,0));
     }
 
     public void adjustCamera(Camera _camera) {

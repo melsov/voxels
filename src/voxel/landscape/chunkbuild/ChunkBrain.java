@@ -1,17 +1,19 @@
 package voxel.landscape.chunkbuild;
 
+import com.jme3.bounding.BoundingBox;
 import com.jme3.export.Savable;
+import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
+import com.jme3.scene.Node;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.shape.Box;
 import voxel.landscape.Chunk;
 import voxel.landscape.MeshSet;
 import voxel.landscape.VoxelLandscape;
-import voxel.landscape.coord.Coord3;
 
 /*
  * Build (or rebuild) a mesh for the chunk
@@ -24,19 +26,13 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
 	private AsyncBuildMesh asyncBuildMesh = null;
 	private boolean shouldApplyMesh = false;
 	
-	public ChunkBrain(Chunk _chunk, Coord3 worldPosition) {
+	public ChunkBrain(Chunk _chunk) {
 		chunk = _chunk;
-		Mesh mesh = new Box(Vector3f.ZERO.clone(), new Vector3f(1,1,1).mult(12f));
-        mesh.setDynamic();
-		Geometry geom = new Geometry("chunk_geom", mesh);
-//		geom.setLocalTranslation(_chunk.originInBlockCoords().toVector3());
-
-        geom.move(worldPosition.toVector3());
-//        Node chunkBrainGeomHolder = new Node();
-//        chunkBrainGeomHolder.attachChild(geom);
-//        chunkBrainGeomHolder.setLocalTranslation(_chunk.originInBlockCoords().toVector3());
-//        chunkBrainGeomHolder.addControl(this);
-		geom.addControl(this);
+//		Mesh mesh = new Mesh(); // new Box(Vector3f.ZERO.clone(), new Vector3f(1,1,1).mult(12f));
+//        mesh.setDynamic();
+//		Geometry geom = new Geometry("chunk_geom", mesh);
+//        geom.move(worldPosition.toVector3());
+//		geom.addControl(this);
 	}
     public void setMeshEmpty() {
         getGeometry().setMesh(makeEmptyMesh());
@@ -91,17 +87,52 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
 		return geom.getMesh();
 	}
 	public Geometry getGeometry() {
-        return (Geometry) getSpatial();
-//        Node node = (Node) getSpatial();
-//        if (node.getChildren().size() == 0) return null;
-//        return (Geometry) node.getChild(0);
+        Node node = (Node) getSpatial();
+        if (node == null) return null;
+        return (Geometry) node.getChild("chunk_geom");
     }
-//    public Node getNode() {
-//        return (Node) getSpatial();
-//    }
+    public Geometry getWaterGeometry() {
+        Node node = (Node) getSpatial();
+        if (node == null) return null;
+        Geometry waterGeom = (Geometry) node.getChild("water_geom");
+        if (waterGeom == null) {
+            waterGeom = new Geometry("water_geom", makePlaceHolderMesh());
+            node.attachChild(waterGeom);
+        }
+        return waterGeom;
+    }
+    private Mesh getWaterMesh() {
+        Geometry g = getWaterGeometry();
+        return g.getMesh();
+    }
+    public Node getNode() {
+        return (Node) getSpatial();
+    }
+    private void makeNodeIfNull() {
+        Node node = (Node) getSpatial();
+        if (node == null) {
+            node = new Node();
+            Geometry g = new Geometry("chunk_geom", makeEmptyMesh());
+            g.move(Chunk.ToWorldPosition(chunk.position).toVector3());
+            node.attachChild(g);
+            node.addControl(this);
+        }
+    }
+    public void wakeUp() { makeNodeIfNull(); }
 
-    public void clearMeshBuffers() {
+    public void attachToTerrainNode(Node terrainNode) {
+        terrainNode.attachChild(getNode());
+    }
+    public void attachTerrainMaterial(Material terrainMaterial) {
+        getGeometry().setMaterial(terrainMaterial);
+    }
+    public void attachWaterMaterial(Material waterMaterial) {
+        getWaterGeometry().setMaterial(waterMaterial);
+    }
+
+    public void clearMeshBuffersAndSetGeometryNull() {
         ChunkBuilder.ClearBuffers(getMesh());
+        setSpatial(null);
     }
 
 	private void buildMeshLight() { buildMesh(true); }
@@ -116,22 +147,23 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
 		Thread t = new Thread(asyncBuildMesh);
 		t.start();
 		*/
-		MeshSet mset = ChunkBuilder.buildMesh(chunk, getMesh(), onlyLight);
+		MeshSet mset = new MeshSet();
+        MeshSet waterMSet = new MeshSet();
+        ChunkBuilder.buildMesh(chunk, mset, waterMSet, onlyLight);
+
 		ChunkBuilder.ApplyMeshSet(mset, getMesh(), onlyLight);
-        /*
-        Consider: could use mesh.setBound( bounding box ) to speed up updating model bounds...
-         */
+        ChunkBuilder.ApplyMeshSet(waterMSet, getWaterMesh(), onlyLight);
+
+        getGeometry().setModelBound(new BoundingBox(Vector3f.ZERO.clone(), new Vector3f(Chunk.XLENGTH,Chunk.YLENGTH,Chunk.ZLENGTH)));
+		getGeometry().updateModelBound();
 
         //TODO: JVM may need 'help' flushing unused Geometries...
-//        getGeometry().setModelBound(new BoundingBox(...));
-//		getGeometry().updateModelBound();
-//		getSpatial().updateGeometricState(); //don't rely on JMonkey collisions at all?
 	}
 	public class AsyncBuildMesh extends ResponsiveRunnable
 	{
-
 		private boolean onlyLight;
-		private MeshSet mset;
+		private MeshSet mset = new MeshSet();
+        private MeshSet waterMSet = new MeshSet();
 		public AsyncBuildMesh(boolean _onlyLight) {
 			onlyLight = _onlyLight;
 		}
@@ -139,9 +171,8 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
 		public boolean getOnlyLight() { return onlyLight; }
 		@Override
 		public void doRun() {
-			mset = ChunkBuilder.buildMesh(chunk, onlyLight);
+			ChunkBuilder.buildMesh(chunk, mset, waterMSet, onlyLight);
 		}
-		
 	}
 	@Override
 	public void notifyThreadComplete(ResponsiveRunnable responsizeRunnable) {

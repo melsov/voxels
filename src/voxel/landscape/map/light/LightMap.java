@@ -6,7 +6,6 @@ import voxel.landscape.collection.MapNibble3D;
 import voxel.landscape.collection.chunkarray.ChunkNibble3D;
 
 public class LightMap {
-//	private MapByte3D lights = new MapByte3D();
 
     private MapNibble3D lights = new MapNibble3D();
 
@@ -51,7 +50,7 @@ public class LightMap {
 	}
 
     /*
-     * Remove
+     * Remove / Clean-up
      */
     public void RemoveLightData(int x, int y, int z) {
         lights.RemoveChunk(x,y,z);

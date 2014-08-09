@@ -26,9 +26,9 @@ public class HashMapCoord3D<T>
 //        return null;
 //    }
     public void Set(T obj, Coord3 pos) {
-//        lastCoord = pos.copy();
+//        lastCoord = pos.clone();
 //        lastObj = obj;
-        table.put(pos.copy(), obj);
+        table.put(pos.clone(), obj);
     }
     public void Set(T obj, int x, int y, int z) {
         Set(obj, new Coord3(x, y, z));
