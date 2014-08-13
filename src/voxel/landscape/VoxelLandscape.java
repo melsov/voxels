@@ -24,6 +24,7 @@ import com.jme3.texture.Texture2D;
 import com.jme3.texture.plugins.AWTLoader;
 import com.jme3.ui.Picture;
 import com.jme3.util.BufferUtils;
+import com.jme3.util.SkyFactory;
 import voxel.landscape.chunkbuild.AsyncGenerateColumnDataInfinite;
 import voxel.landscape.chunkbuild.ChunkFinder;
 import voxel.landscape.chunkbuild.ColumnCamComparator;
@@ -111,7 +112,7 @@ public class VoxelLandscape extends SimpleApplication
     public Coord2 getScreenDims() { return screenDims; }
 	private void attachMeshToScene(Chunk chunk) {
         chunk.getChunkBrain().attachTerrainMaterial(materialLibrarian.getBlockMaterial());
-        chunk.getChunkBrain().attachWaterMaterial(materialLibrarian.getBlockMaterialAnimated());
+        chunk.getChunkBrain().attachWaterMaterial(materialLibrarian.getBlockMaterialTranslucentAnimated());
         chunk.getChunkBrain().attachToTerrainNode(worldNode);
 	}
 
@@ -281,6 +282,7 @@ public class VoxelLandscape extends SimpleApplication
 //            viewPort.addProcessor(new WireProcessor(assetManager));
 //    	viewPort.removeProcessor(...); // KEEP FOR REFERENCE: COULD PERHAPS USE THIS TO TOGGLE WIRE FRAMES
         }
+
         ColumnCamComparator columnCamComparator = new ColumnCamComparator(cam);
         columnsToBeBuilt = new PriorityBlockingQueue<Coord2>(100, columnCamComparator);
 
@@ -301,7 +303,7 @@ public class VoxelLandscape extends SimpleApplication
         player = new Player(terrainMap, cam, audio, this, overlayNode, rootNode);
         rootNode.attachChild(player.getPlayerNode());
 
-        setupSkyColor();
+        setupSkyTexture();
         setupInfoView();
         setupPlayerDebugHat();
         makeInitialWorld();
@@ -447,14 +449,19 @@ public class VoxelLandscape extends SimpleApplication
         return materialLibrarian.getVertexColorMaterial();
 	}
 
-    private void setupSkyColor() {
-        ViewPort view_n = renderManager.createMainView("View of main camera", cam);
-        view_n.setClearColor(true);
-        view_n.attachScene(rootNode);
-        java.awt.Color awtcolor = new java.awt.Color(0.26666668f, 0.77254903f,1f, 1f);
-        float[] colors = awtcolor.getRGBColorComponents(null);
-        ColorRGBA jmeColor = new ColorRGBA(colors[0],colors[1],colors[2],1f);
-        view_n.setBackgroundColor(jmeColor);
+
+    private void setupSkyTexture() {
+        Texture2D skyTex = TexFromBufferedImage(OnePixelBufferedImage(new Color(.3f,.6f,1f,1f)));
+        rootNode.attachChild(SkyFactory.createSky(assetManager, skyTex, true));
+    }
+    private static BufferedImage OnePixelBufferedImage(Color color) {
+        BufferedImage image = new BufferedImage(1,1, BufferedImage.TYPE_INT_ARGB);
+        for (int x = 0 ; x < image.getWidth(); ++x) {
+            for (int y = 0; y < image.getHeight() ; ++y) {
+                image.setRGB(x, y, color.getRGB() );
+            }
+        }
+        return image;
     }
 	private static Texture2D TexFromBufferedImage(BufferedImage bim) {
 		AWTLoader awtl = new AWTLoader();
@@ -502,19 +509,19 @@ public class VoxelLandscape extends SimpleApplication
         Camera cam2 = cam.clone();
         cam2.setViewPort(.6f, 1f, 0f, .4f);
 
-        CameraNode camNode = new CameraNode("cam_node", cam2);
+        CameraNode camNode = new CameraNode("cam2_node", cam2);
         player.getPlayerNode().attachChild(camNode);
 
         Vector3f ploc = player.getPlayerNode().getLocalTranslation();
         camNode.setLocalTranslation(ploc.x, 200, ploc.z);
         camNode.lookAt(ploc.clone(), Vector3f.UNIT_Y.clone());
 
-//        cam2.setRotation(new Quaternion(0.00f, 0.99f, -0.04f, 0.02f));
         ViewPort viewPort2 = renderManager.createMainView("Info_view_port", cam2);
         viewPort2.setClearFlags(true, true, true);
         viewPort2.setBackgroundColor(ColorRGBA.Black);
         viewPort2.attachScene(rootNode);
     }
+
     private Material getDebugColumnMat() {
         if (debugColumnMat == null) debugColumnMat = wireFrameMaterialWithColor(ColorRGBA.Orange);
         return debugColumnMat;
@@ -540,6 +547,16 @@ public class VoxelLandscape extends SimpleApplication
 			buildChunk(x, k, z);
 		}
 	}
+    private void setupSkyColor(Camera camera, java.awt.Color awtcolor) {
+        ViewPort view_n = renderManager.createMainView("View of main camera", camera);
+        view_n.setClearFlags(true, false, false);
+        view_n.attachScene(rootNode);
+//        java.awt.Color awtcolor = ;
+        float[] colors = awtcolor.getRGBColorComponents(null);
+        ColorRGBA jmeColor = new ColorRGBA(colors[0],colors[1],colors[2],1f);
+        view_n.setBackgroundColor(jmeColor);
+    }
+
     //</editor-fold>
 
 

@@ -6,6 +6,7 @@ import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
@@ -101,6 +102,7 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
         Geometry waterGeom = (Geometry) node.getChild("water_geom");
         if (waterGeom == null) {
             waterGeom = new Geometry("water_geom", makePlaceHolderMesh());
+            waterGeom.setQueueBucket(RenderQueue.Bucket.Transparent);
             waterGeom.move(Chunk.ToWorldPosition(chunk.position).toVector3());
             node.attachChild(waterGeom);
         }
@@ -158,6 +160,7 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
 		*/
 		MeshSet mset = new MeshSet();
         MeshSet waterMSet = new MeshSet();
+        waterMSet.isLiquidMaterial = true;
         ChunkBuilder.buildMesh(chunk, mset, waterMSet, onlyLight);
 
 

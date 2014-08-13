@@ -2,15 +2,15 @@ package voxel.landscape.map.light;
 
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-
-import voxel.landscape.coord.Coord3;
 import voxel.landscape.Chunk;
+import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
 import voxel.landscape.map.TerrainMap;
+import voxel.landscape.map.water.WaterFlowComputer;
 
 public class BuildUtils {
 
-	public static float[] GetSmoothVertexLight(TerrainMap map, Coord3 pos, Vector3f vertex, int face) {
+	public static float[] GetSmoothVertexLight(TerrainMap map, Coord3 pos, Vector3f vertex, int face, boolean wantWater) {
 		int dx = (int)Math.signum( vertex.x );
 		int dy = (int)Math.signum( vertex.y );
 		int dz = (int)Math.signum( vertex.z );
@@ -33,27 +33,46 @@ public class BuildUtils {
 			c = pos.add(new Coord3(0,  dy, dz));
 			d = pos.add(new Coord3(dx, dy, dz));
 		}
-		
-		if(map.blockAtWorldCoordIsTranslucent(b) || map.blockAtWorldCoordIsTranslucent(c)) {
-			ColorRGBA c1 = GetBlockLight(map, a);
-			ColorRGBA c2 = GetBlockLight(map, b);
-			ColorRGBA c3 = GetBlockLight(map, c);
-			ColorRGBA c4 = GetBlockLight(map, d);
-			ColorRGBA res = c1.add(c2).add(c3).add(c4).mult(.25f);
-			return res.toArray(null);
-		} else {
-			ColorRGBA c1 = GetBlockLight(map, a);
-			ColorRGBA c2 = GetBlockLight(map, b);
-			ColorRGBA c3 = GetBlockLight(map, c);
-			ColorRGBA res = c1.add(c2).add(c3).mult(.33f);
-			return res.toArray(null);
-		}
+        ColorRGBA res;
+        if(map.blockAtWorldCoordIsTranslucent(b) || map.blockAtWorldCoordIsTranslucent(c)) {
+            ColorRGBA c1 = GetBlockLight(map, a);
+            ColorRGBA c2 = GetBlockLight(map, b);
+            ColorRGBA c3 = GetBlockLight(map, c);
+            ColorRGBA c4 = GetBlockLight(map, d);
+            res = c1.add(c2).add(c3).add(c4).mult(.25f);
+        } else {
+            ColorRGBA c1 = GetBlockLight(map, a);
+            ColorRGBA c2 = GetBlockLight(map, b);
+            ColorRGBA c3 = GetBlockLight(map, c);
+            res = c1.add(c2).add(c3).mult(.33f);
+        }
+        if (wantWater) {
+            a = pos.add(new Coord3(dx, 0, 0));
+            b = pos.add(new Coord3(0, dy, 0));
+            c = pos.add(new Coord3(0, 0, dz));
+            float wa = GetWaterLevel(map, a);
+            float wb = GetWaterLevel(map, b);
+            float wc = GetWaterLevel(map, c);
+            if (wb > 0) {
+                res.g = 1f;
+            } else {
+                res.g = (wa + wc) * .5f;
+            }
+        }
+        return res.toArray(null);
+
 	}
-	public static ColorRGBA GetBlockLight(TerrainMap map, Coord3 pos) {
+    public static ColorRGBA GetBlockLight(TerrainMap map, Coord3 pos) {
 		Coord3 chunkPos = Chunk.ToChunkPosition(pos);
 		Coord3 localPos = Chunk.toChunkLocalCoord(pos);
 		float light = (float) map.GetLightmap().GetLight( chunkPos, localPos ) / (float) SunLightComputer.MAX_LIGHT;
 		float sun = (float) map.GetSunLightmap().GetLight( chunkPos, localPos, pos.y ) / (float) SunLightComputer.MAX_LIGHT;
-		return new ColorRGBA(light,light,light,sun);
+        return new ColorRGBA(0,0,light,sun);
 	}
+    public static float GetWaterLevel(TerrainMap map, Coord3 pos) {
+        Coord3 chunkPos = Chunk.ToChunkPosition(pos);
+        Coord3 localPos = Chunk.toChunkLocalCoord(pos);
+        float waterLevel = (float) map.getLiquidLevelMap().GetWaterLevel(chunkPos, localPos) / (float) WaterFlowComputer.MAX_WATER_LEVEL;
+        return waterLevel;
+    }
 }

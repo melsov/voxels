@@ -3,7 +3,10 @@
     <words>
       <w>coord</w>
       <w>coords</w>
+      <w>defs</w>
+      <w>glsl</w>
       <w>ortho</w>
+      <w>vert</w>
       <w>voxels</w>
     </words>
   </dictionary>

@@ -116,7 +116,7 @@ public class BlockMeshUtil
 	}
 	private static void BuildFaceLight(int facedir, TerrainMap map, Coord3 pos, MeshSet mset) {
 		for(Vector3f ver : faceVertices[facedir]) {
-			float[] color = BuildUtils.GetSmoothVertexLight(map, pos, ver, facedir);
+			float[] color = BuildUtils.GetSmoothVertexLight(map, pos, ver, facedir, mset.isLiquidMaterial && ver.y > 0);
 			for (float c : color) {
 				mset.colors.add(c);
 			}
