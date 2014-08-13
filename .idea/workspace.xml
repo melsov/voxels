@@ -2,36 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2e872303-ea44-4607-a6e7-17cb61097a83" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/assets_for_voxel/MatDefs/BlockTex2.j3md" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/assets_for_voxel/MatDefs/BlockTexNuevo.frag" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/assets_for_voxel/MatDefs/BlockTexNuevo.vert" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/assets_for_voxel/Textures/dog_64d_.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/assets_for_voxel/Textures/dog_64d_light.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/voxel/landscape/collection/chunkarray/Chunk3D.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/voxel/landscape/collection/chunkarray/ChunkByte2D.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/voxel/landscape/collection/chunkarray/ChunkByte3D.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/voxel/landscape/collection/chunkarray/ChunkNibble3DTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/voxel/landscape/map/water/WaterFlowMap.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/AsyncGenerateColumnDataInfinite.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/AsyncGenerateColumnDataInfinite.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/BlockMeshUtil.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/BlockMeshUtil.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/BlockType.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/BlockType.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/Chunk.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/Chunk.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBrain.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBrain.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBuilder.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBuilder.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/collection/chunkarray/ChunkNibble3D.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/collection/chunkarray/ChunkNibble3D.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/collection/coordmap/HashMapCoord3D.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/collection/coordmap/HashMapCoord3D.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/collection/unused/Map3D.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/collection/unused/Map3D.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/collection/unused/MapByte2D.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/collection/unused/MapByte2D.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/collection/unused/MapByte3D.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/collection/unused/MapByte3D.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/player/Player.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/player/Player.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/map/TerrainMap.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/map/TerrainMap.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/VoxelLandscapePreNearby.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/VoxelLandscapePreNearby.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/tests/VoxelLandscapeTestChunkMgmt.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/tests/VoxelLandscapeTestChunkMgmt.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/map/water/WaterFlowComputer.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/map/water/WaterFlowComputer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dictionaries/didyouloseyourdog.xml" afterPath="$PROJECT_DIR$/.idea/dictionaries/didyouloseyourdog.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/voxels.iml" afterPath="$PROJECT_DIR$/voxels.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="voxels.iws" />
@@ -114,11 +84,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ChunkWaterLevelComputer.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="ChunkWaterLevelComputer.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/voxel/landscape/map/water/ChunkWaterLevelComputer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="220" max-vertical-offset="1035">
-              <caret line="58" column="33" selection-start-line="58" selection-start-column="26" selection-end-line="58" selection-end-column="33" />
+            <state vertical-scroll-proportion="0.8367347" vertical-offset="0" max-vertical-offset="1035">
+              <caret line="41" column="0" selection-start-line="41" selection-start-column="0" selection-end-line="41" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#1119#1127#0" expanded="true" />
@@ -127,10 +97,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="VoxelLandscape.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="VoxelLandscape.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="2.9591837" vertical-offset="0" max-vertical-offset="4470">
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4470">
               <caret line="218" column="4" selection-start-line="218" selection-start-column="4" selection-end-line="218" selection-end-column="4" />
               <folding>
                 <element signature="method#setupTestStateVariables#0;class#VoxelLandscape#0" expanded="false" />
@@ -213,6 +183,9 @@
     <FindUsagesManager>
       <setting name="OPEN_NEW_TAB" value="true" />
     </FindUsagesManager>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
@@ -778,6 +751,11 @@
       <created>1406212027355</created>
       <updated>1406212027355</updated>
     </task>
+    <task id="LOCAL-00001" summary="&#10;first commit with Intelli J">
+      <created>1407963927742</created>
+      <updated>1407963927742</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -824,6 +802,9 @@
     <option name="myTodoPanelSettings">
       <TodoPanelSettings />
     </option>
+    <MESSAGE value="&#10;" />
+    <MESSAGE value="&#10;first commit with Intelli J" />
+    <option name="LAST_COMMIT_MESSAGE" value="&#10;first commit with Intelli J" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1203,17 +1184,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/map/water/ChunkWaterLevelComputer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="232" max-vertical-offset="1035">
-          <caret line="58" column="33" selection-start-line="58" selection-start-column="26" selection-end-line="58" selection-end-column="33" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#1119#1127#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/voxel/landscape/map/water/WaterLevelMap.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.47619048" vertical-offset="70" max-vertical-offset="1245">
@@ -1313,13 +1283,24 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="2.9591837" vertical-offset="0" max-vertical-offset="4470">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4470">
           <caret line="218" column="4" selection-start-line="218" selection-start-column="4" selection-end-line="218" selection-end-column="4" />
           <folding>
             <element signature="method#setupTestStateVariables#0;class#VoxelLandscape#0" expanded="false" />
             <element signature="n#!!doc;n#setupInputs#0;n#VoxelLandscape#0" expanded="false" />
             <element signature="e#15489#15536#0" expanded="false" />
             <element signature="n#!!doc;n#buildColumn#0;n#VoxelLandscape#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/map/water/ChunkWaterLevelComputer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.8367347" vertical-offset="0" max-vertical-offset="1035">
+          <caret line="41" column="0" selection-start-line="41" selection-start-column="0" selection-end-line="41" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1119#1127#0" expanded="true" />
           </folding>
         </state>
       </provider>
