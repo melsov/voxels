@@ -13,6 +13,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
@@ -101,27 +102,26 @@ public class VoxelLandscapePreNearby extends SimpleApplication implements Thread
         }
     }
 
-    public Coord2 getScreenDims() { return screenDims; }
 	private void attachMeshToScene(Chunk chunk) {
-		addGeometryToScene(chunk.getGeometryObject());
+		addGeometryToScene(chunk.getChunkBrain().getGeometry());
 	}
 
     private void detachFromScene(Chunk chunk) {
-        chunk.getGeometryObject().removeFromParent();
+        chunk.getRootSpatial().removeFromParent();
     }
 
-	private void addGeometryToScene(Geometry geo) {
+	private void addGeometryToScene(Spatial geo) {
 		if (geo == null) {
             B.bug("Geom null??");
             return;
         }
-		Material mat;
-		if (UseTextureMap) {
-			mat = getTexMapMaterial();
-		} else {
-            mat = blockMaterial;
-		}
-    	geo.setMaterial(mat);
+//		Material mat;
+//		if (UseTextureMap) {
+//			mat = getTexMapMaterial();
+//		} else {
+//            mat = blockMaterial;
+//		}
+//    	geo.setMaterial(mat);
     	worldNode.attachChild(geo);
 	}
 

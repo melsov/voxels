@@ -19,59 +19,50 @@ import static voxel.landscape.Chunk.XLENGTH;
 
 public class ChunkBuilder 
 {
-//	public static MeshSet buildMesh(Chunk chunk, MeshSet mset, MeshSet waterMSet, boolean lightOnly) {
-//		return buildMesh(chunk, mset, waterMSet, lightOnly);
-//	}
-//	public static MeshSet buildMesh(Chunk chunk, Mesh mesh)
-//	{
-//		return buildMesh(chunk, mesh, false);
-//	}
-	
 	public static void buildMesh(Chunk chunk, MeshSet mset, MeshSet waterMSet, boolean lightOnly)
 	{
-//		MeshSet mset = new MeshSet();
-		
 		int xin = 0, yin = 0, zin = 0;
 		Coord3 posi;
-		int triIndex = 0;
+		int triIndex = 0, waterTriIndex = 0;
 		int i = 0, j = 0, k = 0;
 		
 		TerrainMap map = chunk.getTerrainMap();
-		
 		Coord3 worldPosBlocks = chunk.originInBlockCoords();
 
-		for(i = 0; i < XLENGTH; ++i)
-		{
-			for(j = 0; j < ZLENGTH; ++j)
-			{
-				for (k = 0; k < YLENGTH; ++k)
-				{
+		for(i = 0; i < XLENGTH; ++i) {
+			for(j = 0; j < ZLENGTH; ++j) {
+				for (k = 0; k < YLENGTH; ++k) {
 					xin = i + worldPosBlocks.x; yin = k  + worldPosBlocks.y; zin = j  + worldPosBlocks.z;
 					posi = new Coord3(i,k,j);
 					byte btype = (byte) map.lookupOrCreateBlock(xin, yin, zin);
-					
-					chunk.setBlockAt(btype, posi);
-					if (BlockType.AIR.equals(btype)) {
-						continue;
-					}
-                    // TODO: if water ...
-                    // else ...
-					for (int dir = 0; dir <= Direction.ZPOS; ++dir) // Direction ZPOS = 5 (0 to 5 for the 6 sides of the column)
-					{
-						Coord3 worldcoord = new Coord3(xin, yin, zin);
-						if (IsFaceVisible(map, worldcoord, dir)) {
-							if (!lightOnly) BlockMeshUtil.AddFaceMeshData(posi, mset, btype, dir, triIndex, map);
-							BlockMeshUtil.AddFaceMeshLightData(worldcoord, mset, dir, map);
-							triIndex += 4;
-						}
-					}
+
+					if (BlockType.AIR.equals(btype)) continue;
+
+                    Coord3 worldcoord = new Coord3(xin, yin, zin);
+                    if (BlockType.WATER.equals(btype)) {
+                        for (int dir = 0; dir <= Direction.ZPOS; ++dir) {
+                            if (IsWaterSurfaceFace(map, worldcoord, dir)) {
+                                if (!lightOnly) BlockMeshUtil.AddFaceMeshData(posi, waterMSet, btype, dir, waterTriIndex, map);
+                                BlockMeshUtil.AddFaceMeshLightData(worldcoord, waterMSet, dir, map);
+                                waterTriIndex += 4;
+                            }
+                        }
+                    } else {
+                        for (int dir = 0; dir <= Direction.ZPOS; ++dir) {
+                            if (IsFaceVisible(map, worldcoord, dir)) {
+                                if (!lightOnly) BlockMeshUtil.AddFaceMeshData(posi, mset, btype, dir, triIndex, map);
+                                BlockMeshUtil.AddFaceMeshLightData(worldcoord, mset, dir, map);
+                                triIndex += 4;
+                            }
+                        }
+                    }
 				}
 			}
 		}
-//		return mset;
 	}
 	
-	public static void ApplyMeshSet(MeshSet mset, Mesh bigMesh, boolean lightOnly) {
+	public static void ApplyMeshSet(MeshSet mset, Mesh bigMesh, boolean lightOnly)
+    {
 		if (!lightOnly) 
 		{
 			bigMesh.clearBuffer(Type.Position);
@@ -110,7 +101,11 @@ public class ChunkBuilder
         bigMesh.clearBuffer(Type.Normal);
         bigMesh.clearBuffer(Type.Color);
     }
-	
+
+    private static boolean IsWaterSurfaceFace(TerrainMap terrainMap, Coord3 woco, int direction) {
+        return IsFaceVisible(terrainMap, woco, direction);
+    }
+
 	private static boolean IsFaceVisible(TerrainMap terrainMap, Coord3 woco, int direction) {
 		byte btype = (byte) terrainMap.lookupOrCreateBlock(woco.add(Direction.DirectionCoordForDirection(direction))); 
 		return BlockType.isTranslucent(btype);

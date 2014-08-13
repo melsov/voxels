@@ -59,6 +59,10 @@ public class BlockMeshUtil
             ret.x = .5f;
             ret.y = .75f;
         }
+        else if (BlockType.WATER.equals(btype)) {
+            ret.x = .75f;
+            ret.y = .75f;
+        }
 		else if (BlockType.BEDROCK.equals(btype)) {
 			ret.x = .75f;
 		}

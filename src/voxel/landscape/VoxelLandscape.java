@@ -17,7 +17,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
-import com.jme3.scene.shape.Sphere;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
@@ -25,7 +24,10 @@ import com.jme3.texture.Texture2D;
 import com.jme3.texture.plugins.AWTLoader;
 import com.jme3.ui.Picture;
 import com.jme3.util.BufferUtils;
-import voxel.landscape.chunkbuild.*;
+import voxel.landscape.chunkbuild.AsyncGenerateColumnDataInfinite;
+import voxel.landscape.chunkbuild.ChunkFinder;
+import voxel.landscape.chunkbuild.ColumnCamComparator;
+import voxel.landscape.chunkbuild.MaterialLibrarian;
 import voxel.landscape.collection.ColumnMap;
 import voxel.landscape.collection.coordmap.managepages.FurthestCoord3PseudoDelegate;
 import voxel.landscape.coord.Coord2;
@@ -37,6 +39,7 @@ import voxel.landscape.debugutil.GUIInfo;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.map.debug.Array2DViewer;
 import voxel.landscape.map.light.ChunkSunLightComputer;
+import voxel.landscape.map.water.ChunkWaterLevelComputer;
 import voxel.landscape.player.Audio;
 import voxel.landscape.player.B;
 import voxel.landscape.player.Player;
@@ -44,25 +47,19 @@ import voxel.landscape.util.Asserter;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
 // TODO: Separate world builder and game logic, everything else...
-public class VoxelLandscape extends SimpleApplication implements ThreadCompleteListener
+public class VoxelLandscape extends SimpleApplication
 {
-    public static boolean TESTING_DEBUGGING_ON = false;
-
-	private static boolean UseTextureMap = false;
-	private static boolean debugInfoOn = false;
-    private static boolean ADD_CHUNKS_DYNAMICALLY = true;
-    private static boolean COMPILE_CHUNK_DATA_ASYNC = false;
-    public static boolean DO_USE_TEST_GEOMETRY = true;
-    private boolean STOP_ADDING_COLUMNS_FOR_TESTING = false;
-    private static boolean CULLING_ON = false;
-    private static boolean BUILD_INITIAL_CHUNKS = true;
-    private static boolean DONT_BUILD_CHUNK_MESHES = true;
-    private static boolean SHOW_COLUMN_DEBUG_QUADS = false;
+	private static boolean USE_TEXTURE_MAP = false, DEBUG_INFO_ON = false, ADD_CHUNKS_DYNAMICALLY = true, COMPILE_CHUNK_DATA_ASYNC = false,
+            CULLING_ON = false, BUILD_INITIAL_CHUNKS = true, DONT_BUILD_CHUNK_MESHES = true, SHOW_COLUMN_DEBUG_QUADS = false;
+    public static boolean TESTING_DEBUGGING_ON = false, DO_USE_TEST_GEOMETRY = true;
 
     private static int COLUMN_DATA_BUILDER_THREAD_COUNT = 4;
     public static int ADD_COLUMN_RADIUS = 3;
@@ -72,13 +69,9 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
 	private ColumnMap columnMap = new ColumnMap();
 	private Player player;
 
-    private Material blockMaterial;
-    private Material blockMaterialTexMap;
-    private Material waterMaterial;
     private Material debugColumnMat;
 	private Node worldNode = new Node("world_node");
 	private Node overlayNode = new Node("overlay_node");
-    private volatile int genBlockDataThreadCount = 0;
 	private BlockingQueue<Coord2> columnsToBeBuilt;
 
     private static float GameTime = 0f;
@@ -86,18 +79,15 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
 
 	private static Coord2 screenDims;
 
-//	private CameraNode camNode;
+    private MaterialLibrarian materialLibrarian;
     private ExecutorService colDataPool;
     private AtomicBoolean keepGoingBoolean = new AtomicBoolean(true);
-
-    private Geometry debugObject;
-
 
     private static void setupTestStateVariables()
     {
         if (TESTING_DEBUGGING_ON) {
-            UseTextureMap = false;
-            debugInfoOn = false;
+            USE_TEXTURE_MAP = false;
+            DEBUG_INFO_ON = false;
             ADD_CHUNKS_DYNAMICALLY = true;
             COMPILE_CHUNK_DATA_ASYNC = true;
             DO_USE_TEST_GEOMETRY = false;
@@ -106,8 +96,8 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
             DONT_BUILD_CHUNK_MESHES = false;
             SHOW_COLUMN_DEBUG_QUADS = false;
         } else {
-            UseTextureMap = true;
-            debugInfoOn = false;
+            USE_TEXTURE_MAP = true;
+            DEBUG_INFO_ON = false;
             ADD_CHUNKS_DYNAMICALLY = true;
             COMPILE_CHUNK_DATA_ASYNC = true;
             DO_USE_TEST_GEOMETRY = false;
@@ -118,66 +108,18 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
         }
     }
 
-    private Material getBlockMaterialTexMap() {
-        if (blockMaterialTexMap == null) {
-            if (UseTextureMap) {
-                blockMaterialTexMap = makeTexMapMaterial();
-            } else {
-                blockMaterialTexMap = blockMaterial;
-            }
-        }
-        return blockMaterialTexMap;
-    }
-    private Material getWaterMaterial() {
-        if (waterMaterial == null) {
-            if (UseTextureMap) {
-                waterMaterial = makeTexMapMaterial(); //FOR NOW
-            } else {
-                waterMaterial = blockMaterial;
-            }
-        }
-        return waterMaterial;
-    }
-
     public Coord2 getScreenDims() { return screenDims; }
 	private void attachMeshToScene(Chunk chunk) {
-//		addGeometryToScene(chunk.getGeometryObject());
-        chunk.getChunkBrain().attachTerrainMaterial(getBlockMaterialTexMap());
-        chunk.getChunkBrain().attachWaterMaterial(getWaterMaterial());
+        chunk.getChunkBrain().attachTerrainMaterial(materialLibrarian.getBlockMaterial());
+        chunk.getChunkBrain().attachWaterMaterial(materialLibrarian.getBlockMaterialAnimated());
         chunk.getChunkBrain().attachToTerrainNode(worldNode);
 	}
 
     private void detachFromScene(Chunk chunk) {
-        Geometry g = chunk.getGeometryObject();
+        Node g = chunk.getRootSpatial();
         if (g != null) g.removeFromParent();
     }
 
-	private void addGeometryToScene(Geometry geo) {
-		if (geo == null) {
-            B.bug("Geom null??");
-            return;
-        }
-//		Material mat;
-//		if (UseTextureMap) {
-//			mat = makeTexMapMaterial();
-//		} else {
-//            mat = blockMaterial;
-//		}
-//    	geo.setMaterial(mat);
-//    	worldNode.attachChild(geo);
-	}
-    private void fakelyPopulateColumnsToBeBuilt() {
-        int half_area = (int) (ADD_COLUMN_RADIUS * 1);
-        Coord3 minChCo = new Coord3(-half_area, 0, -half_area);
-        Coord3 maxChCo = new Coord3(half_area, 0, half_area);
-
-        for (int i = minChCo.x; i < maxChCo.x; ++i) {
-            for (int j = minChCo.z; j < maxChCo.z; ++j) {
-                columnsToBeBuilt.add(new Coord2(i,j));
-            }
-        }
-    }
-	
 	private void makeInitialWorld()
 	{
 		rootNode.attachChild(worldNode);
@@ -192,7 +134,7 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
 		for(int i = minChCo.x; i < maxChCo.x; ++i) {
 			for(int j = minChCo.z; j < maxChCo.z; ++j) {
 				generateColumnData(i,j);
-                attachDebugBuiltColumnAtChunkCoord(new Coord3(i,0,j)); //DEBUG
+                attachDebugBuiltColumnAtChunkCoord(new Coord3(i,0,j));
 //				buildColumn(i,j);
 			}
 		}
@@ -209,19 +151,12 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
         /*
 		 * debugging
 		 */
-		if (!debugInfoOn) return;
+		if (!DEBUG_INFO_ON) return;
 		Array2DViewer.getInstance().saveToPNG("_debugPicture.png");
 		showImageOnScreen(Array2DViewer.getInstance().getImage());
 		addDebugGeometry();
 	}
 
-	private void makeMoreWorld()
-	{
-        while(genBlockDataThreadCount < 3) {
-            makeOneMoreColumn();
-            genBlockDataThreadCount++;
-        }
-	}
     private void addToColumnPriorityQueue() {
         PriorityBlockingQueue<Coord2> queue = (PriorityBlockingQueue<Coord2>) columnsToBeBuilt;
         if (queue.size() > 10) return;
@@ -232,26 +167,7 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
         queue.add(new Coord2(emptyCol.x, emptyCol.z));
         attachDebugBuiltColumnAtChunkCoord(emptyCol); //DEBUG
     }
-    private void makeOneMoreColumn() {
-        Coord3 camPosC = Coord3.FromVector3f(cam.getLocation()); //  player.getPlayerNode().getWorldTranslation());
-        camPosC = Chunk.ToChunkPosition(camPosC);
-//        Coord3 emptyCol = columnMap.GetClosestEmptyColumn(camPosC.x, camPosC.z, ADD_COLUMN_RADIUS);
-        Coord3 emptyCol = ChunkFinder.ClosestEmptyColumn(cam,terrainMap,columnMap);
-        if (emptyCol == null) {
-            return;
-        }
-        if (COMPILE_CHUNK_DATA_ASYNC) {
-            generateColumnDataAsync(emptyCol.x, emptyCol.z);
-        } else {
-            generateColumnData(emptyCol.x, emptyCol.z);
-            buildColumn(emptyCol.x, emptyCol.z);
-        }
-    }
-	private void generateColumnDataAsync(int x, int z) {
-        columnMap.SetBuildingData(x,z);
-        attachDebugBuiltColumnAtChunkCoord(new Coord3(x,0,z));
-		runAsyncColumnData(x, z);	
-	}
+
     private void initColumnDataThreadExecutorService() {
         colDataPool = Executors.newFixedThreadPool(COLUMN_DATA_BUILDER_THREAD_COUNT);
         for (int i = 0; i < COLUMN_DATA_BUILDER_THREAD_COUNT; ++i) {
@@ -265,33 +181,14 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
         keepGoingBoolean.set(false);
         colDataPool.shutdownNow();
     }
-    private void runAsyncColumnData(int x, int z) {
-        AsyncGenerateColumnData asyncColumnData = new AsyncGenerateColumnData(terrainMap, columnMap, x,z);
-        asyncColumnData.addListener(this);
-        Thread t = new Thread(asyncColumnData);
-        t.setName("AsyncColumnGenAt"+x+","+z);
-        t.start();
-    }
-    @Override
-    public void notifyThreadComplete(ResponsiveRunnable responsiveRunnable) {
-        if (responsiveRunnable instanceof AsyncGenerateColumnData) {
-            // sleep?
-            sleepForATime(100);
-            AsyncGenerateColumnData async = (AsyncGenerateColumnData) responsiveRunnable;
-//                columnsToBeBuilt.put(new Coord2(async.getX(), async.getZ()));
-//            generatingBlockData = false;
-            genBlockDataThreadCount--;
-            columnMap.SetBuilt(async.getX(), async.getZ());
-        } else if (responsiveRunnable instanceof AsyncGenerateColumnDataInfinite) {
 
-        }
-    }
 	private void generateColumnData(int x, int z)  {
         columnMap.SetBuildingData(x,z);
 		terrainMap.generateNoiseForChunkColumn(x, z);
         columnMap.SetBuilt(x,z);
 		ChunkSunLightComputer.ComputeRays(terrainMap, x, z);
 		ChunkSunLightComputer.Scatter(terrainMap, columnMap, x, z);
+        ChunkWaterLevelComputer.Scatter(terrainMap, columnMap, x, z);
 	}
 
     private boolean buildANearbyChunk() {
@@ -302,14 +199,6 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
         buildChunk(chcoord.x, chcoord.y, chcoord.z);
         return true;
     }
-
-	private void buildColumn(int x, int z) {
-        int minChunkY = terrainMap.getMinChunkCoordY();
-        int maxChunkY = terrainMap.getMaxChunkCoordY();
-		for (int k = minChunkY; k < maxChunkY; ++k ) {
-			buildChunk(x, k, z);
-		}
-	}
 
     private void buildChunk(int x,int y,int z) {
         Chunk ch = terrainMap.GetChunk(x,y,z);
@@ -326,8 +215,9 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
             ch.getChunkBrain().setMeshEmpty();
         }
     }
-     /*
-    Remove columns
+
+    /*
+     * Remove columns
      */
     private void cullAnExcessColumn(float tpf) {
         if (!CULLING_ON) return;
@@ -355,10 +245,10 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
         columnMap.Destroy(x, z);
     }
 
-    float artificialDelay = 0f;
 	/* ***************************
 	 * *** Main update loop ******
 	   ****************************/
+    float artificialDelay = 0f;
     @Override
     public void simpleUpdate(float tpf) 
     {
@@ -394,16 +284,17 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
         ColumnCamComparator columnCamComparator = new ColumnCamComparator(cam);
         columnsToBeBuilt = new PriorityBlockingQueue<Coord2>(100, columnCamComparator);
 
+        materialLibrarian = new MaterialLibrarian(assetManager);
+
         initColumnDataThreadExecutorService();
 
         setupTestStateVariables();
         Chunk.USE_TEST_GEOMETRY = DO_USE_TEST_GEOMETRY;
         inputManager.setCursorVisible(false);
-        initBlockMaterial();
+
     	Audio audio = new Audio(assetManager, rootNode);
 
-        flyCam.setMoveSpeed(55);
-    	flyCam.setEnabled(false); // TESTING_DEBUGGING_ON);
+    	flyCam.setEnabled(false);
 
     	rootNode.attachChild(overlayNode);
 
@@ -453,7 +344,6 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
         app.setSettings(settings);
         app.setShowSettings(false);
 
-
         app.start(); // start the game
     }
     @Override
@@ -463,7 +353,7 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
     }
     //</editor-fold>
 
-    //<editor-fold desc="Inputs / other Setup">
+    //<editor-fold desc="INPUT AND SET-UP METHODS">
     /*
      * Mouse inputs
      */
@@ -493,12 +383,9 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
                 "moveForward", "moveBackward", "moveRight", "moveLeft", "moveDown", "moveUp", "jump",
                 "lmb", "rmb");
     }
-    private void initBlockMaterial() {
-        blockMaterial = wireFrameMaterialWithColor(new ColorRGBA(.3f,1f,.5f,.5f)); //  new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-//        blockMaterial.setBoolean("VertexColor", true);
-    }
+
     /** A centred plus sign to help the player aim. */
-    protected void initCrossHairs() {
+    private void initCrossHairs() {
         setDisplayStatView(false);
         guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
         BitmapText ch = new BitmapText(guiFont, false);
@@ -509,10 +396,9 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
         guiNode.attachChild(ch);
     }
 
-
     //</editor-fold>
 
-    //<editor-fold desc="Debug and helper">
+    //<editor-fold desc="DEBUG AND HELPER METHODS">
     //region Debug and helper
 
 /*
@@ -548,37 +434,19 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
         float radius = (GameTime/.25f);
         return new Vector3f(radius * FastMath.cos(theta), 0, radius * FastMath.sin(theta));
     }
+
     public Material makeTexMapMaterial() {
-        Material mat = new Material(assetManager, "MatDefs/BlockTex2.j3md");
-
-        Texture blockTex = assetManager.loadTexture("Textures/dog_64d_.jpg");
-        blockTex.setMagFilter(Texture.MagFilter.Nearest);
-        blockTex.setWrap(Texture.WrapMode.Repeat);
-
-        mat.setTexture("ColorMap", blockTex);
-        return mat;
+        return materialLibrarian.getBlockMaterial();
     }
+
 	public Material wireFrameMaterialWithColor(ColorRGBA color) {
-		Material wireMaterial = new Material(assetManager, "/Common/MatDefs/Misc/Unshaded.j3md");
-    	wireMaterial.setColor("Color", color);
-    	wireMaterial.getAdditionalRenderState().setWireframe(true);
-    	return wireMaterial;
+        return materialLibrarian.wireFrameMaterialWithColor(color);
 	}
+
 	private Material wireFrameMaterialVertexColor() {
-		Material wireMaterial = new Material(assetManager, "/Common/MatDefs/Misc/Unshaded.j3md");
-		wireMaterial.setBoolean("VertexColor", true);
-    	wireMaterial.getAdditionalRenderState().setWireframe(true);
-    	return wireMaterial;
+        return materialLibrarian.getVertexColorMaterial();
 	}
-	private static BufferedImage OnePixelBufferedImage(java.awt.Color color) {
-		BufferedImage image = new BufferedImage(1,1, BufferedImage.TYPE_INT_ARGB);
-		for (int x = 0 ; x < image.getWidth(); ++x) {
-			  for (int y = 0; y < image.getHeight() ; ++y) {
-				  image.setRGB(x, y, color.getRGB() );
-			  }
-		  }
-		return image;
-	}
+
     private void setupSkyColor() {
         ViewPort view_n = renderManager.createMainView("View of main camera", cam);
         view_n.setClearColor(true);
@@ -593,13 +461,7 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
 		Image im = awtl.load(bim, false);
 		return new Texture2D(im);
 	}
-    private void sleepForATime(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
+
 	private void showImageOnScreen(BufferedImage bim) {
 		Texture2D tex = TexFromBufferedImage(bim);
 		tex.setMagFilter(Texture.MagFilter.Nearest);
@@ -612,16 +474,6 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
     	pic.setPosition(0f, 100f);
     	guiNode.attachChild(pic);
 	}
-    private void initDebugObject() {
-        Mesh mesh = new Sphere(12,12,5);
-        Geometry debugG = new Geometry("dbug",mesh);
-        debugG.setMaterial(wireFrameMaterialWithColor(ColorRGBA.Magenta));
-        rootNode.attachChild(debugG);
-        debugObject = debugG;
-    }
-    private void moveDebugObject(Vector3f worldPosition) {
-        if (debugObject != null) debugObject.setLocalTranslation(worldPosition);
-    }
     private void setupPlayerDebugHat() {
         float hatZLength = 20f;
         Mesh hat = new Box(new Vector3f(-.25f,-.25f, 0), new Vector3f(.25f, .25f, hatZLength ));
@@ -679,5 +531,18 @@ public class VoxelLandscape extends SimpleApplication implements ThreadCompleteL
     }
     //endregion
     //</editor-fold>
+
+    //<editor-fold desc="UNUSED">
+    private void buildColumn(int x, int z) {
+        int minChunkY = terrainMap.getMinChunkCoordY();
+        int maxChunkY = terrainMap.getMaxChunkCoordY();
+		for (int k = minChunkY; k < maxChunkY; ++k ) {
+			buildChunk(x, k, z);
+		}
+	}
+    //</editor-fold>
+
+
+
 
 }

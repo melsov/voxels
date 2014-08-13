@@ -2,7 +2,6 @@ package voxel.landscape.collection.unused;
 
 import voxel.landscape.Chunk;
 import voxel.landscape.coord.Coord3;
-import voxel.landscape.collection.chunkarray.ChunkByte3D;
 
 public class MapByte3D 
 {

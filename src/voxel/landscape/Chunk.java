@@ -1,6 +1,6 @@
 package voxel.landscape;
 
-import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
 import voxel.landscape.chunkbuild.ChunkBrain;
 import voxel.landscape.collection.ByteArray3D;
 import voxel.landscape.coord.Coord3;
@@ -52,9 +52,9 @@ public class Chunk
 		terrainMap = _terrainMap;
 	}
 	
-	public Geometry getGeometryObject() {
+	public Node getRootSpatial() {
         if (chunkBrain == null) return null;
-		return chunkBrain.getGeometry();
+		return chunkBrain.getRootSpatial();
 	}
 
 	public ChunkBrain getChunkBrain() {

@@ -7,6 +7,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
@@ -62,7 +63,7 @@ public class VoxelLandscapeTestChunkMgmt extends SimpleApplication implements Th
     public Coord2 getScreenDims() { return screenDims; }
 	private void attachMeshToScene(Chunk chunk)
 	{
-		Geometry geo = chunk.getGeometryObject();
+		Spatial geo = chunk.getRootSpatial();
 		this.addGeometryToScene(geo);
 	}
 	public Material getTexMapMaterial() {
@@ -75,7 +76,7 @@ public class VoxelLandscapeTestChunkMgmt extends SimpleApplication implements Th
     	mat.setTexture("ColorMap", blockTex);
     	return mat;
 	}
-	private void addGeometryToScene(Geometry geo)
+	private void addGeometryToScene(Spatial geo)
 	{
 		if (geo == null) return;
 		Material mat;

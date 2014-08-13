@@ -1,8 +1,6 @@
 package voxel.landscape.player;
 
 import com.jme3.export.Savable;
-import com.jme3.input.InputManager;
-import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.material.Material;
@@ -17,8 +15,8 @@ import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.CameraControl;
 import com.jme3.scene.shape.Box;
 import voxel.landscape.BlockType;
-import voxel.landscape.coord.*;
 import voxel.landscape.VoxelLandscape;
+import voxel.landscape.coord.*;
 import voxel.landscape.map.TerrainMap;
 
 import java.util.ArrayList;
@@ -27,18 +25,12 @@ import java.util.List;
 public class Player 
 {
     private TerrainMap terrainMap;
-//    private Camera cam;
-//    private Node terrainNode;
     private Audio audio;
     private VoxelLandscape app;
     private PlayerControl playerControl = new PlayerControl();
     private Geometry blockCursor;
-    //    private Geometry[] triMarkerSpheres = new Geometry[3];
     private Node playerNode;
     private Node headNode;
-//    private Node overlayNode;
-    public static final int BREAK_BLOCK_RADIUS = 50;
-//    private CameraNode camNode;
 
     private static float height = 1.0f;
     private static float halfWidthXZ = .40f;
@@ -54,22 +46,10 @@ public class Player
     private static final float JUMP_VELOCITY= 11f;
     private static final float REAL_GRAVITY = 10f;
     private static float gravity = REAL_GRAVITY;
-    private Vector3f velocity = Vector3f.ZERO.clone();
     private boolean grounded = false;
     private boolean jumping = false;
     private boolean headBump = false;
     private byte blockInHandType = (byte) BlockType.SAND.ordinal();
-
-    private float adjustNear = .001f;
-    private float adjustLeftRight = .001f;
-    private float adjustTopBottom = .001f;
-    private float flip = 1f;
-
-    private boolean leftMouseDown = false;
-    private boolean rightMouseDown = false;
-    private Vector2f startMousePosition = new Vector2f();
-    private InputManager inputManager;
-    private KeyInput keyInput;
 
     private boolean debugPlaceCoord = false;
 
@@ -130,7 +110,6 @@ public class Player
             }
 
             Vector3f move = Vector3f.ZERO.clone();
-            leftMouseDown = rightMouseDown = false;
             if (name.equals("moveForward") ) {
                 move.z = MOVE_SPEED;
             }
@@ -150,9 +129,9 @@ public class Player
                 move.y = -MOVE_SPEED;
             }
             if (name.equals("lmb")) {
-                leftMouseDown = true;
+
             } else if (name.equals("rmb")) {
-                rightMouseDown = true;
+
             }
 
             /*
@@ -338,7 +317,6 @@ public class Player
     	terrainMap.SetBlockAndRecompute(blockInHandType, placeCo);
     }
     private Vector3f stepThroughBlocksUntilHitSolid(boolean wantPlaceBlock) {
-        //    	Vector3f pos = stepThroughBlocksUntilHitSolid(cam.getLocation(), cam.getDirection(), wantPlaceBlock);
         return stepThroughBlocksUntilHitSolid(playerControl.getLocation(), playerControl.getDirection(), wantPlaceBlock);
     }
 	/*
@@ -366,24 +344,6 @@ public class Player
         }
     	return null;
     }
-	 /* CONSIDER: implement to replace 'cheat Frac Dir' */
-    private static Vector3f[] ComputeSteps(Vector3f pos, Vector3f dir) {
-    	Vector3f _pos = pos.clone();
-    	
-    	Vector3f blockCorner = VektorUtil.OneIfPos(dir).add(_pos);
-    	blockCorner = VektorUtil.Floor(blockCorner);
-    	return null; 
-    }
-//    private static Vector3f DistToCorner(Vector3f pos, Vector3f dir) {
-//    	Vector3f corner = EntryCorner(pos, dir);
-//    	return corner.subtract(pos);
-//    }
-//
-    private static Vector3f EntryCorner(Vector3f pos, Vector3f dir) {
-    	Vector3f corner = VektorUtil.OneIfNeg(dir).add(pos);
-    	return VektorUtil.Floor(corner);
-    }
-
     protected void initBlockCursor() {
       Box box = new Box(.505f, .505f, .505f);
       blockCursor = new Geometry("block_cursor", box);
@@ -409,15 +369,9 @@ public class Player
     private void initPlayerGeom(Camera _cam, Node _terrainNode)
     {
     	playerNode = new Node("player_node");
-    	playerNode.attachChild(makePlayerGeometry());
+//    	playerNode.attachChild(makePlayerGeometry());
+//        playerNode.attachChild(makeSmallBox());
 
-        playerNode.attachChild(makeSmallBox());
-//        Box debugCamBox = new Box(Vector3f.ZERO, Vector3f.UNIT_XYZ.mult(.1f));
-//        Geometry debugCamGeom = new Geometry("debugCam", debugCamBox);
-//        debugCamGeom.setMaterial(app.wireFrameMaterialWithColor(ColorRGBA.Pink));
-//        playerNode.attachChild(debugCamGeom);
-
-//        playerGeom.setLocalTranslation(new Vector3f(-halfWidthXZ, -height, -halfWidthXZ));
 
         headNode = new Node("head_node");
         playerNode.attachChild(headNode);

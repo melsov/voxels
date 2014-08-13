@@ -4,6 +4,7 @@ import voxel.landscape.collection.ColumnMap;
 import voxel.landscape.coord.Coord2;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.map.light.ChunkSunLightComputer;
+import voxel.landscape.map.water.ChunkWaterLevelComputer;
 import voxel.landscape.noise.TerrainDataProvider;
 import voxel.landscape.util.Asserter;
 
@@ -15,7 +16,7 @@ import static java.lang.Thread.sleep;
 /**
  * Created by didyouloseyourdog on 8/4/14.
  */
-public class AsyncGenerateColumnDataInfinite extends ResponsiveRunnable
+public class AsyncGenerateColumnDataInfinite implements Runnable // extends ResponsiveRunnable
 {
 
     private int x,z;
@@ -31,7 +32,7 @@ public class AsyncGenerateColumnDataInfinite extends ResponsiveRunnable
         keepGoing = _keepGoing;
     }
     @Override
-    public void doRun() {
+    public void run() {
         while(keepGoing.get()) {
             try {
                 Coord2 colCoord = columnsToBeBuilt.take(); //thread will block while nothing is available...maybe forever...
@@ -43,9 +44,12 @@ public class AsyncGenerateColumnDataInfinite extends ResponsiveRunnable
             columnMap.SetBuildingData(x,z);
             terrainMap.generateNoiseForChunkColumn(x, z, dataProvider);
             ChunkSunLightComputer.ComputeRays(terrainMap, x, z);
-            ChunkSunLightComputer.Scatter(terrainMap, columnMap, x, z); //TEST WANT
-            columnMap.SetBuilt(x, z);
-            try { sleep(10); } catch (InterruptedException e) { e.printStackTrace(); }
+            if (keepGoing.get()) { //PREVENT FREEZE AT END OF RUN??
+                ChunkSunLightComputer.Scatter(terrainMap, columnMap, x, z);
+                ChunkWaterLevelComputer.Scatter(terrainMap, columnMap, x, z);
+                columnMap.SetBuilt(x, z);
+                try { sleep(10); } catch (InterruptedException e) { e.printStackTrace(); }
+            }
         }
     }
 

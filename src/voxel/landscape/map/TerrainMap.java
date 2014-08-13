@@ -10,6 +10,8 @@ import voxel.landscape.map.light.LightComputer;
 import voxel.landscape.map.light.LightMap;
 import voxel.landscape.map.light.SunLightComputer;
 import voxel.landscape.map.light.SunLightMap;
+import voxel.landscape.map.water.WaterFlowComputer;
+import voxel.landscape.map.water.WaterLevelMap;
 import voxel.landscape.noise.IBlockDataProvider;
 import voxel.landscape.noise.TerrainDataProvider;
 import voxel.landscape.util.Asserter;
@@ -29,6 +31,7 @@ public class TerrainMap implements IBlockDataProvider {
     private ConcurrentHashMapCoord3D<Chunk> chunks = new ConcurrentHashMapCoord3D<Chunk>(Chunk.class);
 	private SunLightMap sunLightmap = new SunLightMap();
 	private LightMap lightmap = new LightMap();
+    private WaterLevelMap liquidLevelMap = new WaterLevelMap();
 
 	public TerrainMap() {
 	}
@@ -64,6 +67,11 @@ public class TerrainMap implements IBlockDataProvider {
 		if (chunk == null) return false;
 		return BlockType.isTranslucent(chunk.blockAt(Chunk.toChunkLocalCoord(x, y, z)));
 	}
+    public boolean blockAtWorldCoordAcceptsWater(int x, int y, int z) {
+        Chunk chunk = GetChunk(Chunk.ToChunkPosition(x, y, z));
+        if (chunk == null) return false;
+        return BlockType.AcceptsWater(chunk.blockAt(Chunk.toChunkLocalCoord(x, y, z)));
+    }
 
 	public void setBlockAtWorldCoord(byte block, Coord3 pos) {
 		setBlockAtWorldCoord(block, pos.x, pos.y, pos.z);
@@ -175,8 +183,20 @@ public class TerrainMap implements IBlockDataProvider {
 
                     if (possibleChunk == null)
 						continue; // must be at world limit?
-					byte block = (byte) lookupOrCreateBlock(absPos, _dataProvider);
-					// should be grass?
+					byte block;
+
+                    // FAKE WATER
+//                    if (cx == 0 && cy == MAX_DIM_VERTICAL - 1 && cz == 0) {
+                        if (i == 3 && j == 2 && k == Chunk.YLENGTH - 3) {
+                            block = (byte) BlockType.WATER.ordinal();
+                        } else if ( k > Chunk.YLENGTH - 5 ) {
+                            block = (byte) BlockType.AIR.ordinal();
+                        }
+                        else
+                    // #FAKE WATER
+                    block = (byte) lookupOrCreateBlock(absPos, _dataProvider);
+
+                    // should be grass?
 					/*
 					 * CONSIDER: this is too simplistic! grass should grow only
 					 * where there's light... Also, put this logic somewhere
@@ -185,11 +205,15 @@ public class TerrainMap implements IBlockDataProvider {
 					 */
 					if (BlockType.DIRT.ordinal() == block) {
 						Coord3 upOne = absPos.add(Coord3.ypos);
-//						Chunk oneBlockUpChunk = lookupOrCreateChunkAtPosition(Chunk.ToChunkPosition(upOne)); // maybe same chunk
-                        if (lookupOrCreateChunkAtPosition(Chunk.ToChunkPosition(upOne)) == null || BlockType.isTranslucent((byte) lookupOrCreateBlock(upOne))) {
+                        if (lookupOrCreateChunkAtPosition(Chunk.ToChunkPosition(upOne)) == null ||
+                                BlockType.isTranslucent((byte) lookupOrCreateBlock(upOne))) {
                             block = (byte) BlockType.GRASS.ordinal();
                         }
-					}
+					} else if (BlockType.WATER.ordinal() == block) {
+                        liquidLevelMap.SetWaterLevel(WaterFlowComputer.MAX_WATER_LEVEL, absPos);
+                        possibleChunk.getChunkBrain().SetLiquidDirty();
+                    }
+
 					relPos = Chunk.toChunkLocalCoord(relPos);
 					possibleChunk.setBlockAt(block, relPos);
 
@@ -336,5 +360,17 @@ public class TerrainMap implements IBlockDataProvider {
 	public LightMap GetLightmap() {
 		return lightmap;
 	}
+
+    public WaterLevelMap getLiquidLevelMap() {
+        return liquidLevelMap;
+    }
+
+    public void setWater(Coord3 worldPos) {
+        setBlockAtWorldCoord((byte) BlockType.WATER.ordinal(), worldPos);
+    }
+
+    public void unsetWater(Coord3 worldPos) {
+        setBlockAtWorldCoord((byte) BlockType.AIR.ordinal(), worldPos);
+    }
 
 }

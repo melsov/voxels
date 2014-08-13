@@ -67,9 +67,12 @@ public enum BlockType {
 	public static boolean IsAirOrNonExistent(int i) {
 		return i == BlockType.AIR.ordinal() || i == BlockType.NON_EXISTENT.ordinal();
 	}
+    public static boolean AcceptsWater(int i) {
+        return i == BlockType.AIR.ordinal() || i == BlockType.WATER.ordinal() || i == BlockType.NON_EXISTENT.ordinal();
+    }
 
 	public static boolean IsSolid(int i) {
-		return !IsAirOrNonExistent(i);
+		return !IsAirOrNonExistent(i) && i != BlockType.WATER.ordinal();
 	}
 	
 	public static boolean IsEmpty(int i) {

@@ -23,7 +23,7 @@ public class ChunkNibble3D extends ChunkPrimitiveType3D {
     }
     @Override
     public void Set(int val, int x, int y, int z) {
-        int lookup = y << 7 | z << 3 | x;
+        int lookup = y << 7 | z << 3 | ((x >> 1) & 7 );
         if ((x & 1) == 0) {
             chunk[lookup] = (byte)(chunk[lookup] & 0xf0 | val & 0xf);
         } else {
@@ -36,12 +36,12 @@ public class ChunkNibble3D extends ChunkPrimitiveType3D {
     }
     @Override
     public int Get(int x, int y, int z) {
-        int lookup = y << 7 | z << 3 | x;
+        int lookup = y << 7 | z << 3 | ((x >> 1) & 7 );
         if ((x & 1) == 0) {
             return chunk[lookup] & 0xf;
         } else {
             return chunk[lookup] >> 4 & 0xf;
         }
-
     }
+
 }
