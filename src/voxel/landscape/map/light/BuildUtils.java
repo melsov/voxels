@@ -2,6 +2,7 @@ package voxel.landscape.map.light;
 
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import voxel.landscape.BlockType;
 import voxel.landscape.Chunk;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
@@ -47,16 +48,20 @@ public class BuildUtils {
             res = c1.add(c2).add(c3).mult(.33f);
         }
         if (wantWater) {
-            a = pos.add(new Coord3(dx, 0, 0));
-            b = pos.add(new Coord3(0, dy, 0));
-            c = pos.add(new Coord3(0, 0, dz));
-            float wa = GetWaterLevel(map, a);
-            float wb = GetWaterLevel(map, b);
-            float wc = GetWaterLevel(map, c);
-            if (wb > 0) {
-                res.g = 1f;
+            if (BlockType.WATER.ordinal() == map.lookupBlock(pos)) {
+                res.g = 0f;
             } else {
-                res.g = (wa + wc) * .5f;
+                b = pos.add(new Coord3(0, 1, 0));
+                float wb = GetWaterLevel(map, b);
+                if (wb > 0) {
+                    res.g = 0f;
+                } else {
+                    a = pos.add(new Coord3(dx, 0, 0));
+                    c = pos.add(new Coord3(0, 0, dz));
+                    float wa = GetWaterLevel(map, a);
+                    float wc = GetWaterLevel(map, c);
+                    res.g = 1f - Math.max(wa, wc);
+                }
             }
         }
         return res.toArray(null);
@@ -72,7 +77,6 @@ public class BuildUtils {
     public static float GetWaterLevel(TerrainMap map, Coord3 pos) {
         Coord3 chunkPos = Chunk.ToChunkPosition(pos);
         Coord3 localPos = Chunk.toChunkLocalCoord(pos);
-        float waterLevel = (float) map.getLiquidLevelMap().GetWaterLevel(chunkPos, localPos) / (float) WaterFlowComputer.MAX_WATER_LEVEL;
-        return waterLevel;
+        return (float) (map.getLiquidLevelMap().GetWaterLevel(chunkPos, localPos) / (float) WaterFlowComputer.MAX_WATER_LEVEL);
     }
 }

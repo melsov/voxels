@@ -59,7 +59,7 @@ public class BlockMeshUtil
             ret.x = .5f;
             ret.y = .75f;
         }
-        else if (BlockType.WATER.equals(btype)) {
+        else if (BlockType.WATER.equals(btype) || BlockType.WATER_RUNOFF.equals(btype)) {
             ret.x = .75f;
             ret.y = .75f;
         }

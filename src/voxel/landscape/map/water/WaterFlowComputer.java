@@ -44,7 +44,7 @@ public class WaterFlowComputer
 //                    B.bugln("added water to pos: " + nextPos.toString());
                     list.add( nextPos );
                     if(!BlockType.IsEmpty(block)) {
-                        map.setWater(nextPos);
+                        map.setWaterRunOff(nextPos);
                         WaterFlowComputerUtils.SetWaterDirty(map, nextPos);
                     }
                     if (dir.y == -1) break; // don't add laterally if water flowed down

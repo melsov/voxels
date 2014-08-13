@@ -365,8 +365,11 @@ public class TerrainMap implements IBlockDataProvider {
         return liquidLevelMap;
     }
 
-    public void setWater(Coord3 worldPos) {
-        setBlockAtWorldCoord((byte) BlockType.WATER.ordinal(), worldPos);
+//    public void setWater(Coord3 worldPos) {
+//        setBlockAtWorldCoord((byte) BlockType.WATER.ordinal(), worldPos);
+//    }
+    public void setWaterRunOff(Coord3 worldPos) {
+        setBlockAtWorldCoord((byte) BlockType.WATER_RUNOFF.ordinal(), worldPos);
     }
 
     public void unsetWater(Coord3 worldPos) {

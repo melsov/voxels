@@ -12,8 +12,7 @@ public enum BlockType {
 	AIR (1), DIRT(2), 
 	GRASS(3), SAND(4), 
 	STONE(5), CAVESTONE(6),
-    LANTERN(7), WATER(8),
-	BEDROCK(9);
+    LANTERN(7),BEDROCK(8), WATER(9), WATER_RUNOFF (10);
 	
 	BlockType(int i) {
 		integer = i;
@@ -49,6 +48,8 @@ public enum BlockType {
             return new Color(.9f, 1f, .3f);
         case WATER:
             return new Color(.3f, 1f, .3f);
+        case WATER_RUNOFF:
+            return new Color(.3f, 1f, .3f);
 		case BEDROCK:
 			return new Color(.2f,.2f,.2f);
 		default:
@@ -61,18 +62,18 @@ public enum BlockType {
 	}
 	
 	public static boolean isTranslucent(int i) {
-		return i == BlockType.AIR.ordinal() || i == BlockType.NON_EXISTENT.ordinal() || i == BlockType.WATER.ordinal();
+		return i == AIR.ordinal() || i == NON_EXISTENT.ordinal() || i >= WATER.ordinal();
 	}
 
 	public static boolean IsAirOrNonExistent(int i) {
-		return i == BlockType.AIR.ordinal() || i == BlockType.NON_EXISTENT.ordinal();
+		return i == AIR.ordinal() || i == NON_EXISTENT.ordinal();
 	}
     public static boolean AcceptsWater(int i) {
-        return i == BlockType.AIR.ordinal() || i == BlockType.WATER.ordinal() || i == BlockType.NON_EXISTENT.ordinal();
+        return i == AIR.ordinal() || i >= WATER.ordinal() || i == NON_EXISTENT.ordinal();
     }
 
 	public static boolean IsSolid(int i) {
-		return !IsAirOrNonExistent(i) && i != BlockType.WATER.ordinal();
+		return !IsAirOrNonExistent(i) && i < WATER.ordinal();
 	}
 	
 	public static boolean IsEmpty(int i) {
@@ -82,9 +83,11 @@ public enum BlockType {
 	public float getFloat() { return (float) this.ordinal(); }
 	
 	public static int LightLevelForType(int type) {
-        if (type == BlockType.LANTERN.ordinal()) return SunLightComputer.MAX_LIGHT;
+        if (type == LANTERN.ordinal()) return SunLightComputer.MAX_LIGHT;
         return 0;
 	}
+
+    public static boolean IsWaterType(int i) { return i >= WATER.ordinal(); }
 
 
 	private int integer;

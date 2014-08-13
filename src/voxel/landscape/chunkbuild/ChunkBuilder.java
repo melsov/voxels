@@ -34,12 +34,12 @@ public class ChunkBuilder
 				for (k = 0; k < YLENGTH; ++k) {
 					xin = i + worldPosBlocks.x; yin = k  + worldPosBlocks.y; zin = j  + worldPosBlocks.z;
 					posi = new Coord3(i,k,j);
-					byte btype = (byte) map.lookupOrCreateBlock(xin, yin, zin);
+					byte btype = (byte) map.lookupOrCreateBlock(xin, yin, zin); // CONSIDER: just look up block?
 
 					if (BlockType.AIR.equals(btype)) continue;
 
                     Coord3 worldcoord = new Coord3(xin, yin, zin);
-                    if (BlockType.WATER.equals(btype)) {
+                    if (BlockType.IsWaterType(btype)) {
                         for (int dir = 0; dir <= Direction.ZPOS; ++dir) {
                             if (IsWaterSurfaceFace(map, worldcoord, dir)) {
                                 if (!lightOnly) BlockMeshUtil.AddFaceMeshData(posi, waterMSet, btype, dir, waterTriIndex, map);
