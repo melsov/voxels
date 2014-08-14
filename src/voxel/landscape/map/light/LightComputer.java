@@ -57,7 +57,7 @@ public class LightComputer
             for(Coord3 dir : Direction.DirectionCoords) {
             	Coord3 nextPos = pos.add(dir); 
 				block = map.lookupBlock(nextPos);
-                if( BlockType.isTranslucent(block) && lightmap.SetMaxLight((byte)light, nextPos) ) {
+                if( BlockType.IsTranslucent(block) && lightmap.SetMaxLight((byte)light, nextPos) ) {
                 	list.add( nextPos );
                 }
 				if(!BlockType.IsEmpty(block)) LightComputerUtils.SetLightDirty(map, nextPos);
@@ -91,7 +91,7 @@ public class LightComputer
 				Coord3 nextPos = pos.add(dir);
 				byte block = map.lookupBlock(nextPos);
 				
-				if(BlockType.isTranslucent(block)) {
+				if(BlockType.IsTranslucent(block)) {
 					if(lightmap.GetLight(nextPos) <= light) {
 						list.add( nextPos );
 					} else {

@@ -33,7 +33,7 @@ class LightComputerUtils {
 	}
 	
 	public static int GetLightStep(byte block) {
-		if(BlockType.isTranslucent(block)) {
+		if(BlockType.IsTranslucent(block)) {
 			return 1;
 		} else {
 			return 2;

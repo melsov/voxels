@@ -20,9 +20,9 @@ public class WaterFlowComputer
 
     public static void Scatter(TerrainMap map, ArrayList<Coord3> list) {
         WaterLevelMap liquidLevelMap = map.getLiquidLevelMap();
-        List<Coord3> downAndLateral = new ArrayList<Coord3>(5);
-        downAndLateral.add(Coord3.yneg.clone());
-        for(Coord3 xzco : Direction.DirectionXZCoords) downAndLateral.add(xzco);
+        List<Coord3> downAndHorizontal = new ArrayList<Coord3>(5);
+        downAndHorizontal.add(Coord3.yneg.clone());
+        for(Coord3 xzco : Direction.DirectionXZCoords) downAndHorizontal.add(xzco.clone());
 
         for(int i=0; i<list.size(); i++) {
 
@@ -36,7 +36,7 @@ public class WaterFlowComputer
                 continue;
             }
 
-            for(Coord3 dir : downAndLateral) {
+            for(Coord3 dir : downAndHorizontal) {
                 Coord3 nextPos = pos.add(dir);
                 block = map.lookupBlock(nextPos);
                 byte levelToAdd = dir.y == -1 ? WaterFlowComputer.MAX_WATER_LEVEL : (byte) waterLevel;
@@ -51,6 +51,20 @@ public class WaterFlowComputer
                 }
             }
         }
+    }
+
+    public static void RecomputeWaterAtPosition(TerrainMap map, Coord3 pos) {
+        //TODO: implement
+//        LightMap lightmap = map.GetLightmap();
+//        int oldLight = lightmap.GetLight(pos);
+//        int light = lightAtWorldCoord(map, pos); // map.blockAtWorldCoord(pos).GetLight();
+//
+//        if(oldLight > light) {
+//            RemoveLight(map, pos);
+//        }
+//        if(light > MIN_LIGHT) {
+//            Scatter(map, pos);
+//        }
     }
 
     //TODO: If water is placed, call this

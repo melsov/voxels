@@ -65,7 +65,7 @@ public class TerrainMap implements IBlockDataProvider {
 	public boolean blockAtWorldCoordIsTranslucent(int x, int y, int z) {
 		Chunk chunk = GetChunk(Chunk.ToChunkPosition(x, y, z));
 		if (chunk == null) return false;
-		return BlockType.isTranslucent(chunk.blockAt(Chunk.toChunkLocalCoord(x, y, z)));
+		return BlockType.IsTranslucent(chunk.blockAt(Chunk.toChunkLocalCoord(x, y, z)));
 	}
     public boolean blockAtWorldCoordAcceptsWater(int x, int y, int z) {
         Chunk chunk = GetChunk(Chunk.ToChunkPosition(x, y, z));
@@ -186,10 +186,10 @@ public class TerrainMap implements IBlockDataProvider {
 					byte block;
 
                     // FAKE WATER
-//                    if (cx == 0 && cy == MAX_DIM_VERTICAL - 1 && cz == 0) {
-                        if (i == 3 && j == 2 && k == Chunk.YLENGTH - 3) {
+                    boolean IsFakeWaterChunk = cx == 0 && cy == MAX_DIM_VERTICAL - 1 && cz == 0;
+                        if (IsFakeWaterChunk && i == 3 && j == 2 && k == Chunk.YLENGTH - 1) {
                             block = (byte) BlockType.WATER.ordinal();
-                        } else if ( k > Chunk.YLENGTH - 5 ) {
+                        } else if (IsFakeWaterChunk && k > Chunk.YLENGTH - 5 ) {
                             block = (byte) BlockType.AIR.ordinal();
                         }
                         else
@@ -206,7 +206,7 @@ public class TerrainMap implements IBlockDataProvider {
 					if (BlockType.DIRT.ordinal() == block) {
 						Coord3 upOne = absPos.add(Coord3.ypos);
                         if (lookupOrCreateChunkAtPosition(Chunk.ToChunkPosition(upOne)) == null ||
-                                BlockType.isTranslucent((byte) lookupOrCreateBlock(upOne))) {
+                                BlockType.IsTranslucent((byte) lookupOrCreateBlock(upOne))) {
                             block = (byte) BlockType.GRASS.ordinal();
                         }
 					} else if (BlockType.WATER.ordinal() == block) {
@@ -252,7 +252,7 @@ public class TerrainMap implements IBlockDataProvider {
         // should be grass?
         if (BlockType.DIRT.ordinal() == block) {
             Coord3 upOne = absPos.add(Coord3.ypos);
-            if (lookupOrCreateChunkAtPosition(Chunk.ToChunkPosition(upOne)) == null || BlockType.isTranslucent((byte) lookupOrCreateBlock(upOne))) {
+            if (lookupOrCreateChunkAtPosition(Chunk.ToChunkPosition(upOne)) == null || BlockType.IsTranslucent((byte) lookupOrCreateBlock(upOne))) {
                 block = (byte) BlockType.GRASS.ordinal();
             }
         }
@@ -269,6 +269,9 @@ public class TerrainMap implements IBlockDataProvider {
 	 * Credit: Mr. Wishmaster methods (YouTube)
 	 */
 	public void SetBlockAndRecompute(byte block, Coord3 pos) {
+        //TODO: record old block.
+        //TODO: add recomputeWaterAtPosition
+
 		setBlockAtWorldCoord(block, pos);
 
 		Coord3 chunkPos = Chunk.ToChunkPosition(pos);
@@ -292,6 +295,7 @@ public class TerrainMap implements IBlockDataProvider {
 
 		SunLightComputer.RecomputeLightAtPosition(this, pos);
 		LightComputer.RecomputeLightAtPosition(this, pos);
+        WaterFlowComputer.RecomputeWaterAtPosition(this, pos);
 	}
 
 	private void SetDirty(Coord3 chunkPos) {
@@ -365,9 +369,6 @@ public class TerrainMap implements IBlockDataProvider {
         return liquidLevelMap;
     }
 
-//    public void setWater(Coord3 worldPos) {
-//        setBlockAtWorldCoord((byte) BlockType.WATER.ordinal(), worldPos);
-//    }
     public void setWaterRunOff(Coord3 worldPos) {
         setBlockAtWorldCoord((byte) BlockType.WATER_RUNOFF.ordinal(), worldPos);
     }

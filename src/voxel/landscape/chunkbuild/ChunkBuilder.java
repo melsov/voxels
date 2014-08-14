@@ -103,11 +103,12 @@ public class ChunkBuilder
     }
 
     private static boolean IsWaterSurfaceFace(TerrainMap terrainMap, Coord3 woco, int direction) {
-        return IsFaceVisible(terrainMap, woco, direction);
+        byte btype = (byte) terrainMap.lookupOrCreateBlock(woco.add(Direction.DirectionCoordForDirection(direction)));
+        return BlockType.IsWaterSurface(btype);
     }
 
 	private static boolean IsFaceVisible(TerrainMap terrainMap, Coord3 woco, int direction) {
 		byte btype = (byte) terrainMap.lookupOrCreateBlock(woco.add(Direction.DirectionCoordForDirection(direction))); 
-		return BlockType.isTranslucent(btype);
+		return BlockType.IsTranslucent(btype);
 	}
 }

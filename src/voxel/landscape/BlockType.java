@@ -2,7 +2,7 @@ package voxel.landscape;
 
 import voxel.landscape.map.light.SunLightComputer;
 
-import java.awt.Color;
+import java.awt.*;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,20 +61,30 @@ public enum BlockType {
 		return this.ordinal() == i;
 	}
 	
-	public static boolean isTranslucent(int i) {
-		return i == AIR.ordinal() || i == NON_EXISTENT.ordinal() || i >= WATER.ordinal();
+	public static boolean IsTranslucent(int i) {
+		return i == AIR.ordinal() || i == NON_EXISTENT.ordinal() || IsWaterType(i);
 	}
+    public static boolean IsWaterSurface(int i) {
+        return !IsWaterType(i);
+    }
 
 	public static boolean IsAirOrNonExistent(int i) {
 		return i == AIR.ordinal() || i == NON_EXISTENT.ordinal();
 	}
     public static boolean AcceptsWater(int i) {
-        return i == AIR.ordinal() || i >= WATER.ordinal() || i == NON_EXISTENT.ordinal();
+        return i == AIR.ordinal() || IsWaterType(i); // || i == NON_EXISTENT.ordinal();
     }
 
 	public static boolean IsSolid(int i) {
-		return !IsAirOrNonExistent(i) && i < WATER.ordinal();
+		return !IsAirOrNonExistent(i) && !IsWaterType(i);
 	}
+
+    public static boolean IsBreakAble(int i) {
+        return !IsAirOrNonExistent(i) && i != WATER_RUNOFF.ordinal();
+    }
+    public static boolean AcceptsPlaceBlock(int i) {
+        return IsSolid(i);
+    }
 	
 	public static boolean IsEmpty(int i) {
 		return NON_EXISTENT.ordinal() == i;
@@ -88,7 +98,6 @@ public enum BlockType {
 	}
 
     public static boolean IsWaterType(int i) { return i >= WATER.ordinal(); }
-
 
 	private int integer;
 	

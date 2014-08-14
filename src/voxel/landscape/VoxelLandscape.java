@@ -254,7 +254,6 @@ public class VoxelLandscape extends SimpleApplication
     public void simpleUpdate(float tpf) 
     {
         GameTime += tpf;
-        materialLibrarian.updateAnimatedMaterials(GameTime);
 
         if (!ADD_CHUNKS_DYNAMICALLY) return;
         // TODO: get rid of artifical delay...(spread out the work more)

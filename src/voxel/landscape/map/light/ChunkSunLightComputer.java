@@ -72,7 +72,7 @@ public class ChunkSunLightComputer
 			for (Coord3 dir : Direction.DirectionCoords ) {
 				Coord3 nextPos = pos.add(dir);
 				block = map.lookupBlock(nextPos);
-				if( BlockType.isTranslucent(block) && sunlightmap.SetMaxLight((byte)light, nextPos) ) {
+				if( BlockType.IsTranslucent(block) && sunlightmap.SetMaxLight((byte)light, nextPos) ) {
 					list.add( nextPos );
 				}
 				if(!BlockType.IsEmpty(block)) LightComputerUtils.SetLightDirty(map, nextPos);

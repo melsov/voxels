@@ -334,11 +334,10 @@ public class Player
             hitV = VektorUtil.EscapePositionOnUnitGrid(hitV, direction, hitFaceDirectionIn);
             hit = Coord3.FromVector3f(hitV);
             block = terrainMap.lookupBlock(hit);
-            if (!BlockType.IsAirOrNonExistent(block)) {
-                if (wantPlaceBlock) {
-                    Coord3 placeRelCoord = Direction.DirectionCoordForDirection(Direction.OppositeDirection(hitFaceDirectionIn.integer));
-                    return Coord3.FromVector3fAdjustNegative(hitV.add(placeRelCoord.toVector3())).toVector3();
-                }
+            if (wantPlaceBlock && BlockType.AcceptsPlaceBlock(block)) {
+                Coord3 placeRelCoord = Direction.DirectionCoordForDirection(Direction.OppositeDirection(hitFaceDirectionIn.integer));
+                return Coord3.FromVector3fAdjustNegative(hitV.add(placeRelCoord.toVector3())).toVector3();
+            } else if (BlockType.IsBreakAble(block)) {
                 return hitV;
             }
         }
