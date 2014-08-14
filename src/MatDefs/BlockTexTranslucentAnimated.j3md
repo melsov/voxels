@@ -11,6 +11,7 @@ MaterialDef Colored Textured {
 
         WorldParameters {
             WorldViewProjectionMatrix
+            Time
         }
     }
 

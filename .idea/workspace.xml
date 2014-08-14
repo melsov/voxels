@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2e872303-ea44-4607-a6e7-17cb61097a83" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/BlockMeshUtil.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/BlockMeshUtil.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/MatDefs/BlockTexAnimated.frag" afterPath="$PROJECT_DIR$/src/MatDefs/BlockTexAnimated.frag" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/MatDefs/BlockTexAnimated.j3md" afterPath="$PROJECT_DIR$/src/MatDefs/BlockTexAnimated.j3md" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/MatDefs/BlockTexAnimated.vert" afterPath="$PROJECT_DIR$/src/MatDefs/BlockTexAnimated.vert" />
@@ -12,11 +11,7 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/MatDefs/BlockTexTranslucentAnimated.frag" afterPath="$PROJECT_DIR$/src/MatDefs/BlockTexTranslucentAnimated.frag" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/MatDefs/BlockTexTranslucentAnimated.j3md" afterPath="$PROJECT_DIR$/src/MatDefs/BlockTexTranslucentAnimated.j3md" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/MatDefs/BlockTexTranslucentAnimated.vert" afterPath="$PROJECT_DIR$/src/MatDefs/BlockTexTranslucentAnimated.vert" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/BlockType.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/BlockType.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/map/light/BuildUtils.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/map/light/BuildUtils.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBuilder.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBuilder.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/map/TerrainMap.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/map/TerrainMap.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/map/water/WaterFlowComputer.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/map/water/WaterFlowComputer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="voxels.iws" />
@@ -110,16 +105,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TerrainMap.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/voxel/landscape/map/TerrainMap.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="4453" max-vertical-offset="5175">
-              <caret line="367" column="7" selection-start-line="367" selection-start-column="7" selection-end-line="369" selection-end-column="7" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="WaterFlowComputer.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/voxel/landscape/map/water/WaterFlowComputer.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -134,43 +119,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="WaterLevelMap.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/voxel/landscape/map/water/WaterLevelMap.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1185">
-              <caret line="41" column="68" selection-start-line="41" selection-start-column="68" selection-end-line="41" selection-end-column="68" />
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="e#1381#1382#0" expanded="true" />
-                <element signature="e#1438#1439#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MapHalfNibble3D.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/voxel/landscape/collection/MapHalfNibble3D.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="60" max-vertical-offset="795">
-              <caret line="58" column="35" selection-start-line="58" selection-start-column="35" selection-end-line="58" selection-end-column="35" />
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="e#383#402#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="BlockTexTranslucentAnimated.vert" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/MatDefs/BlockTexTranslucentAnimated.vert">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="360">
-              <caret line="16" column="26" selection-start-line="16" selection-start-column="26" selection-end-line="16" selection-end-column="26" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="ChunkBuilder.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBuilder.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -181,11 +129,59 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="VoxelLandscape.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="2385" max-vertical-offset="4515">
+              <caret line="256" column="49" selection-start-line="256" selection-start-column="26" selection-end-line="256" selection-end-column="49" />
+              <folding>
+                <element signature="method#setupTestStateVariables#0;class#VoxelLandscape#0" expanded="false" />
+                <element signature="n#!!doc;n#setupInputs#0;n#VoxelLandscape#0" expanded="false" />
+                <element signature="e#15598#15645#0" expanded="false" />
+                <element signature="n#!!doc;n#buildColumn#0;n#VoxelLandscape#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MaterialLibrarian.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/voxel/landscape/chunkbuild/MaterialLibrarian.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="645" max-vertical-offset="1380">
+              <caret line="65" column="0" selection-start-line="65" selection-start-column="0" selection-end-line="65" selection-end-column="0" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#565#586#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="BlockTexTranslucentAnimated.frag" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/MatDefs/BlockTexTranslucentAnimated.frag">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.20408164" vertical-offset="0" max-vertical-offset="735">
-              <caret line="10" column="41" selection-start-line="10" selection-start-column="41" selection-end-line="10" selection-end-column="41" />
+            <state vertical-scroll-proportion="0.12244898" vertical-offset="0" max-vertical-offset="735">
+              <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="BlockTexTranslucentAnimated.j3md" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/MatDefs/BlockTexTranslucentAnimated.j3md">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="390">
+              <caret line="5" column="0" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="BlockTexTranslucentAnimated.vert" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/MatDefs/BlockTexTranslucentAnimated.vert">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="390">
+              <caret line="12" column="20" selection-start-line="12" selection-start-column="20" selection-end-line="12" selection-end-column="20" />
               <folding />
             </state>
           </provider>
@@ -249,14 +245,10 @@
         <option value="$PROJECT_DIR$/src/voxel/landscape/tests/VoxelLandscapeTestChunkMgmt.java" />
         <option value="$PROJECT_DIR$/src/voxel/landscape/player/Player.java" />
         <option value="$PROJECT_DIR$/src/MatDefs/BlockTexAnimated.j3md" />
-        <option value="$PROJECT_DIR$/src/MatDefs/BlockTexTranslucentAnimated.j3md" />
         <option value="$PROJECT_DIR$/src/MatDefs/BlockTexNuevo.vert" />
         <option value="$PROJECT_DIR$/src/MatDefs/BlockTexNuevo.frag" />
-        <option value="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/MaterialLibrarian.java" />
-        <option value="$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java" />
         <option value="$PROJECT_DIR$/src/voxel/landscape/MeshSet.java" />
         <option value="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBrain.java" />
-        <option value="$PROJECT_DIR$/src/MatDefs/BlockTexTranslucentAnimated.vert" />
         <option value="$PROJECT_DIR$/src/voxel/landscape/map/water/WaterLevelMap.java" />
         <option value="$PROJECT_DIR$/src/voxel/landscape/BlockMeshUtil.java" />
         <option value="$PROJECT_DIR$/src/voxel/landscape/map/water/WaterFlowComputer.java" />
@@ -264,6 +256,10 @@
         <option value="$PROJECT_DIR$/src/voxel/landscape/map/light/BuildUtils.java" />
         <option value="$PROJECT_DIR$/src/voxel/landscape/BlockType.java" />
         <option value="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBuilder.java" />
+        <option value="$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java" />
+        <option value="$PROJECT_DIR$/src/MatDefs/BlockTexTranslucentAnimated.j3md" />
+        <option value="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/MaterialLibrarian.java" />
+        <option value="$PROJECT_DIR$/src/MatDefs/BlockTexTranslucentAnimated.vert" />
         <option value="$PROJECT_DIR$/src/MatDefs/BlockTexTranslucentAnimated.frag" />
       </list>
     </option>
@@ -783,7 +779,11 @@
       <created>1407971157499</created>
       <updated>1407971157499</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="&#10;more commits">
+      <created>1407974344249</created>
+      <updated>1407974344249</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -827,12 +827,14 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
+    <option name="CHECK_NEW_TODO" value="false" />
     <option name="myTodoPanelSettings">
       <TodoPanelSettings />
     </option>
     <MESSAGE value="&#10;" />
     <MESSAGE value="&#10;first commit with Intelli J" />
-    <option name="LAST_COMMIT_MESSAGE" value="&#10;first commit with Intelli J" />
+    <MESSAGE value="&#10;more commits" />
+    <option name="LAST_COMMIT_MESSAGE" value="&#10;more commits" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1130,29 +1132,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/chunkbuild/MaterialLibrarian.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="532" max-vertical-offset="1290">
-          <caret line="62" column="5" selection-start-line="62" selection-start-column="5" selection-end-line="62" selection-end-column="5" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#532#553#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/voxel/landscape/VoxelLandscapePreNearby.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="915" max-vertical-offset="7035">
           <caret line="131" column="81" selection-start-line="130" selection-start-column="8" selection-end-line="131" selection-end-column="81" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/MatDefs/BlockTexTranslucentAnimated.j3md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.2244898" vertical-offset="0" max-vertical-offset="735">
-          <caret line="11" column="25" selection-start-line="11" selection-start-column="25" selection-end-line="11" selection-end-column="25" />
           <folding />
         </state>
       </provider>
@@ -1168,19 +1151,6 @@
     <entry file="file://$PROJECT_DIR$/src/Textures/dog_64d_.jpg">
       <provider selected="true" editor-type-id="images">
         <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="2970" max-vertical-offset="4485">
-          <caret line="294" column="45" selection-start-line="294" selection-start-column="45" selection-end-line="294" selection-end-column="45" />
-          <folding>
-            <element signature="method#setupTestStateVariables#0;class#VoxelLandscape#0" expanded="false" />
-            <element signature="n#!!doc;n#setupInputs#0;n#VoxelLandscape#0" expanded="false" />
-            <element signature="e#15536#15583#0" expanded="false" />
-            <element signature="n#!!doc;n#buildColumn#0;n#VoxelLandscape#0" expanded="false" />
-          </folding>
-        </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/voxel/landscape/MeshSet.java">
@@ -1206,14 +1176,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.26530612" vertical-offset="0" max-vertical-offset="735">
           <caret line="13" column="26" selection-start-line="13" selection-start-column="26" selection-end-line="13" selection-end-column="26" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/MatDefs/BlockTexTranslucentAnimated.vert">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="360">
-          <caret line="16" column="26" selection-start-line="16" selection-start-column="26" selection-end-line="16" selection-end-column="26" />
           <folding />
         </state>
       </provider>
@@ -1298,10 +1260,50 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="2385" max-vertical-offset="4515">
+          <caret line="256" column="49" selection-start-line="256" selection-start-column="26" selection-end-line="256" selection-end-column="49" />
+          <folding>
+            <element signature="method#setupTestStateVariables#0;class#VoxelLandscape#0" expanded="false" />
+            <element signature="n#!!doc;n#setupInputs#0;n#VoxelLandscape#0" expanded="false" />
+            <element signature="e#15598#15645#0" expanded="false" />
+            <element signature="n#!!doc;n#buildColumn#0;n#VoxelLandscape#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/chunkbuild/MaterialLibrarian.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="645" max-vertical-offset="1380">
+          <caret line="65" column="0" selection-start-line="65" selection-start-column="0" selection-end-line="65" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#565#586#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/MatDefs/BlockTexTranslucentAnimated.vert">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="390">
+          <caret line="12" column="20" selection-start-line="12" selection-start-column="20" selection-end-line="12" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/MatDefs/BlockTexTranslucentAnimated.j3md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="390">
+          <caret line="5" column="0" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/MatDefs/BlockTexTranslucentAnimated.frag">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.20408164" vertical-offset="0" max-vertical-offset="735">
-          <caret line="10" column="41" selection-start-line="10" selection-start-column="41" selection-end-line="10" selection-end-column="41" />
+        <state vertical-scroll-proportion="0.12244898" vertical-offset="0" max-vertical-offset="735">
+          <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
           <folding />
         </state>
       </provider>

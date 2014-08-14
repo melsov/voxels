@@ -253,9 +253,10 @@ public class VoxelLandscape extends SimpleApplication
     @Override
     public void simpleUpdate(float tpf) 
     {
-        if (!ADD_CHUNKS_DYNAMICALLY) return;
         GameTime += tpf;
+        materialLibrarian.updateAnimatedMaterials(GameTime);
 
+        if (!ADD_CHUNKS_DYNAMICALLY) return;
         // TODO: get rid of artifical delay...(spread out the work more)
         if (artificialDelay < .15f) {
             artificialDelay += tpf;
@@ -268,6 +269,7 @@ public class VoxelLandscape extends SimpleApplication
         addToColumnPriorityQueue();
         if(!DONT_BUILD_CHUNK_MESHES && buildANearbyChunk()) {}
         cullAnExcessColumn(tpf);
+
     }
 
     //<editor-fold desc="Simple Init and main">
