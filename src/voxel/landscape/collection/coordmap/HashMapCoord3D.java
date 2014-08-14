@@ -1,6 +1,7 @@
 package voxel.landscape.collection.coordmap;
 
 import voxel.landscape.coord.Coord3;
+import voxel.landscape.util.Asserter;
 
 import java.util.HashMap;
 
@@ -30,8 +31,10 @@ public class HashMapCoord3D<T>
                 obj = type.newInstance();
             } catch (InstantiationException e) {
                 e.printStackTrace();
+                Asserter.assertFalseAndDie("Get Instance failed");
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
+                Asserter.assertFalseAndDie("Get Instance failed");
             }
             Set(obj, pos);
         }

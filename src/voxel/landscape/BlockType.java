@@ -1,6 +1,7 @@
 package voxel.landscape;
 
 import voxel.landscape.map.light.SunLightComputer;
+import voxel.landscape.map.water.WaterFlowComputer;
 
 import java.awt.*;
 import java.util.EnumSet;
@@ -57,6 +58,16 @@ public enum BlockType {
 		}
 	}
 
+    public static float LiquidFlowTimeStepSeconds(int i) {
+        switch(BlockType.get(i)) {
+            case WATER:
+            case WATER_RUNOFF:
+                return 2f;
+            default:
+                return Float.MAX_VALUE;
+        }
+    }
+
 	public boolean equals(int i) {
 		return this.ordinal() == i;
 	}
@@ -85,6 +96,10 @@ public enum BlockType {
     public static boolean AcceptsPlaceBlock(int i) {
         return IsSolid(i);
     }
+
+    public static boolean IsPlaceable(int i) {
+        return IsSolid(i) || BlockType.WATER.ordinal() == i;
+    }
 	
 	public static boolean IsEmpty(int i) {
 		return NON_EXISTENT.ordinal() == i;
@@ -96,8 +111,23 @@ public enum BlockType {
         if (type == LANTERN.ordinal()) return SunLightComputer.MAX_LIGHT;
         return 0;
 	}
+    public static int WaterLevelForType(int type) {
+        if (type == WATER.ordinal()) return WaterFlowComputer.MAX_WATER_LEVEL;
+        return 0; //NOTE: WATER_RUNOFF should have zero level (by type at least) right? (Can't be placed)
+    }
 
     public static boolean IsWaterType(int i) { return i >= WATER.ordinal(); }
+
+    public static byte NextPlaceableBlockFrom(int block) {
+        BlockType[] blockTypes = BlockType.values();
+        byte result;
+        BlockType blockType;
+        do {
+            blockType = blockTypes[(++block) % blockTypes.length];
+            result = (byte) blockType.ordinal();
+        } while (!IsPlaceable(result));
+        return result;
+    }
 
 	private int integer;
 	

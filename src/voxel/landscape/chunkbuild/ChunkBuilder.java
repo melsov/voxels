@@ -19,7 +19,7 @@ import static voxel.landscape.Chunk.XLENGTH;
 
 public class ChunkBuilder 
 {
-	public static void buildMesh(Chunk chunk, MeshSet mset, MeshSet waterMSet, boolean lightOnly)
+	public static void buildMesh(Chunk chunk, MeshSet mset, MeshSet waterMSet, boolean lightOnly, boolean onlyLiquid)
 	{
 		int xin = 0, yin = 0, zin = 0;
 		Coord3 posi;
@@ -47,6 +47,7 @@ public class ChunkBuilder
                                 waterTriIndex += 4;
                             }
                         }
+                        if (onlyLiquid) continue;
                     } else {
                         for (int dir = 0; dir <= Direction.ZPOS; ++dir) {
                             if (IsFaceVisible(map, worldcoord, dir)) {

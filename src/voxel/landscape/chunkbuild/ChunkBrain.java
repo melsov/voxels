@@ -26,14 +26,9 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
 	private boolean dirty, lightDirty, liquidDirty;
 	private AsyncBuildMesh asyncBuildMesh = null;
 	private boolean shouldApplyMesh = false;
-	
+
 	public ChunkBrain(Chunk _chunk) {
 		chunk = _chunk;
-//		Mesh mesh = new Mesh(); // new Box(Vector3f.ZERO.clone(), new Vector3f(1,1,1).mult(12f));
-//        mesh.setDynamic();
-//		Geometry geom = new Geometry("chunk_geom", mesh);
-//        geom.move(worldPosition.toVector3());
-//		geom.addControl(this);
 	}
     public void setMeshEmpty() {
         getGeometry().setMesh(makeEmptyMesh());
@@ -52,14 +47,18 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
 		}
 		*/
 		if(dirty) {
-			buildMesh(false);
-			dirty = lightDirty = false;
+			buildMesh(false, false);
+			dirty = lightDirty = liquidDirty = false;
 		}
 		if(lightDirty) {
 			buildMeshLight();
 			lightDirty = false;
 		}
-        //TODO: if 'waterDirty'
+        if (liquidDirty) {
+            buildMeshLiquid();
+            liquidDirty = false;
+        }
+
 //        if (chunk.getIsAllAir()) {
 //            setMeshEmpty();
 //        }
@@ -67,7 +66,7 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
 
 	@Override
 	protected void controlRender(RenderManager renderManager, ViewPort viewPort) {
-		//do nothing here
+		//do nothing here. must override however.
 	}
 
     private Mesh makeEmptyMesh() {
@@ -145,10 +144,11 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
         setSpatial(null);
     }
 
-	private void buildMeshLight() { buildMesh(true); }
+	private void buildMeshLight() { buildMesh(true, false); }
 
+    private void buildMeshLiquid() { buildMesh(false, true); }
     // TODO: if water...
-	private void buildMesh(boolean onlyLight) 
+	private void buildMesh(boolean onlyLight, boolean onlyLiquid)
 	{
         if (VoxelLandscape.DO_USE_TEST_GEOMETRY) return;
 		/*
@@ -161,14 +161,15 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
 		MeshSet mset = new MeshSet();
         MeshSet waterMSet = new MeshSet();
         waterMSet.isLiquidMaterial = true;
-        ChunkBuilder.buildMesh(chunk, mset, waterMSet, onlyLight);
+        ChunkBuilder.buildMesh(chunk, mset, waterMSet, onlyLight, onlyLiquid);
 
+        if (!onlyLiquid) {
+            ChunkBuilder.ApplyMeshSet(mset, getMesh(), onlyLight);
+            getGeometry().setModelBound(new BoundingBox(Vector3f.ZERO.clone(), new Vector3f(Chunk.XLENGTH, Chunk.YLENGTH, Chunk.ZLENGTH)));
+            getGeometry().updateModelBound();
+        }
 
-		ChunkBuilder.ApplyMeshSet(mset, getMesh(), onlyLight);
-        getGeometry().setModelBound(new BoundingBox(Vector3f.ZERO.clone(), new Vector3f(Chunk.XLENGTH,Chunk.YLENGTH,Chunk.ZLENGTH)));
-		getGeometry().updateModelBound();
-
-        //TODO: if there is any water/liquid else don't bother
+        //TODO: if there is any water/liquid
         ChunkBuilder.ApplyMeshSet(waterMSet, getWaterMesh(), onlyLight);
         getWaterGeometry().setModelBound(new BoundingBox(Vector3f.ZERO.clone(), new Vector3f(Chunk.XLENGTH,Chunk.YLENGTH,Chunk.ZLENGTH)));
         getWaterGeometry().updateModelBound();
@@ -187,7 +188,7 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
 		public boolean getOnlyLight() { return onlyLight; }
 		@Override
 		public void doRun() {
-			ChunkBuilder.buildMesh(chunk, mset, waterMSet, onlyLight);
+			ChunkBuilder.buildMesh(chunk, mset, waterMSet, onlyLight, false);
 		}
 	}
 	@Override

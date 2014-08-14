@@ -255,6 +255,8 @@ public class VoxelLandscape extends SimpleApplication
     {
         GameTime += tpf;
 
+        terrainMap.mapUpdate(tpf);
+
         if (!ADD_CHUNKS_DYNAMICALLY) return;
         // TODO: get rid of artifical delay...(spread out the work more)
         if (artificialDelay < .15f) {

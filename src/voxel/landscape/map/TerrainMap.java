@@ -10,6 +10,7 @@ import voxel.landscape.map.light.LightComputer;
 import voxel.landscape.map.light.LightMap;
 import voxel.landscape.map.light.SunLightComputer;
 import voxel.landscape.map.light.SunLightMap;
+import voxel.landscape.map.water.LiquidUpdater;
 import voxel.landscape.map.water.WaterFlowComputer;
 import voxel.landscape.map.water.WaterLevelMap;
 import voxel.landscape.noise.IBlockDataProvider;
@@ -32,10 +33,21 @@ public class TerrainMap implements IBlockDataProvider {
 	private SunLightMap sunLightmap = new SunLightMap();
 	private LightMap lightmap = new LightMap();
     private WaterLevelMap liquidLevelMap = new WaterLevelMap();
+    private LiquidUpdater liquidUpdaterWater = new LiquidUpdater(BlockType.LiquidFlowTimeStepSeconds(BlockType.WATER.ordinal()));
 
 	public TerrainMap() {
 	}
 
+    /*
+     * DYNAMIC MAP UPDATES
+     */
+    public void mapUpdate(float tpf) {
+        liquidUpdaterWater.StepScatter(this, tpf);
+    }
+
+    /*
+     * WORLD INFO
+     */
 	public static int GetWorldHeightInChunks() {
 		return MAX_DIM_VERTICAL - MIN_DIM_VERTICAL;
 	}
@@ -44,13 +56,15 @@ public class TerrainMap implements IBlockDataProvider {
 		return GetWorldHeightInChunks() * Chunk.YLENGTH;
 	}
 
+    /*
+     * BLOCK INFO
+     */
     public byte lookupBlock(int x, int y, int z) {
 		return lookupBlock(new Coord3(x, y, z));
 	}
 
     public byte lookupBlock(Vector3f v) {  return lookupBlock((int)v.x, (int)v.y, (int)v.z); }
 
-    /* TODO: consider how to make this thread-safe */
 	public byte lookupBlock(Coord3 co) {
 		Chunk chunk = GetChunk(Chunk.ToChunkPosition(co));
 		if (chunk == null)
@@ -67,11 +81,6 @@ public class TerrainMap implements IBlockDataProvider {
 		if (chunk == null) return false;
 		return BlockType.IsTranslucent(chunk.blockAt(Chunk.toChunkLocalCoord(x, y, z)));
 	}
-    public boolean blockAtWorldCoordAcceptsWater(int x, int y, int z) {
-        Chunk chunk = GetChunk(Chunk.ToChunkPosition(x, y, z));
-        if (chunk == null) return false;
-        return BlockType.AcceptsWater(chunk.blockAt(Chunk.toChunkLocalCoord(x, y, z)));
-    }
 
 	public void setBlockAtWorldCoord(byte block, Coord3 pos) {
 		setBlockAtWorldCoord(block, pos.x, pos.y, pos.z);
@@ -84,10 +93,6 @@ public class TerrainMap implements IBlockDataProvider {
 
     public int getMinChunkCoordY() { return MIN_DIM_VERTICAL; }
     public int getMaxChunkCoordY() { return MAX_DIM_VERTICAL; }
-
-//	public int lookupOrCreateBlock(Coord3 woco, TerrainDataProvider _terrainData) {
-//		return lookupOrCreateBlock(woco, _terrainData);
-//	}
 
 	@Override
     public int lookupOrCreateBlock(Coord3 woco) {
@@ -135,21 +140,17 @@ public class TerrainMap implements IBlockDataProvider {
 	}
     /* i.e. find the surface */
     private void generateEnoughNoiseForSunlightInColumn(int x, int z, TerrainDataProvider _dataProvider) {
-
+        //CONSIDER: implement this
     }
 
     private void doGenerateNoiseForChunkColumn(int x, int z, TerrainDataProvider _dataProvider) {
         Coord3 chunkPos = new Coord3(x, MIN_DIM_VERTICAL, z);
         for (; true; chunkPos.y++) {
-            boolean generated = generateNoiseForChunkAt(chunkPos.x, chunkPos.y,
-                    chunkPos.z, _dataProvider);
-            /* CONSIDER: thread sleep at some point? */
-
+            boolean generated = generateNoiseForChunkAt(chunkPos.x, chunkPos.y, chunkPos.z, _dataProvider);
             if (!generated)
                 break;
         }
     }
-
 
 	/*
 	 * get the terrain data inside the chunk and also in the -1/+1 box that
@@ -269,9 +270,6 @@ public class TerrainMap implements IBlockDataProvider {
 	 * Credit: Mr. Wishmaster methods (YouTube)
 	 */
 	public void SetBlockAndRecompute(byte block, Coord3 pos) {
-        //TODO: record old block.
-        //TODO: add recomputeWaterAtPosition
-
 		setBlockAtWorldCoord(block, pos);
 
 		Coord3 chunkPos = Chunk.ToChunkPosition(pos);
@@ -293,9 +291,15 @@ public class TerrainMap implements IBlockDataProvider {
 		if (localPos.z == Chunk.CHUNKDIMS.z - 1)
 			SetDirty(chunkPos.add(Coord3.forward));
 
-		SunLightComputer.RecomputeLightAtPosition(this, pos);
-		LightComputer.RecomputeLightAtPosition(this, pos);
-        WaterFlowComputer.RecomputeWaterAtPosition(this, pos);
+		SunLightComputer.RecomputeLightAtPosition(this, pos.clone());
+		LightComputer.RecomputeLightAtPosition(this, pos.clone());
+
+        //TODO: make logic more abstract so TerrainMap doesn't have to deal with...
+        if (BlockType.WATER.ordinal() == block) {
+            liquidUpdaterWater.addCoord(pos.clone(), WaterFlowComputer.MAX_WATER_LEVEL);
+        } else {
+            WaterFlowComputer.RecomputeWaterAtPosition(this, pos.clone());
+        }
 	}
 
 	private void SetDirty(Coord3 chunkPos) {
@@ -369,12 +373,17 @@ public class TerrainMap implements IBlockDataProvider {
         return liquidLevelMap;
     }
 
+    public void setWater(Coord3 worldPos) {
+        setBlockAtWorldCoord((byte) BlockType.WATER.ordinal(), worldPos);
+    }
+
     public void setWaterRunOff(Coord3 worldPos) {
         setBlockAtWorldCoord((byte) BlockType.WATER_RUNOFF.ordinal(), worldPos);
     }
 
     public void unsetWater(Coord3 worldPos) {
-        setBlockAtWorldCoord((byte) BlockType.AIR.ordinal(), worldPos);
+        if (BlockType.IsWaterType(lookupBlock(worldPos)))
+            setBlockAtWorldCoord((byte) BlockType.AIR.ordinal(), worldPos);
     }
 
 }

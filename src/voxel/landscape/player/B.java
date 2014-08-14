@@ -26,5 +26,21 @@ public class B {
 	public static void bug(Coord3 c) {
 		System.out.println(c.toString());
 	}
+    public static void bug(StringBuilder sb) {
+        System.out.println(sb.toString());
+    }
+    public static void stackTrace() {
+        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+        StringBuilder sb = new StringBuilder(stackTraceElements.length * 20);
+        for(StackTraceElement stackTraceElement : stackTraceElements) {
+            sb.append(stackTraceElement.getClassName());
+            sb.append(" : ");
+            sb.append(stackTraceElement.getMethodName());
+            sb.append(" : ");
+            sb.append(stackTraceElement.getLineNumber());
+            sb.append("\n");
+        }
+        System.out.println(sb.toString());
+    }
 	
 }

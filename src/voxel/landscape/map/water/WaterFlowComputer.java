@@ -6,42 +6,36 @@ import voxel.landscape.coord.Direction;
 import voxel.landscape.map.TerrainMap;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by didyouloseyourdog on 8/9/14.
  */
 public class WaterFlowComputer
 {
+    public static final byte LACK_OF_WATER_LEVEL = 0;
     public static final byte MIN_WATER_LEVEL = 0;
     public static final byte MAX_WATER_LEVEL = 3;
 
-    private static ArrayList<Coord3> list = new ArrayList<Coord3>();
-
+    private static void Scatter(TerrainMap map, Coord3 pos) {
+        ArrayList<Coord3> list = new ArrayList<Coord3>(24);
+        list.add(pos);
+        Scatter(map, list);
+    }
     public static void Scatter(TerrainMap map, ArrayList<Coord3> list) {
         WaterLevelMap liquidLevelMap = map.getLiquidLevelMap();
-        List<Coord3> downAndHorizontal = new ArrayList<Coord3>(5);
-        downAndHorizontal.add(Coord3.yneg.clone());
-        for(Coord3 xzco : Direction.DirectionXZCoords) downAndHorizontal.add(xzco.clone());
-
         for(int i=0; i<list.size(); i++) {
-
             Coord3 pos = list.get(i);
             if(pos.y<0) continue;
-//            B.bugln("Scattering: " + pos.toString());
-            byte block = map.lookupBlock(pos);
-            int waterLevel = liquidLevelMap.GetWaterLevel(pos) - WaterFlowComputerUtils.GetWaterStep(block);
-            if(waterLevel <= MIN_WATER_LEVEL) {
-//                B.bug("water level was: " + waterLevel + "continuing \n");
-                continue;
-            }
-
-            for(Coord3 dir : downAndHorizontal) {
+            byte block;
+            int waterLevel = liquidLevelMap.GetWaterLevel(pos);
+            for(Coord3 dir : Direction.DirectionCoordsXZAndDown) {
                 Coord3 nextPos = pos.add(dir);
                 block = map.lookupBlock(nextPos);
-                byte levelToAdd = dir.y == -1 ? WaterFlowComputer.MAX_WATER_LEVEL : (byte) waterLevel;
+                byte levelToAdd = dir.y == -1 ?  (byte) waterLevel : (byte) (waterLevel - WaterFlowComputerUtils.GetWaterStep(block));
+                if (levelToAdd <= MIN_WATER_LEVEL) {
+                    break;
+                }
                 if( BlockType.AcceptsWater(block) && liquidLevelMap.SetWaterLevelIfPossible(levelToAdd, nextPos) ) {
-//                    B.bugln("added water to pos: " + nextPos.toString());
                     list.add( nextPos );
                     if(!BlockType.IsEmpty(block)) {
                         map.setWaterRunOff(nextPos);
@@ -54,37 +48,35 @@ public class WaterFlowComputer
     }
 
     public static void RecomputeWaterAtPosition(TerrainMap map, Coord3 pos) {
-        //TODO: implement
-//        LightMap lightmap = map.GetLightmap();
-//        int oldLight = lightmap.GetLight(pos);
-//        int light = lightAtWorldCoord(map, pos); // map.blockAtWorldCoord(pos).GetLight();
-//
-//        if(oldLight > light) {
-//            RemoveLight(map, pos);
-//        }
-//        if(light > MIN_LIGHT) {
-//            Scatter(map, pos);
-//        }
-    }
+        WaterLevelMap liquidMap = map.getLiquidLevelMap();
+        int oldWater = liquidMap.GetWaterLevel(pos);
+        byte block = map.lookupBlock(pos);
+        int newWater = BlockType.WaterLevelForType(block);
 
-    //TODO: If water is placed, call this
-    private static void UpdateWater(TerrainMap map, Coord3 pos) {
-        list.clear();
-        for(Coord3 dir : Direction.DirectionCoords) {
-            list.add( pos.add(dir) );
+        if (oldWater > newWater) {
+            RemoveWater(map, pos);
         }
-        Scatter(map, list);
+        if (newWater > MIN_WATER_LEVEL) {
+            Scatter(map, pos);
+        }
+        // Did we add air (or lava??) just below water?
+        else if (!BlockType.IsWaterType(block) && BlockType.AcceptsWater(block)
+                && BlockType.IsWaterType(map.lookupBlock(pos.add(Coord3.ypos)))) {
+            Scatter(map, pos.add(Coord3.ypos));
+        }
     }
 
-    // TODO: If water is remove, call this
     private static void RemoveWater(TerrainMap map, Coord3 pos) {
-        list.clear();
+        ArrayList<Coord3> list = new ArrayList<Coord3>(24);
         list.add(pos);
         RemoveWater(map, list);
     }
 
     private static void RemoveWater(TerrainMap map, ArrayList<Coord3> list) {
         WaterLevelMap liquidLevelMap = map.getLiquidLevelMap();
+        /* set remove coords to MAX water level (counter-intuitively)
+         * this way, we will iterate over any positions where these blocks had 'water influence'
+         * we will set them all to zero water level soon right after checking influence (nextWater). */
         for(Coord3 pos : list) {
             liquidLevelMap.SetWaterLevel(MAX_WATER_LEVEL, pos);
         }
@@ -93,21 +85,23 @@ public class WaterFlowComputer
         for(int i=0; i<list.size(); i++) {
             Coord3 pos = list.get(i);
             if(pos.y<0) continue;
+            //NOTE: this is ok because a water block that was just removed will already be set to another block type
             if(map.lookupBlock(pos.x, pos.y, pos.z) == BlockType.WATER.ordinal()) {
                 reAddWaterCoords.add( pos );
                 continue;
             }
-            byte light = (byte) (liquidLevelMap.GetWaterLevel(pos) - WaterFlowComputerUtils.WATER_STEP);
-            liquidLevelMap.SetWaterLevel(MIN_WATER_LEVEL, pos);
+            byte nextWater = (byte) (liquidLevelMap.GetWaterLevel(pos) - WaterFlowComputerUtils.WATER_STEP);
+            liquidLevelMap.SetWaterLevel(LACK_OF_WATER_LEVEL, pos);
             map.unsetWater(pos);
-            if (light <= MIN_WATER_LEVEL) continue;
+            if (nextWater <= MIN_WATER_LEVEL) {
+                continue;
+            }
 
-            for(Coord3 dir : Direction.DirectionCoords) {
-                if (dir.y == -1) continue; // don't erase water downwards (only go up and side to side)
+            for(Coord3 dir : Direction.DirectionCoordsXZAndDown) {
                 Coord3 nextPos = pos.add(dir);
                 byte block = map.lookupBlock(nextPos);
                 if(BlockType.AcceptsWater(block)) {
-                    if(liquidLevelMap.GetWaterLevel(nextPos) <= light) {
+                    if(dir.y == -1 || liquidLevelMap.GetWaterLevel(nextPos) <= nextWater) {
                         list.add( nextPos );
                     } else {
                         reAddWaterCoords.add( nextPos );

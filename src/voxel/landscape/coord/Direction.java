@@ -42,6 +42,13 @@ public class Direction {
             new Vector3f( 0, 0,-1),
             new Vector3f( 0, 0, 1),
     };
+    public static Coord3[] DirectionCoordsXZAndDown = new Coord3[] {
+            new Coord3( 0,-1, 0),
+            new Coord3(-1, 0, 0),
+            new Coord3( 1, 0, 0),
+            new Coord3( 0, 0,-1),
+            new Coord3( 0, 0, 1),
+    };
     public static final Vector3f UNIT_XZ = new Vector3f(1f,0f,1f);
 	
 	public static int OppositeDirection(int dir) {

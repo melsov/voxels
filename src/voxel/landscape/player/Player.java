@@ -49,7 +49,7 @@ public class Player
     private boolean grounded = false;
     private boolean jumping = false;
     private boolean headBump = false;
-    private byte blockInHandType = (byte) BlockType.SAND.ordinal();
+    private byte blockInHandType = (byte) BlockType.WATER.ordinal();
 
     private boolean debugPlaceCoord = false;
 
@@ -99,7 +99,7 @@ public class Player
 
     }
     private void toggleBlockInHandType() {
-        blockInHandType = (byte)(blockInHandType == BlockType.SAND.ordinal() ? BlockType.LANTERN.ordinal() : BlockType.SAND.ordinal());
+        blockInHandType = BlockType.NextPlaceableBlockFrom(blockInHandType); //()byte)(blockInHandType == BlockType.SAND.ordinal() ? BlockType.LANTERN.ordinal() : BlockType.SAND.ordinal());
     }
     private AnalogListener analogListener = new AnalogListener() {
         public void onAnalog(String name, float keyPressed, float tpf) {

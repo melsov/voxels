@@ -47,6 +47,7 @@ public class SunLightMap
 	/*
 	 * Set
 	 */
+
 	public void SetLight(byte light, Coord3 pos) {
 		SetLight(light, pos.x, pos.y, pos.z);
 	}

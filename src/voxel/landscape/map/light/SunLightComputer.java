@@ -28,11 +28,11 @@ public class SunLightComputer {
         for(int i=0; i<list.size(); i++) {
             Coord3 pos = list.get(i);
 			if(pos.y<0) continue;
-			
+
 			byte block = map.lookupBlock(pos);
 			int light = sunlightmap.GetLight(pos) - LightComputerUtils.GetLightStep(block);
             if(light <= MIN_LIGHT) continue;
-			
+
             for(Coord3 dir : Direction.DirectionCoords) {
 				Coord3 nextPos = pos.add(dir);
 				block = map.lookupBlock(nextPos);
@@ -49,7 +49,6 @@ public class SunLightComputer {
 		int oldSunHeight = lightmap.GetSunHeight(pos.x, pos.z);
 		ComputeRayAtPosition(map, pos.x, pos.z);
 		int newSunHeight = lightmap.GetSunHeight(pos.x, pos.z);
-		
 		if(newSunHeight < oldSunHeight) { //sun reaching further down
 			list.clear();
             for (int ty = newSunHeight; ty <= oldSunHeight; ty++) {
