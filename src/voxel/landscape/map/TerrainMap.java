@@ -22,7 +22,7 @@ public class TerrainMap implements IBlockDataProvider {
 	private static final int MAX_DIM_HORIZONTAL = 8; // for limited dimension world only
 
     private static final int MIN_DIM_VERTICAL = 0;
-	private static final int MAX_DIM_VERTICAL = 1;
+	private static final int MAX_DIM_VERTICAL = 4;
 
 	public static Coord3 MIN_CHUNK_COORD = new Coord3(MIN_DIM_HORIZONTAL, MIN_DIM_VERTICAL, MIN_DIM_HORIZONTAL);
 	public static Coord3 MAX_CHUNK_COORD = new Coord3(MAX_DIM_HORIZONTAL,MAX_DIM_VERTICAL, MAX_DIM_HORIZONTAL);

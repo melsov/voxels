@@ -2,8 +2,6 @@ package voxel.landscape.map.water;
 
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;
-import voxel.landscape.player.B;
-import voxel.landscape.util.Asserter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,8 +23,6 @@ public class LiquidUpdater
 
     public void addCoord(Coord3 pos, int targetWaterLevel) {
         instantUpdates.put(pos, new Integer(targetWaterLevel));
-        Asserter.assertTrue(instantUpdates.size() > 0, "??? size is zero??");
-        B.bugln("instand updates size: " + instantUpdates.size());
     }
 
     public void StepScatter(TerrainMap map, float tpf) {
@@ -49,9 +45,7 @@ public class LiquidUpdater
                 Coord3 pos = entry.getKey();
                 Integer targetValue = entry.getValue();
                 int currentValue = liquidMap.GetWaterLevel(pos);
-                B.bugln("timed update target val: " + targetValue.intValue() + " current val: " + currentValue);
                 if (targetValue.intValue() > currentValue) {
-                    B.bugln("updating pos: " + pos.toString() + " tar val: " + targetValue.toString() + " cur val: " + currentValue);
                     liquidMap.SetWaterLevel((byte) (Math.min(WaterFlowComputer.MAX_WATER_LEVEL, currentValue + WaterFlowComputerUtils.WATER_STEP)), pos);
                     WaterFlowComputerUtils.SetWaterDirty(map, pos);
                     liquidPositions.add(pos.clone());
@@ -61,14 +55,12 @@ public class LiquidUpdater
             }
         }
 
-
         Iterator instantIterator = instantUpdates.entrySet().iterator();
         while (instantIterator.hasNext()) {
             Map.Entry<Coord3, Integer> entry = (Map.Entry<Coord3, Integer>) instantIterator.next();
             Coord3 pos = entry.getKey();
             Integer targetValue = entry.getValue();
             int currentValue = liquidMap.GetWaterLevel(pos);
-            B.bugln("instant update target val: " + targetValue.intValue() + " current val: " + currentValue);
             if (targetValue.intValue() > currentValue) {
                 liquidMap.SetWaterLevel((byte) (Math.min(WaterFlowComputer.MAX_WATER_LEVEL, currentValue + WaterFlowComputerUtils.WATER_STEP)), pos);
                 map.setWater(pos);
@@ -81,17 +73,6 @@ public class LiquidUpdater
 
 
         WaterFlowComputer.Scatter(map, liquidPositions);
-//        for (Coord3 pos : instantUpdates.keySet()) {
-//            Integer targetValue = instantUpdates.get(pos);
-//            int currentValue = liquidMap.GetWaterLevel(pos);
-//            if (targetValue.intValue() > currentValue) {
-//                liquidMap.SetWaterLevel((byte) (Math.min(WaterFlowComputer.MAX_WATER_LEVEL, currentValue + WaterFlowComputerUtils.WATER_STEP)), pos);
-//                liquidPositions.add(pos.clone());
-//                didUpdate = true;
-//            }
-//        }
-//        updates.putAll(instantUpdates);
-//        instantUpdates.clear();
     }
 
 }

@@ -63,8 +63,8 @@ public class VoxelLandscape extends SimpleApplication
     public static boolean TESTING_DEBUGGING_ON = false, DO_USE_TEST_GEOMETRY = true;
 
     private static int COLUMN_DATA_BUILDER_THREAD_COUNT = 4;
-    public static int ADD_COLUMN_RADIUS = 3;
-    private static int COLUMN_CULLING_MIN = (int) ((ADD_COLUMN_RADIUS * 1 + 1)*(ADD_COLUMN_RADIUS * 1 + 1));
+    public static int ADD_COLUMN_RADIUS = 7;
+    private static int COLUMN_CULLING_MIN = (int) ((ADD_COLUMN_RADIUS * 1 + 2)*(ADD_COLUMN_RADIUS * 1 + 2));
 
 	private TerrainMap terrainMap = new TerrainMap();
 	private ColumnMap columnMap = new ColumnMap();
