@@ -134,7 +134,7 @@ public class TerrainDataProvider
 	    
 	    // lowland_scale
 	    ModuleScaleOffset lowlandScale = new ModuleScaleOffset();
-	    lowlandScale.setScale(0.125);
+	    lowlandScale.setScale(0.05);
 	    lowlandScale.setOffset(-0.45);
 	    lowlandScale.setSource(lowlandAutoCorrect);
 	    
@@ -182,7 +182,6 @@ public class TerrainDataProvider
 	    /*
 	     * mountain
 	     */
-
 	    // mountain_shape_fractal
 	    ModuleFractal mountainShapeFractal = new ModuleFractal(FractalType.RIDGEMULTI, BasisType.GRADIENT, InterpolationType.QUINTIC);
 	    mountainShapeFractal.setNumOctaves(8);
@@ -271,7 +270,6 @@ public class TerrainDataProvider
 	    /*
 	     * cave
 	     */
-	   
 	    ModuleFractal caveShape = new ModuleFractal(FractalType.RIDGEMULTI, BasisType.GRADIENT, InterpolationType.QUINTIC);
 	    caveShape.setNumOctaves(1);
 	    caveShape.setFrequency(4);
@@ -297,7 +295,7 @@ public class TerrainDataProvider
 	    Module mp_caveModule = caveModuleCreate(caveShapeCache, seed);
 
 	    /*
-	     * Terrain Type
+	     * Block Type
 	     */
 	    ModuleFractal terrainTypeHelperModule = new ModuleFractal(FractalType.RIDGEMULTI, BasisType.GRADIENT, InterpolationType.QUINTIC);
 	    terrainTypeHelperModule.setNumOctaves(1);
@@ -327,7 +325,7 @@ public class TerrainDataProvider
 	    terrScaleYDomain.setScaleY(.2);
 	    terrScaleYDomain.setSource(terrOffByCaveFrac);
 	    
-//	    // sand or grass ?
+	    // sand or grass ?
 	    ModuleCombiner terrTypePlusMountainsNoise = new ModuleCombiner(CombinerType.ADD);
 	    terrTypePlusMountainsNoise.setSource(0, terrainTypeCache);
 	    terrTypePlusMountainsNoise.setSource(1, mp_mountainCache); //ever useful
@@ -406,22 +404,23 @@ public class TerrainDataProvider
 	    
 	    noiseModule = bedrockSelect;
 
-	  }
+	 }
+//    private static Module riverModuleCreate(long seed ) {
+//
+//    }
 	 private static Module caveModuleCreate(Module caveShapeA, long seed) {
 		  int moduleSelect = 0;
-		  // cave_shape
-
 
 		    // cave_perturb_fractal
 		    ModuleFractal cavePerturbFractal = new ModuleFractal(FractalType.FBM, BasisType.GRADIENT, InterpolationType.QUINTIC);
 		    cavePerturbFractal.setNumOctaves(6);
 		    cavePerturbFractal.setFrequency(3);
-		    cavePerturbFractal.setSeed(seed);
+		    cavePerturbFractal.setSeed(seed); //CONSIDER: adjust seed??
 
 		    // cave_perturb_scale
 		    ModuleScaleOffset cavePerturbScale = new ModuleScaleOffset();
 		    cavePerturbScale.setScale(0.25);
-		    cavePerturbScale.setOffset(0); // 0 was orig val
+		    cavePerturbScale.setOffset(0);
 		    cavePerturbScale.setSource(cavePerturbFractal);
 
 		    // cave_perturb
@@ -454,7 +453,6 @@ public class TerrainDataProvider
 		    ModuleSelect caveSelect = new ModuleSelect();
 		    caveSelect.setLowSource(1);
 		    caveSelect.setHighSource(0);
-//		    caveSelect.setControlSource(cavePerturb);
 		    caveSelect.setControlSource(caveDepthCombiner);
 		    caveSelect.setThreshold(0.8);
 		    caveSelect.setFalloff(0);

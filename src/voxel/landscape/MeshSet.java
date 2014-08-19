@@ -16,5 +16,15 @@ public class MeshSet
 	public Vector<Vector2f> texMapOffsets = new Vector<Vector2f>();
 	public Vector<Float> colors = new Vector<Float>();
 	public Vector<Vector3f> normals = new Vector<Vector3f>();
-    public boolean isLiquidMaterial;
+    public boolean isLiquidMaterial, isOnlyLightUpdate;
+//    public Coord3 chunkPosition;
+
+    public MeshSet() {
+        this(false, false);
+    }
+    public MeshSet( boolean _isLiquidMaterial, boolean _isOnlyLightUpdate) {
+//        chunkPosition = _chunkPosition;
+        isLiquidMaterial = _isLiquidMaterial;
+        isOnlyLightUpdate = _isOnlyLightUpdate;
+    }
 }

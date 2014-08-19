@@ -25,10 +25,9 @@ import com.jme3.texture.plugins.AWTLoader;
 import com.jme3.ui.Picture;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.SkyFactory;
-import voxel.landscape.chunkbuild.AsyncGenerateColumnDataInfinite;
-import voxel.landscape.chunkbuild.ChunkFinder;
-import voxel.landscape.chunkbuild.ColumnCamComparator;
-import voxel.landscape.chunkbuild.MaterialLibrarian;
+import voxel.landscape.chunkbuild.*;
+import voxel.landscape.chunkbuild.meshbuildasync.AsyncMeshBuilder;
+import voxel.landscape.chunkbuild.meshbuildasync.ChunkMeshBuildingSet;
 import voxel.landscape.collection.ColumnMap;
 import voxel.landscape.collection.coordmap.managepages.FurthestCoord3PseudoDelegate;
 import voxel.landscape.coord.Coord2;
@@ -44,14 +43,10 @@ import voxel.landscape.map.water.ChunkWaterLevelComputer;
 import voxel.landscape.player.Audio;
 import voxel.landscape.player.B;
 import voxel.landscape.player.Player;
-import voxel.landscape.util.Asserter;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -60,13 +55,16 @@ public class VoxelLandscape extends SimpleApplication
 {
 	private static boolean USE_TEXTURE_MAP = false, DEBUG_INFO_ON = false, ADD_CHUNKS_DYNAMICALLY = true, COMPILE_CHUNK_DATA_ASYNC = false,
             CULLING_ON = false, BUILD_INITIAL_CHUNKS = true, DONT_BUILD_CHUNK_MESHES = true, SHOW_COLUMN_DEBUG_QUADS = false;
-    public static boolean TESTING_DEBUGGING_ON = false, DO_USE_TEST_GEOMETRY = true;
 
-    private static int COLUMN_DATA_BUILDER_THREAD_COUNT = 4;
-    public static int ADD_COLUMN_RADIUS = 7;
+    public static boolean TESTING_DEBUGGING_ON = false, DO_USE_TEST_GEOMETRY = true, SHOULD_BUILD_CHUNK_MESH_ASYNC = true;
+
+    private static final int COLUMN_DATA_BUILDER_THREAD_COUNT = 9;
+    private static final int CHUNK_MESH_BUILD_THREAD_COUNT = 9;
+
+    public static int ADD_COLUMN_RADIUS = 8;
     private static int COLUMN_CULLING_MIN = (int) ((ADD_COLUMN_RADIUS * 1 + 2)*(ADD_COLUMN_RADIUS * 1 + 2));
 
-	private TerrainMap terrainMap = new TerrainMap();
+	private TerrainMap terrainMap; // = new TerrainMap();
 	private ColumnMap columnMap = new ColumnMap();
 	private Player player;
 
@@ -74,6 +72,9 @@ public class VoxelLandscape extends SimpleApplication
 	private Node worldNode = new Node("world_node");
 	private Node overlayNode = new Node("overlay_node");
 	private BlockingQueue<Coord2> columnsToBeBuilt;
+    private BlockingQueue<ChunkMeshBuildingSet> chunksToBeMeshed;
+    private BlockingQueue<ChunkMeshBuildingSet> completedChunkMeshSets;
+    private AtomicBoolean asyncChunkMeshThreadsShouldKeepGoing = new AtomicBoolean(true);
 
     private static float GameTime = 0f;
     private FurthestCoord3PseudoDelegate furthestDelegate = new FurthestCoord3PseudoDelegate();
@@ -82,7 +83,9 @@ public class VoxelLandscape extends SimpleApplication
 
     private MaterialLibrarian materialLibrarian;
     private ExecutorService colDataPool;
-    private AtomicBoolean keepGoingBoolean = new AtomicBoolean(true);
+    private ExecutorService chunkMeshBuildPool;
+
+    private AtomicBoolean columnBuildingThreadsShouldKeepGoing = new AtomicBoolean(true);
 
     private static void setupTestStateVariables()
     {
@@ -127,7 +130,7 @@ public class VoxelLandscape extends SimpleApplication
 
         if (!BUILD_INITIAL_CHUNKS) return;
 
-        int half_area = (int) (ADD_COLUMN_RADIUS *.35f);
+        int half_area = 1; // (int) (ADD_COLUMN_RADIUS *.35f);
 		Coord3 minChCo = new Coord3(-half_area, 0, -half_area);
 		Coord3 maxChCo = new Coord3(half_area, 0, half_area);
 
@@ -170,17 +173,34 @@ public class VoxelLandscape extends SimpleApplication
     }
 
     private void initColumnDataThreadExecutorService() {
+        ColumnCamComparator columnCamComparator = new ColumnCamComparator(cam);
+        columnsToBeBuilt = new PriorityBlockingQueue<Coord2>(100, columnCamComparator);
         colDataPool = Executors.newFixedThreadPool(COLUMN_DATA_BUILDER_THREAD_COUNT);
         for (int i = 0; i < COLUMN_DATA_BUILDER_THREAD_COUNT; ++i) {
             AsyncGenerateColumnDataInfinite infinColDataThread =
-                    new AsyncGenerateColumnDataInfinite(terrainMap, columnMap, columnsToBeBuilt, keepGoingBoolean);
+                    new AsyncGenerateColumnDataInfinite(terrainMap, columnMap, columnsToBeBuilt, columnBuildingThreadsShouldKeepGoing);
 
             colDataPool.execute(infinColDataThread);
         }
     }
+    private void initChunkMeshBuildThreadExecutorService() {
+        ChunkCoordCamComparator chunkCoordCamComparator = new ChunkCoordCamComparator(cam);
+        chunksToBeMeshed = new PriorityBlockingQueue<ChunkMeshBuildingSet>(50, chunkCoordCamComparator);
+        completedChunkMeshSets = new LinkedBlockingQueue<ChunkMeshBuildingSet>(50);
+        chunkMeshBuildPool = Executors.newFixedThreadPool(CHUNK_MESH_BUILD_THREAD_COUNT);
+        for (int i = 0; i < CHUNK_MESH_BUILD_THREAD_COUNT; ++i) {
+            AsyncMeshBuilder asyncMeshBuilder = new AsyncMeshBuilder(terrainMap,chunksToBeMeshed,
+                    completedChunkMeshSets, asyncChunkMeshThreadsShouldKeepGoing);
+            chunkMeshBuildPool.execute(asyncMeshBuilder);
+        }
+    }
+
     private void killThreadPools() {
-        keepGoingBoolean.set(false);
+        columnBuildingThreadsShouldKeepGoing.set(false);
         colDataPool.shutdownNow();
+
+        asyncChunkMeshThreadsShouldKeepGoing.set(false);
+        chunkMeshBuildPool.shutdownNow();
     }
 
 	private void generateColumnData(int x, int z)  {
@@ -197,15 +217,14 @@ public class VoxelLandscape extends SimpleApplication
         if (chcoord == null) {
             return false;
         }
-        buildChunk(chcoord.x, chcoord.y, chcoord.z);
+        buildThisChunk(terrainMap.GetChunk(chcoord));
         return true;
     }
 
-    private void buildChunk(int x,int y,int z) {
-        Chunk ch = terrainMap.GetChunk(x,y,z);
-        Asserter.assertTrue(ch != null, "Unacceptable! chunks null when building mesh?");
-        buildThisChunk(ch);
+    public void enqueueChunkMeshSets(ChunkMeshBuildingSet chunkMeshBuildingSet) {
+        chunksToBeMeshed.add(chunkMeshBuildingSet);
     }
+
     private void buildThisChunk(Chunk ch) {
         ch.setHasEverStartedBuildingToTrue();
         if (!ch.getIsAllAir()) {
@@ -269,8 +288,21 @@ public class VoxelLandscape extends SimpleApplication
 
         addToColumnPriorityQueue();
         if(!DONT_BUILD_CHUNK_MESHES && buildANearbyChunk()) {}
+        checkAsyncCompletedChunkMeshes();
         cullAnExcessColumn(tpf);
+    }
 
+    private void checkAsyncCompletedChunkMeshes()
+    {
+        int count = 0;
+        while (count++ < 5) {
+            ChunkMeshBuildingSet chunkMeshBuildingSet = completedChunkMeshSets.poll();
+            if (chunkMeshBuildingSet == null) return;
+
+            Chunk chunk = terrainMap.GetChunk(chunkMeshBuildingSet.chunkPosition);
+            if (chunk == null) return;
+            chunk.getChunkBrain().applyMeshBuildingSet(chunkMeshBuildingSet);
+        }
     }
 
     //<editor-fold desc="Simple Init and main">
@@ -280,18 +312,17 @@ public class VoxelLandscape extends SimpleApplication
     @Override
     public void simpleInitApp() 
     {
+        terrainMap = new TerrainMap(this);
         BufferUtils.setTrackDirectMemoryEnabled(true);
         if (TESTING_DEBUGGING_ON) {
 //            viewPort.addProcessor(new WireProcessor(assetManager));
 //    	viewPort.removeProcessor(...); // KEEP FOR REFERENCE: COULD PERHAPS USE THIS TO TOGGLE WIRE FRAMES
         }
 
-        ColumnCamComparator columnCamComparator = new ColumnCamComparator(cam);
-        columnsToBeBuilt = new PriorityBlockingQueue<Coord2>(100, columnCamComparator);
-
         materialLibrarian = new MaterialLibrarian(assetManager);
 
         initColumnDataThreadExecutorService();
+        initChunkMeshBuildThreadExecutorService();
 
         setupTestStateVariables();
         Chunk.USE_TEST_GEOMETRY = DO_USE_TEST_GEOMETRY;
@@ -547,7 +578,7 @@ public class VoxelLandscape extends SimpleApplication
         int minChunkY = terrainMap.getMinChunkCoordY();
         int maxChunkY = terrainMap.getMaxChunkCoordY();
 		for (int k = minChunkY; k < maxChunkY; ++k ) {
-			buildChunk(x, k, z);
+			buildThisChunk(terrainMap.GetChunk(x, k, z));
 		}
 	}
     private void setupSkyColor(Camera camera, java.awt.Color awtcolor) {

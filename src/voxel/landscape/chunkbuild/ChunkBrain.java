@@ -15,6 +15,9 @@ import com.jme3.scene.shape.Box;
 import voxel.landscape.Chunk;
 import voxel.landscape.MeshSet;
 import voxel.landscape.VoxelLandscape;
+import voxel.landscape.chunkbuild.meshbuildasync.ChunkMeshBuildingSet;
+import voxel.landscape.player.B;
+import voxel.landscape.util.Asserter;
 
 /*
  * Build (or rebuild) a mesh for the chunk
@@ -30,12 +33,8 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
 	public ChunkBrain(Chunk _chunk) {
 		chunk = _chunk;
 	}
-    public void setMeshEmpty() {
-        getGeometry().setMesh(makeEmptyMesh());
-    }
-    public void setMeshPlaceholder() {
-        getGeometry().setMesh(makePlaceHolderMesh());
-    }
+
+
 	@Override
 	protected void controlUpdate(float timePerFrame) {
 		/*
@@ -69,6 +68,10 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
 		//do nothing here. must override however.
 	}
 
+    public void setMeshEmpty() {
+        getGeometry().setMesh(makeEmptyMesh());
+    }
+
     private Mesh makeEmptyMesh() {
         Mesh mesh = new Mesh();
         mesh.setDynamic();
@@ -81,9 +84,14 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
         mesh.setMode(Mesh.Mode.Triangles);
         return mesh;
     }
+
+    //TODO: figure whether or not this needs to be synchronized
 	private Mesh getMesh() {
 		Geometry geom = getGeometry();
-        if (geom == null) return null;
+        if (geom == null) {
+            Asserter.assertFalseAndDie("We thought getGeom never returned null");
+            return null;
+        }
 		if (geom.getMesh() == null) {
 			Mesh mesh = makeEmptyMesh();
 			geom.setMesh(mesh);
@@ -91,16 +99,16 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
 		return geom.getMesh();
 	}
 	public Geometry getGeometry() {
-        Node node = (Node) getSpatial();
+        Node node = (Node) getChunkBrainRootNode(); // getSpatial();
         if (node == null) return null;
         return (Geometry) node.getChild("chunk_geom");
     }
-    public Geometry getWaterGeometry() {
-        Node node = (Node) getSpatial();
+    public synchronized Geometry getWaterGeometry() {
+        Node node = (Node) getChunkBrainRootNode(); //  getSpatial();
         if (node == null) return null;
         Geometry waterGeom = (Geometry) node.getChild("water_geom");
         if (waterGeom == null) {
-            waterGeom = new Geometry("water_geom", makePlaceHolderMesh());
+            waterGeom = new Geometry("water_geom", makeEmptyMesh());
             waterGeom.setQueueBucket(RenderQueue.Bucket.Transparent);
             waterGeom.move(Chunk.ToWorldPosition(chunk.position).toVector3());
             node.attachChild(waterGeom);
@@ -112,12 +120,12 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
         return g.getMesh();
     }
     public Node getRootSpatial() {
-        return (Node) getSpatial();
+        return (Node) getChunkBrainRootNode();
     }
     public Node getNode() {
-        return (Node) getSpatial();
+        return (Node) getChunkBrainRootNode();
     }
-    private void makeNodeIfNull() {
+    private synchronized Node getChunkBrainRootNode() {
         Node node = (Node) getSpatial();
         if (node == null) {
             node = new Node();
@@ -126,8 +134,9 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
             node.attachChild(g);
             node.addControl(this);
         }
+        return node;
     }
-    public void wakeUp() { makeNodeIfNull(); }
+    public void wakeUp() { getChunkBrainRootNode(); }
 
     public void attachToTerrainNode(Node terrainNode) {
         terrainNode.attachChild(getNode());
@@ -147,40 +156,52 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
 	private void buildMeshLight() { buildMesh(true, false); }
 
     private void buildMeshLiquid() { buildMesh(false, true); }
-    // TODO: if water...
+
 	private void buildMesh(boolean onlyLight, boolean onlyLiquid)
 	{
         if (VoxelLandscape.DO_USE_TEST_GEOMETRY) return;
-		/*
-		if (asyncBuildMesh != null) return;
-		asyncBuildMesh = new AsyncBuildMesh(onlyLight);
-		asyncBuildMesh.addListener(this);
-		Thread t = new Thread(asyncBuildMesh);
-		t.start();
-		*/
-		MeshSet mset = new MeshSet();
-        MeshSet waterMSet = new MeshSet();
-        waterMSet.isLiquidMaterial = true;
+
+        if (VoxelLandscape.SHOULD_BUILD_CHUNK_MESH_ASYNC) {
+            enqueueChunkBuildMeshSets(onlyLight, onlyLiquid);
+            return;
+        }
+        /* ************ */
+
+		MeshSet mset = new MeshSet( false, onlyLight);
+        MeshSet waterMSet = new MeshSet( true, onlyLight);
+
         ChunkBuilder.buildMesh(chunk, mset, waterMSet, onlyLight, onlyLiquid);
 
         if (!onlyLiquid) {
-            ChunkBuilder.ApplyMeshSet(mset, getMesh(), onlyLight);
-            getGeometry().setModelBound(new BoundingBox(Vector3f.ZERO.clone(), new Vector3f(Chunk.XLENGTH, Chunk.YLENGTH, Chunk.ZLENGTH)));
-            getGeometry().updateModelBound();
+            applyMeshSet(mset);
         }
 
-        //TODO: if there is any water/liquid
-        ChunkBuilder.ApplyMeshSet(waterMSet, getWaterMesh(), onlyLight);
-        getWaterGeometry().setModelBound(new BoundingBox(Vector3f.ZERO.clone(), new Vector3f(Chunk.XLENGTH,Chunk.YLENGTH,Chunk.ZLENGTH)));
-        getWaterGeometry().updateModelBound();
-
-        //TODO: JVM may need 'help' flushing unused Geometries...
+        applyMeshSet(waterMSet);
+        //TODO: JVM may need 'help' flushing unused Geometries: consider doing this manually
 	}
+    public void applyMeshBuildingSet(ChunkMeshBuildingSet chunkMeshBuildingSet) {
+        if (!chunkMeshBuildingSet.isOnlyLiquid) {
+            applyMeshSet(chunkMeshBuildingSet.meshSet);
+        }
+        applyMeshSet(chunkMeshBuildingSet.liquidMeshSet);
+    }
+
+    private void applyMeshSet(MeshSet meshSet) {
+        Mesh mesh = meshSet.isLiquidMaterial ? getWaterMesh() : getMesh();
+        ChunkBuilder.ApplyMeshSet(meshSet, mesh, meshSet.isOnlyLightUpdate);
+        Geometry geom = meshSet.isLiquidMaterial ? getWaterGeometry() : getGeometry();
+        if (geom == null) {
+            B.bugln("null geom when trying to apply mesh");
+            return;
+        }
+        geom.setModelBound(new BoundingBox(Vector3f.ZERO.clone(), new Vector3f(Chunk.XLENGTH,Chunk.YLENGTH,Chunk.ZLENGTH)));
+        geom.updateModelBound();
+    }
 	public class AsyncBuildMesh extends ResponsiveRunnable
 	{
 		private boolean onlyLight;
-		private MeshSet mset = new MeshSet();
-        private MeshSet waterMSet = new MeshSet();
+		private MeshSet mset = new MeshSet(false, false);
+        private MeshSet waterMSet = new MeshSet(true, false);
 		public AsyncBuildMesh(boolean _onlyLight) {
 			onlyLight = _onlyLight;
 		}
@@ -197,7 +218,6 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
 //			shouldApplyMesh = true;
 		}
 	}
-	
 
 	public void SetLightDirty() {
 		lightDirty=true;
@@ -208,5 +228,17 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
 	}
 
     public void SetLiquidDirty() { liquidDirty = true; }
+
+    private void enqueueChunkBuildMeshSets(boolean onlyLight, boolean onlyLiquid) {
+        if (!VoxelLandscape.SHOULD_BUILD_CHUNK_MESH_ASYNC) return;
+
+        ChunkMeshBuildingSet chunkMeshBuildingSet = new ChunkMeshBuildingSet();
+        chunkMeshBuildingSet.isOnlyLiquid = onlyLiquid;
+        chunkMeshBuildingSet.isOnlyLight = onlyLight;
+        chunkMeshBuildingSet.chunkPosition = chunk.position;
+
+        chunk.getTerrainMap().getApp().enqueueChunkMeshSets(chunkMeshBuildingSet);
+
+    }
 
 }

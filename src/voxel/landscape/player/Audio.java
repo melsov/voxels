@@ -20,7 +20,7 @@ public class Audio
 	/** We create two audio nodes. */
 	private void initAudio() {
 	    /* gun shot sound is to be triggered by a mouse click. */
-		blockBreakComplete = new AudioNode(assetManager, "Sound/Effects/Gun.wav", false);
+		blockBreakComplete = new AudioNode(assetManager, "Sound/Effects/Beep.ogg", false);
 	    blockBreakComplete.setPositional(false);
 	    blockBreakComplete.setLooping(false);
 	    blockBreakComplete.setVolume(2);

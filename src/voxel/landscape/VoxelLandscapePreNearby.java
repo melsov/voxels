@@ -65,7 +65,7 @@ public class VoxelLandscapePreNearby extends SimpleApplication implements Thread
     private static int ADD_COLUMN_RADIUS = 7;
     private static int COLUMN_CULLING_MIN = (ADD_COLUMN_RADIUS * 2 + 2)*(ADD_COLUMN_RADIUS * 2 + 2);
 
-	private TerrainMap terrainMap = new TerrainMap();
+	private TerrainMap terrainMap = new TerrainMap(null);
 	private ColumnMap columnMap = new ColumnMap();
 	private Player player;
 

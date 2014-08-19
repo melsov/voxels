@@ -1,9 +1,10 @@
 package voxel.landscape.debugmesh;
 
-import java.util.Arrays;
-
 import com.google.common.primitives.Floats;
 import com.google.common.primitives.Ints;
+import com.jme3.material.Material;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.BatchNode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -11,15 +12,13 @@ import com.jme3.scene.Node;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.shape.Quad;
 import com.jme3.util.BufferUtils;
-import com.jme3.material.Material;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
-
 import voxel.landscape.BlockMeshUtil;
-import voxel.landscape.coord.Coord3;
 import voxel.landscape.MeshSet;
+import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.light.SunLightComputer;
 import voxel.landscape.util.Asserter;
+
+import java.util.Arrays;
 
 public class DebugChart 
 {

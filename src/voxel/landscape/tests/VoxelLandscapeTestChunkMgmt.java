@@ -47,7 +47,7 @@ public class VoxelLandscapeTestChunkMgmt extends SimpleApplication implements Th
     private static boolean ADD_CHUNKS_DYNAMICALLY = true;
     private static boolean COMPILE_CHUNK_DATA_ASYNC = false;
 
-	private TerrainMap terrainMap = new TerrainMap();
+	private TerrainMap terrainMap = new TerrainMap(null);
 	private ColumnMap columnMap = new ColumnMap();
 //	private Player player;
 

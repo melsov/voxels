@@ -272,7 +272,7 @@ public class ChunkFinder {
         camChunkCoord.y = Math.min(camChunkCoord.y, terrainMap.getMaxChunkCoordY() - 1);
 
         Chunk result=null;
-        Coord3 nextPos, foundPos;
+        Coord3 nextPos;
         for(Coord3 surroundingCoord : SurroundingCoordIncrements3D) {
             nextPos = surroundingCoord.add(camChunkCoord);
             result = terrainMap.GetChunk(nextPos);
@@ -280,8 +280,11 @@ public class ChunkFinder {
                 return nextPos;
             }
         }
-        Coord3 directionSignXZ = SignCoordXZ(camDir);
 
+        Coord3 lookCo = UnbuiltChunkInDirection(terrainMap, columnMap, camDir, cam.getLocation(), 8);
+        if (lookCo != null) return lookCo;
+
+        Coord3 directionSignXZ = SignCoordXZ(camDir);
         List<Coord3> nudgeChunkPosCoords = DiagonalCoordIncrements3D;
         boolean isOrthoAndXGreater = false;
         if (Math.abs(camDir.z) > .65f || Math.abs(camDir.x) > .65f) { //ORTHO LOOK DIRECTION?
@@ -307,30 +310,24 @@ public class ChunkFinder {
             }
         }
 
-        //TODO: bring back LookDirections! good concept for avoiding too much chunk building!
-        //Logic should be: beyond a certain distance... if you can't see it, don't build it.
-        // and if you can see it do build it...
-            /* look further in (general) cam direction */
-//        for(int i = 0; i < LookDirections.size(); ++i ) {
-//            Vector3f camDirectionOrig = cam.getDirection();
-//            Vector3f camPos = cam.getLocation();
-//            Vector3f swivelLookDirection = LookDirections.get(i).clone();
-//            swivelLookDirection = cam.getRotation().clone().mult(swivelLookDirection);
-//            Vector3f camDirection = camDirectionOrig.clone().add(swivelLookDirection).normalize();
-//
-//            //* go forwards in look direction
-//            for(int j=0;j< 15;++j) {
-//                Vector3f toCorner = GetChunkCornerVector(camDirection, camPos).subtract(camPos);
-//
-//                Vector3f escapeVector = VektorUtil.RelativeEscapeVectorXZ(toCorner, camDirection, 1.05f);
-//                Vector3f nextPosV = camPos.add(escapeVector);
-//                setDebugPosition(nextPosV, true);
-//                lookBelow = Chunk.ToChunkPosition(Coord3.FromVector3f(nextPosV));
-//                searchCo = FindColumn(columnMap, lookBelow.clone());
-//                if (searchCo != null) return searchCo;
-//                camPos = nextPosV;
-//            }
-//        }
+        return null;
+    }
+
+    private static Coord3 UnbuiltChunkInDirection(TerrainMap terrainMap, ColumnMap columnMap, Vector3f lookDirection, Vector3f camPosOrig, int depth ) {
+        Vector3f camPos = camPosOrig.clone();
+        Chunk searchChunk = null;
+        Coord3 chunkCoord = null;
+        Vector3f toCorner, escapeVector, nextPosV;
+        for(int j=0;j< depth;++j) {
+            toCorner = GetChunkCornerVector(lookDirection, camPos).subtract(camPos);
+            escapeVector = VektorUtil.RelativeEscapeVectorXZ(toCorner, lookDirection, 1.05f);
+            nextPosV = camPos.add(escapeVector);
+
+            chunkCoord = Chunk.ToChunkPosition(Coord3.FromVector3f(nextPosV));
+            searchChunk = terrainMap.GetChunk(chunkCoord);
+            if (ChunkIsReady(columnMap, searchChunk, chunkCoord)) return chunkCoord;
+            camPos = nextPosV;
+        }
         return null;
     }
 
@@ -399,7 +396,6 @@ public class ChunkFinder {
     }
 
     private static Coord3 FindColumn(ColumnMap columnMap,  Coord3 look) {
-        setDebugPosition(look, true);
         if (columnMap.HasNotBeenStarted(look.x, look.z)) return look;
         return null;
     }

@@ -3,6 +3,7 @@ package voxel.landscape;
 import com.jme3.scene.Node;
 import voxel.landscape.chunkbuild.ChunkBrain;
 import voxel.landscape.collection.ByteArray3D;
+import voxel.landscape.collection.coordmap.HashMapCoord3D;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;
 
@@ -17,6 +18,9 @@ public class Chunk
 
 	private ByteArray3D blocks = new ByteArray3D(new Coord3(XLENGTH, YLENGTH, ZLENGTH));
 //    private ConcurrentByteArray3D blocks = new ConcurrentByteArray3D(new Coord3(XLENGTH, YLENGTH, ZLENGTH));
+
+    // (SYNCHRONIZING) LOCKS FOR BLOCKS
+    private HashMapCoord3D<Object> blockLocks = new HashMapCoord3D<Object>(Object.class);
 
 	public static final int SIZE_X_BITS = 4;
 	public static final int SIZE_Y_BITS = 4;
@@ -86,7 +90,9 @@ public class Chunk
 		int chunkZ = pointZ >> SIZE_Z_BITS;
 		return new Coord3(chunkX, chunkY, chunkZ);
 	}
-	public static Coord3 toChunkLocalCoord(Coord3 woco) {
+    public static int ToChunkLocalY(int worldCoordY) { return worldCoordY & (YLENGTH - 1);  }
+    public static int ToChunkPositionY(int worldCoordY) { return worldCoordY >> SIZE_Y_BITS; }
+    public static Coord3 toChunkLocalCoord(Coord3 woco) {
 		return toChunkLocalCoord(woco.x, woco.y, woco.z);
 	}
 	public static Coord3 toChunkLocalCoord(int x, int y, int z) {
@@ -113,6 +119,7 @@ public class Chunk
 		int worldZ = (chunkPosition.z << SIZE_Z_BITS) + localPosition.z;
 		return new Coord3(worldX, worldY, worldZ);
 	}
+    public static int ToWorldPositionY(int chunkPositionY, int relPositionY) { return chunkPositionY << SIZE_Y_BITS + relPositionY; }
 	
 	public byte blockAt(Coord3 co) { return blockAt(co.x, co.y, co.z); }
 	
@@ -127,5 +134,7 @@ public class Chunk
 	}
 	
 	public Coord3 originInBlockCoords() { return Chunk.ToWorldPosition(position); }
+
+    public Object blockLockInstanceAt(Coord3 localCo) { return blockLocks.GetInstance(localCo); }
 
 }

@@ -15,7 +15,7 @@ public class TerrainMapMultiThreadTest extends TestCase {
 
     @Test
     public void testMultiThreadedDataGen() {
-        TerrainMap map = new TerrainMap();
+        TerrainMap map = new TerrainMap(null);
 
     }
 

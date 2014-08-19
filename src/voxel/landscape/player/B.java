@@ -42,5 +42,19 @@ public class B {
         }
         System.out.println(sb.toString());
     }
+    public static void ThisMethod() {
+        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+        StringBuilder sb = new StringBuilder(stackTraceElements.length * 20);
+        StackTraceElement stackTraceElement = stackTraceElements[2];
+
+        sb.append(stackTraceElement.getClassName());
+        sb.append(" : ");
+        sb.append(stackTraceElement.getMethodName());
+        sb.append(" : ");
+        sb.append(stackTraceElement.getLineNumber());
+        sb.append("\n");
+
+        System.out.println(sb.toString());
+    }
 	
 }

@@ -2,20 +2,22 @@ package voxel.landscape.chunkbuild;
 
 import com.google.common.primitives.Floats;
 import com.google.common.primitives.Ints;
+import com.jme3.bounding.BoundingBox;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
-import com.jme3.bounding.BoundingBox;
-import voxel.landscape.*;
+import voxel.landscape.BlockMeshUtil;
+import voxel.landscape.BlockType;
+import voxel.landscape.Chunk;
+import voxel.landscape.MeshSet;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
 import voxel.landscape.map.TerrainMap;
-import voxel.landscape.Chunk;
+import voxel.landscape.util.Asserter;
 
 import static voxel.landscape.Chunk.*;
-import static voxel.landscape.Chunk.XLENGTH;
 
 public class ChunkBuilder 
 {
@@ -34,7 +36,7 @@ public class ChunkBuilder
 				for (k = 0; k < YLENGTH; ++k) {
 					xin = i + worldPosBlocks.x; yin = k  + worldPosBlocks.y; zin = j  + worldPosBlocks.z;
 					posi = new Coord3(i,k,j);
-					byte btype = (byte) map.lookupOrCreateBlock(xin, yin, zin); // CONSIDER: just look up block?
+					byte btype = (byte) map.lookupOrCreateBlock(xin, yin, zin);
 
 					if (BlockType.AIR.equals(btype)) continue;
 
@@ -64,6 +66,10 @@ public class ChunkBuilder
 	
 	public static void ApplyMeshSet(MeshSet mset, Mesh bigMesh, boolean lightOnly)
     {
+        if (bigMesh == null) {
+            Asserter.assertFalseAndDie("trying to apply a mesh set to a null mesh");
+            return;
+        }
 		if (!lightOnly) 
 		{
 			bigMesh.clearBuffer(Type.Position);

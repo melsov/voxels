@@ -35,8 +35,13 @@ public class TerrainMap implements IBlockDataProvider {
     private WaterLevelMap liquidLevelMap = new WaterLevelMap();
     private LiquidUpdater liquidUpdaterWater = new LiquidUpdater(BlockType.LiquidFlowTimeStepSeconds(BlockType.WATER.ordinal()));
 
-	public TerrainMap() {
+    private VoxelLandscape app;
+
+	public TerrainMap(VoxelLandscape _app) {
+        app = _app;
 	}
+
+    public VoxelLandscape getApp() { return app; }
 
     /*
      * DYNAMIC MAP UPDATES
@@ -106,8 +111,15 @@ public class TerrainMap implements IBlockDataProvider {
     public int lookupOrCreateBlock(Coord3 woco, TerrainDataProvider _terrainData) {
         byte block = lookupBlock(woco);
         if (BlockType.NON_EXISTENT.equals((int) block) && ChunkCoordWithinWorldBounds(Chunk.ToChunkPosition(woco))) {
-            block = (byte) _terrainData.getBlockDataAtPosition(woco.x, woco.y, woco.z);
-            setBlockAtWorldCoord(block, woco.x, woco.y, woco.z);
+            //synchronized block
+            Coord3 chunkPos = Chunk.ToChunkPosition(woco);
+            Coord3 localPos = Chunk.toChunkLocalCoord(woco);
+            Chunk chunk = lookupOrCreateChunkAtPosition(chunkPos);
+            Object lock = chunk.blockLockInstanceAt(localPos);
+            synchronized (lock) {
+                block = (byte) _terrainData.getBlockDataAtPosition(woco.x, woco.y, woco.z);
+                setBlockAtWorldCoord(block, woco.x, woco.y, woco.z);
+            }
         }
         return block;
     }
@@ -144,36 +156,51 @@ public class TerrainMap implements IBlockDataProvider {
     }
 
     private void doGenerateNoiseForChunkColumn(int x, int z, TerrainDataProvider _dataProvider) {
-        Coord3 chunkPos = new Coord3(x, MIN_DIM_VERTICAL, z);
-        for (; true; chunkPos.y++) {
+        Coord3 chunkPos = new Coord3(x, MAX_DIM_VERTICAL - 1, z);
+        InstantiateChunksInColumn(x,z);
+        generateNoiseForColumnToSurface(chunkPos.x, chunkPos.z, _dataProvider);
+        /*
+        for (; true; chunkPos.y--) {
             boolean generated = generateNoiseForChunkAt(chunkPos.x, chunkPos.y, chunkPos.z, _dataProvider);
             if (!generated)
                 break;
         }
+        */ // ******* WANT ?
+    }
+    private void InstantiateChunksInColumn(int x, int z) {
+        Coord3 chunkPos = new Coord3(x, MAX_DIM_VERTICAL - 1, z);
+//        generateNoiseForColumnToSurface(chunkPos.x, chunkPos.z, _dataProvider);
+
+        for (; chunkPos.y >= MIN_DIM_VERTICAL; chunkPos.y--) {
+            lookupOrCreateChunkAtPosition(chunkPos);
+        }
     }
 
-	/*
-	 * get the terrain data inside the chunk and also in the -1/+1 box that
-	 * surrounds it (within world limits if any)
-	 */
-	private boolean generateNoiseForChunkAt(int cx, int cy, int cz, TerrainDataProvider _dataProvider) {
-		Chunk targetChunk = lookupOrCreateChunkAtPosition(new Coord3(cx, cy, cz));
-        if (targetChunk == null) {
-            if (ChunkCoordWithinWorldBounds(new Coord3(cx,cy,cz))) {
-                Asserter.assertFalseAndDie("how is it possible?? null chunk with world bounds? " + new Coord3(cx,cy,cz).toString());
-            }
-            return false;
-        }
-		Coord3 worldPos = Chunk.ToWorldPosition(new Coord3(cx, cy, cz));
+    /*
+     * get the terrain data inside the chunk and also in the -1/+1 box that
+     * surrounds it (within world limits if any)
+     */
+    private boolean generateNoiseForColumnToSurface(int cx, int cz, TerrainDataProvider _dataProvider) {
+//        Chunk targetChunk = lookupOrCreateChunkAtPosition(new Coord3(cx, cy, cz));
+//        if (targetChunk == null) {
+//            if (ChunkCoordWithinWorldBounds(new Coord3(cx,cy,cz))) {
+//                Asserter.assertFalseAndDie("how is it possible?? null chunk with world bounds? " + new Coord3(cx,cy,cz).toString());
+//            }
+//            return false;
+//        }
+//        int cy = MAX_DIM_VERTICAL;
+        Coord3 worldPos = Chunk.ToWorldPosition(new Coord3(cx, 0, cz));
 
         Coord3 relPos, absPos, chunkPos = null;
         Chunk possibleChunk = null;
         boolean foundDirt = false;
-		for (int i = -1; i < Chunk.CHUNKDIMS.x + 1; ++i) {
-			for (int j = -1; j < Chunk.CHUNKDIMS.z + 1; ++j) {
-				for (int k = -1; k < Chunk.CHUNKDIMS.y + 1; ++k) {
-					relPos = new Coord3(i, k, j);
-					absPos = worldPos.add(relPos);
+        for (int i = -1; i < Chunk.CHUNKDIMS.x + 1; ++i) {
+            for (int j = -1; j < Chunk.CHUNKDIMS.z + 1; ++j) {
+                for (int wocoY = MAX_DIM_VERTICAL * Chunk.YLENGTH - 1 ; wocoY >= MIN_DIM_VERTICAL * Chunk.YLENGTH ; --wocoY) {
+                    int k = Chunk.ToChunkLocalY(wocoY);
+                    worldPos.y = Chunk.ToWorldPositionY(Chunk.ToChunkPositionY(wocoY), 0);
+                    relPos = new Coord3(i, k, j);
+                    absPos = worldPos.add(relPos);
                     Coord3 nextChunkPos = Chunk.ToChunkPosition(absPos);
                     if (chunkPos == null || !chunkPos.equal(nextChunkPos)) {
                         chunkPos = nextChunkPos.clone();
@@ -182,19 +209,11 @@ public class TerrainMap implements IBlockDataProvider {
 
                     if (VoxelLandscape.DO_USE_TEST_GEOMETRY) return false;
 
-                    if (possibleChunk == null)
-						continue; // must be at world limit?
-					byte block;
+                    if (possibleChunk == null) continue; // must be at world limit?
+                    byte block;
 
                     // FAKE WATER
-                    boolean IsFakeWaterChunk = cx == 0 && cy == MAX_DIM_VERTICAL - 1 && cz == 0;
-                        if (IsFakeWaterChunk && i == 3 && j == 2 && k == Chunk.YLENGTH - 1) {
-                            block = (byte) BlockType.WATER.ordinal();
-                        } else if (IsFakeWaterChunk && k > Chunk.YLENGTH - 5 ) {
-                            block = (byte) BlockType.AIR.ordinal();
-                        }
-                        else
-                    // #FAKE WATER
+                        // #FAKE WATER
                     block = (byte) lookupOrCreateBlock(absPos, _dataProvider);
 
                     // should be grass?
@@ -204,29 +223,105 @@ public class TerrainMap implements IBlockDataProvider {
 					 * where it will also apply to newly created, destroyed blocks
 					 * may need a 'block time step' concept...
 					 */
-					if (BlockType.DIRT.ordinal() == block) {
-						Coord3 upOne = absPos.add(Coord3.ypos);
+                    if (BlockType.DIRT.ordinal() == block) {
+                        Coord3 upOne = absPos.add(Coord3.ypos);
                         if (lookupOrCreateChunkAtPosition(Chunk.ToChunkPosition(upOne)) == null ||
                                 BlockType.IsTranslucent((byte) lookupOrCreateBlock(upOne))) {
                             block = (byte) BlockType.GRASS.ordinal();
                         }
-					} else if (BlockType.WATER.ordinal() == block) {
+                    } else if (BlockType.WATER.ordinal() == block) {
                         liquidLevelMap.SetWaterLevel(WaterFlowComputer.MAX_WATER_LEVEL, absPos);
                         possibleChunk.getChunkBrain().SetLiquidDirty();
                     }
 
-					relPos = Chunk.toChunkLocalCoord(relPos);
-					possibleChunk.setBlockAt(block, relPos);
+                    relPos = Chunk.toChunkLocalCoord(relPos);
+                    possibleChunk.setBlockAt(block, relPos);
 
                     if (!foundDirt && k > -1 && j > -1 && i > -1 && k <= Chunk.YLENGTH && j <= Chunk.ZLENGTH && i <= Chunk.XLENGTH) {
                         foundDirt = BlockType.IsSolid(block);
                     }
-				}
-			}
-		}
+                    if (BlockType.IsSolid(block)) break;
+                }
+            }
+        }
+//        targetChunk.setIsAllAir(!foundDirt);
+        return true;
+    }
+    /*
+	 * get the terrain data inside the chunk and also in the -1/+1 box that
+	 * surrounds it (within world limits if any)
+	 */
+    private boolean generateNoiseForChunkAt(int cx, int cy, int cz, TerrainDataProvider _dataProvider) {
+        Chunk targetChunk = lookupOrCreateChunkAtPosition(new Coord3(cx, cy, cz));
+        if (targetChunk == null) {
+            if (ChunkCoordWithinWorldBounds(new Coord3(cx,cy,cz))) {
+                Asserter.assertFalseAndDie("how is it possible?? null chunk with world bounds? " + new Coord3(cx,cy,cz).toString());
+            }
+            return false;
+        }
+        Coord3 worldPos = Chunk.ToWorldPosition(new Coord3(cx, cy, cz));
+
+        Coord3 relPos, absPos, chunkPos = null;
+        Chunk possibleChunk = null;
+        boolean foundDirt = false;
+        for (int i = -1; i < Chunk.CHUNKDIMS.x + 1; ++i) {
+            for (int j = -1; j < Chunk.CHUNKDIMS.z + 1; ++j) {
+                for (int k = -1; k < Chunk.CHUNKDIMS.y + 1; ++k) {
+                    relPos = new Coord3(i, k, j);
+                    absPos = worldPos.add(relPos);
+                    Coord3 nextChunkPos = Chunk.ToChunkPosition(absPos);
+                    if (chunkPos == null || !chunkPos.equal(nextChunkPos)) {
+                        chunkPos = nextChunkPos.clone();
+                        possibleChunk = lookupOrCreateChunkAtPosition(Chunk.ToChunkPosition(absPos));
+                    }
+
+                    if (VoxelLandscape.DO_USE_TEST_GEOMETRY) return false;
+
+                    if (possibleChunk == null)
+                        continue; // must be at world limit?
+                    byte block;
+
+                    // FAKE WATER
+                    boolean IsFakeWaterChunk = cx == 0 && cy == MAX_DIM_VERTICAL - 1 && cz == 0;
+                    if (IsFakeWaterChunk && i == 3 && j == 2 && k == Chunk.YLENGTH - 1) {
+                        block = (byte) BlockType.WATER.ordinal();
+                    } else if (IsFakeWaterChunk && k > Chunk.YLENGTH - 5 ) {
+                        block = (byte) BlockType.AIR.ordinal();
+                    }
+                    else
+                        // #FAKE WATER
+                        block = (byte) lookupOrCreateBlock(absPos, _dataProvider);
+
+                    // should be grass?
+					/*
+					 * CONSIDER: this is too simplistic! grass should grow only
+					 * where there's light... Also, put this logic somewhere
+					 * where it will also apply to newly created, destroyed blocks
+					 * may need a 'block time step' concept...
+					 */
+                    if (BlockType.DIRT.ordinal() == block) {
+                        Coord3 upOne = absPos.add(Coord3.ypos);
+                        if (lookupOrCreateChunkAtPosition(Chunk.ToChunkPosition(upOne)) == null ||
+                                BlockType.IsTranslucent((byte) lookupOrCreateBlock(upOne))) {
+                            block = (byte) BlockType.GRASS.ordinal();
+                        }
+                    } else if (BlockType.WATER.ordinal() == block) {
+                        liquidLevelMap.SetWaterLevel(WaterFlowComputer.MAX_WATER_LEVEL, absPos);
+                        possibleChunk.getChunkBrain().SetLiquidDirty();
+                    }
+
+                    relPos = Chunk.toChunkLocalCoord(relPos);
+                    possibleChunk.setBlockAt(block, relPos);
+
+                    if (!foundDirt && k > -1 && j > -1 && i > -1 && k <= Chunk.YLENGTH && j <= Chunk.ZLENGTH && i <= Chunk.XLENGTH) {
+                        foundDirt = BlockType.IsSolid(block);
+                    }
+                }
+            }
+        }
         targetChunk.setIsAllAir(!foundDirt);
-		return true;
-	}
+        return true;
+    }
 
     private void generateNoiseForBlock(int x, int y, int z, Coord3 relPos,
                                           Coord3 absPos, Coord3 worldPos, Coord3 chunkPos, boolean foundDirt, Chunk possibleChunk, TerrainDataProvider _dataProvider)
