@@ -405,9 +405,9 @@ public class TerrainDataProvider
 	    noiseModule = bedrockSelect;
 
 	 }
-//    private static Module riverModuleCreate(long seed ) {
-//
-//    }
+    private static Module riverModuleCreate(long seed ) {
+        return null; //TODO: implement
+    }
 	 private static Module caveModuleCreate(Module caveShapeA, long seed) {
 		  int moduleSelect = 0;
 

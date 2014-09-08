@@ -3,7 +3,7 @@ package voxel.landscape;
 import com.jme3.scene.Node;
 import voxel.landscape.chunkbuild.ChunkBrain;
 import voxel.landscape.collection.ByteArray3D;
-import voxel.landscape.collection.coordmap.HashMapCoord3D;
+import voxel.landscape.collection.coordmap.managepages.ConcurrentHashMapCoord3D;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;
 
@@ -20,7 +20,7 @@ public class Chunk
 //    private ConcurrentByteArray3D blocks = new ConcurrentByteArray3D(new Coord3(XLENGTH, YLENGTH, ZLENGTH));
 
     // (SYNCHRONIZING) LOCKS FOR BLOCKS
-    private HashMapCoord3D<Object> blockLocks = new HashMapCoord3D<Object>(Object.class);
+    private ConcurrentHashMapCoord3D<Object> blockLocks = new ConcurrentHashMapCoord3D<Object>(Object.class);
 
 	public static final int SIZE_X_BITS = 4;
 	public static final int SIZE_Y_BITS = 4;

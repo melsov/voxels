@@ -34,7 +34,8 @@ public class ConcurrentHashMapCoord3D<T>
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
-            Set(obj, pos);
+            table.putIfAbsent(pos, obj);
+//            Set(obj, pos);
         }
         return obj;
     }

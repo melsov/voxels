@@ -1,10 +1,10 @@
 uniform mat4 g_WorldViewProjectionMatrix;
 
 attribute vec3 inPosition;
-attribute vec2 inTexCoord;
 attribute vec3 inNormal;
 attribute vec4 inColor;
-attribute vec2 inTexCoord2; //TEX MAP OFFSE.
+attribute vec2 inTexCoord;
+attribute vec2 inTexCoord2; //TEX MAP OFFSET.
 
 varying vec2 texCoord;
 varying vec2 texMapOffset;

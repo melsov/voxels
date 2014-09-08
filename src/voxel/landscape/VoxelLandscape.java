@@ -61,7 +61,7 @@ public class VoxelLandscape extends SimpleApplication
     private static final int COLUMN_DATA_BUILDER_THREAD_COUNT = 9;
     private static final int CHUNK_MESH_BUILD_THREAD_COUNT = 9;
 
-    public static int ADD_COLUMN_RADIUS = 8;
+    public static int ADD_COLUMN_RADIUS = 12;
     private static int COLUMN_CULLING_MIN = (int) ((ADD_COLUMN_RADIUS * 1 + 2)*(ADD_COLUMN_RADIUS * 1 + 2));
 
 	private TerrainMap terrainMap; // = new TerrainMap();
