@@ -31,9 +31,9 @@ public class ChunkBuilder
 		TerrainMap map = chunk.getTerrainMap();
 		Coord3 worldPosBlocks = chunk.originInBlockCoords();
 
-		for(i = 0; i < XLENGTH; ++i) {
-			for(j = 0; j < ZLENGTH; ++j) {
-				for (k = 0; k < YLENGTH; ++k) {
+		for(i = 0; i < Chunk.XLENGTH; ++i) {
+			for(j = 0; j < Chunk.ZLENGTH; ++j) {
+				for (k = 0; k < Chunk.YLENGTH; ++k) {
 					xin = i + worldPosBlocks.x; yin = k  + worldPosBlocks.y; zin = j  + worldPosBlocks.z;
 					posi = new Coord3(i,k,j);
 					byte btype = (byte) map.lookupOrCreateBlock(xin, yin, zin);
@@ -74,13 +74,14 @@ public class ChunkBuilder
 		{
 			bigMesh.clearBuffer(Type.Position);
 			bigMesh.clearBuffer(Type.TexCoord);
-			bigMesh.clearBuffer(Type.TexCoord2);
+//			bigMesh.clearBuffer(Type.TexCoord2);
 			bigMesh.clearBuffer(Type.Index);
 			bigMesh.clearBuffer(Type.Normal);
 			
 			bigMesh.setBuffer(Type.Position, 3, BufferUtils.createFloatBuffer(mset.vertices.toArray(new Vector3f[0])));
 			bigMesh.setBuffer(Type.TexCoord, 2, BufferUtils.createFloatBuffer(mset.uvs.toArray(new Vector2f[0])));
-			bigMesh.setBuffer(Type.TexCoord2, 2, BufferUtils.createFloatBuffer(mset.texMapOffsets.toArray(new Vector2f[0])));
+            /* Pre purge tex map offset */
+//			bigMesh.setBuffer(Type.TexCoord2, 2, BufferUtils.createFloatBuffer(mset.texMapOffsets.toArray(new Vector2f[0])));
 	
 			// google guava library helps with turning Lists into primitive arrays
 			// "Ints" and "Floats" are guava classes. 

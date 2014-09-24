@@ -44,8 +44,8 @@ public class AsyncMeshBuilder implements Runnable
 
             if (VoxelLandscape.DO_USE_TEST_GEOMETRY) return;
 
-            MeshSet mset = new MeshSet( false, chunkMeshBuildingSet.isOnlyLight);
-            MeshSet waterMSet = new MeshSet( true, chunkMeshBuildingSet.isOnlyLight);
+            MeshSet mset = new MeshSet(false, chunkMeshBuildingSet.isOnlyLight);
+            MeshSet waterMSet = new MeshSet(true, chunkMeshBuildingSet.isOnlyLight);
             chunkMeshBuildingSet.meshSet = mset;
             chunkMeshBuildingSet.liquidMeshSet = waterMSet;
 

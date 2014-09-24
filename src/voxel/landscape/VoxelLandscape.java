@@ -364,23 +364,24 @@ public class VoxelLandscape extends SimpleApplication
     public static void main(String[] args)
     {
         VoxelLandscape app = new VoxelLandscape();
+        ScreenSettings(app, false); //<--- call new method here
+        app.start(); // start the game
+    }
+    private static void ScreenSettings(VoxelLandscape app, boolean fullScreen) {
         GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         DisplayMode[] modes = device.getDisplayModes();
-
-        int i=0; // note: there are usually several, let's pick the first
+        int SCREEN_MODE=0; // note: there are usually several, let's pick the first
         AppSettings settings = new AppSettings(true);
-        boolean FULL_SCREEN = false;
-        float scale_screen = FULL_SCREEN ? 1f : .6f;
-        screenDims = new Coord2((int)(modes[i].getWidth() * scale_screen ),(int)(modes[i].getHeight() * scale_screen ));
+        float scale_screen = fullScreen ? 1f : .6f;
+        screenDims = new Coord2((int)(modes[SCREEN_MODE].getWidth() * scale_screen ),(int)(modes[SCREEN_MODE].getHeight() * scale_screen ));
         settings.setResolution(screenDims.x, screenDims.y);
-
-        settings.setFrequency(modes[i].getRefreshRate());
-        settings.setBitsPerPixel(modes[i].getBitDepth());
-        if (FULL_SCREEN) settings.setFullscreen(device.isFullScreenSupported());
+        settings.setFrequency(modes[SCREEN_MODE].getRefreshRate());
+        settings.setBitsPerPixel(modes[SCREEN_MODE].getBitDepth());
+        if (fullScreen) {
+            settings.setFullscreen(device.isFullScreenSupported());
+        }
         app.setSettings(settings);
         app.setShowSettings(false);
-
-        app.start(); // start the game
     }
     @Override
     public void destroy() {
