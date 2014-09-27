@@ -1,6 +1,7 @@
 package com.sudoplay.joise.examples;
 
 import com.sudoplay.joise.module.Module;
+import com.sudoplay.joise.module.ModuleCombiner;
 import com.sudoplay.joise.module.ModuleGradient;
 import voxel.landscape.BlockType;
 import voxel.landscape.noise.TerrainNoiseSettings;
@@ -116,7 +117,17 @@ public class JoiseMultiPanelExample extends JPanel {
         Module dirtOrStoneModule = dirtOrStoneSelectSettings.moduleSelectSettings.makeSelectModule();
         addDemoPanelWithModule(dirtOrStoneModule, dirtOrStoneSelectSettingsKey, dirtOrStoneSelectSettings);
 
-
+        /*
+         * combine terrain select and block type select
+         */
+        String combineTerrainAndBlockTypeKey = "Terrain And BlockType";
+        ModuleCombiner terrAndBlockTypeMod = new ModuleCombiner(ModuleCombiner.CombinerType.MULT);
+        terrAndBlockTypeMod.setSource(0, terrSelectModule);
+        terrAndBlockTypeMod.setSource(1, dirtOrStoneModule);
+        TerrainNoiseSettings combineSettings = new TerrainNoiseSettings(seed); //defaults
+        combineSettings.renderWithBlockColors = true;
+        addDemoPanelWithModule(terrAndBlockTypeMod, combineTerrainAndBlockTypeKey, combineSettings);
+        demoPanels.get(combineTerrainAndBlockTypeKey).removeGUI();
 
     }
 

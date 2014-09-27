@@ -86,9 +86,9 @@ public class TerrainNoiseSettings {
     public static TerrainNoiseSettings TerrainTypeSelectModuleNoiseSettings(long _seed) {
         TerrainNoiseSettings typeSelectSettings = new TerrainNoiseSettings(_seed);
         typeSelectSettings.fractalSettings.fractalType = ModuleFractal.FractalType.FBM;
-        typeSelectSettings.fractalSettings.octaves = 3;
-        typeSelectSettings.fractalSettings.frequency = 0.125f;
-        typeSelectSettings.yScale = 0f;
+        typeSelectSettings.fractalSettings.octaves = 4;
+        typeSelectSettings.fractalSettings.frequency = 1f;
+        typeSelectSettings.yScale = 1f;
         return typeSelectSettings;
     }
     public static TerrainNoiseSettings BlockTypeSelectModuleSettings(long _seed, Module _controlSource, BlockType a, BlockType b) {
