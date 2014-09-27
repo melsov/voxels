@@ -32,6 +32,7 @@ import java.io.IOException;
 //public class TerrainDataProvider implements IBlockDataProvider, IBlockTypeDataProvider
 public class TerrainDataProvider
 {
+    private static long seed;
 	public enum Mode {
         NoiseModule, ImageMode
 	}
@@ -61,7 +62,8 @@ public class TerrainDataProvider
 			// TODO: sep ims for heightmap and btype map
 			buffiDims = new Coord2(buffIm.getWidth(), buffIm.getHeight() );
 		} else {
-			setupModule(-21234);
+            seed = -21234;
+			setupModule();
 		}
 	}
 	
@@ -107,7 +109,61 @@ public class TerrainDataProvider
 		return buffIm.getRGB(x, y) + ARGB_POS_MAX;
 	}
 
-	private void setupModule(long seed) {
+    /*
+    * parameterized land method
+    */
+//    public static Module MakeFractalModule(TerrainNoiseSettings.FractalSettings fractalSettings) {
+//        ModuleFractal landShape = new ModuleFractal(fractalSettings.fractalType,
+//                fractalSettings.basisType, fractalSettings.interpolationType);
+//        landShape.setNumOctaves(fractalSettings.octaves);
+//        landShape.setFrequency(fractalSettings.frequency);
+//        landShape.setSeed(fractalSettings.seed);
+//        return landShape;
+//    }
+    /*
+    * parameterized land method
+    */
+//    public static Module MakeTerrainNoise(Module groundGradient, TerrainNoiseSettings terrainNoiseSettings) {
+//        // land_shape_fractal
+//        Module landShape = MakeFractalModule(terrainNoiseSettings.fractalSettings);
+//        // land_autocorrect
+//        ModuleAutoCorrect landShapeAutoCorrect =
+//                new ModuleAutoCorrect(terrainNoiseSettings.autoCorrectLow, terrainNoiseSettings.autoCorrectHigh);
+//        landShapeAutoCorrect.setSource(landShape);
+//        landShapeAutoCorrect.calculate();
+//
+//        // land_scale
+//        ModuleScaleOffset landScale = new ModuleScaleOffset();
+//        landScale.setScale(terrainNoiseSettings.xzscale);
+//        landScale.setOffset(terrainNoiseSettings.offset);
+//        landScale.setSource(landShapeAutoCorrect);
+//
+//        // land_y_scale
+//        ModuleScaleDomain landYScale = new ModuleScaleDomain();
+//        landYScale.setScaleY(terrainNoiseSettings.yScale);
+//        landYScale.setSource(landScale);
+//
+//        // terrain
+//        ModuleTranslateDomain landTerrain = new ModuleTranslateDomain();
+//        landTerrain.setAxisYSource(landYScale);
+//        landTerrain.setSource(groundGradient);
+//
+//        return landTerrain;
+//    }
+
+    private void setupModule() {
+        /*
+	     * ground_gradient
+	     */
+        ModuleGradient groundGradient = new ModuleGradient();
+        groundGradient.setGradient(0, 0, 0, 1);
+
+        Module lowlands =  TerrainNoiseSettings.LowLandTerrainNoiseSettings(seed).makeTerrainModule(groundGradient); // MakeTerrainNoise(groundGradient, TerrainNoiseSettings.LowLandTerrainNoiseSettings(seed));
+        Module highlands =  TerrainNoiseSettings.HighLandTerrainNoiseSettings(seed).makeTerrainModule(groundGradient); // MakeTerrainNoise(groundGradient, TerrainNoiseSettings.HighLandTerrainNoiseSettings(seed));
+        Module mountains =  TerrainNoiseSettings.MountainTerrainNoiseSettings(seed).makeTerrainModule(groundGradient); // MakeTerrainNoise(groundGradient, TerrainNoiseSettings.MountainTerrainNoiseSettings(seed));
+
+    }
+	private void setupModuleLONGVERSION(long seed) {
 	    // ========================================================================
 	    // = Based on Joise module chain Example 2
 	    // ========================================================================
@@ -219,7 +275,6 @@ public class TerrainDataProvider
 	    /*
 	     * terrain
 	     */
-
 	    // terrain_type_fractal
 	    ModuleFractal terrainTypeFractal = new ModuleFractal(FractalType.FBM, BasisType.GRADIENT, InterpolationType.QUINTIC);
 	    terrainTypeFractal.setNumOctaves(3);
@@ -248,7 +303,7 @@ public class TerrainDataProvider
 	    highlandMountainSelect.setThreshold(0.65);
 	    highlandMountainSelect.setFalloff(0.2);
 
-	    // highland_lowland_select
+	    // highland-mountains_lowland_select
 	    ModuleSelect highlandLowlandSelect = new ModuleSelect();
 	    highlandLowlandSelect.setLowSource(lowlandTerrain);
 	    highlandLowlandSelect.setHighSource(highlandMountainSelect);

@@ -4,32 +4,80 @@ import voxel.landscape.map.light.SunLightComputer;
 import voxel.landscape.map.water.WaterFlowComputer;
 
 import java.awt.*;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public enum BlockType {
-	NON_EXISTENT (0), 
-	AIR (1), DIRT(2), 
-	GRASS(3), SAND(4), 
-	STONE(5), CAVESTONE(6),
-    LANTERN(7),BEDROCK(8), WATER(9), WATER_RUNOFF (10);
+	NON_EXISTENT (0, 0d),
+	AIR (1, 0d),
+    DIRT(2, 4d),
+	GRASS(3, 0d),
+    SAND(4, 3d),
+	STONE(5, 5d),
+    CAVESTONE(6, 1d),
+    LANTERN(7, 0d),
+    BEDROCK(8, 0d),
+    WATER(9, .3d),
+    WATER_RUNOFF (10, 0d);
 	
-	BlockType(int i) {
+	BlockType(int i, double _prevalence) {
 		integer = i;
+        prevalence = _prevalence;
 	}
 	private static final Map lookup = new HashMap();
+    private static EnumSet<BlockType> existentBlockTypes;
+    private static EnumSet<BlockType> generatedSolidTypes;
+    private static double TotalPrevalence;
+
 	// Populate the lookup table on loading time
 	static {
 		for (BlockType bt : EnumSet.allOf(BlockType.class))
 			lookup.put(bt.integer, bt);
+        TotalPrevalence = totalPrevalence(getExistentBlockTypes());
 	}
+    public static EnumSet<BlockType> getExistentBlockTypes() {
+        if (existentBlockTypes == null) {
+            existentBlockTypes = EnumSet.allOf(BlockType.class);
+            existentBlockTypes.remove(NON_EXISTENT);
+        }
+        return existentBlockTypes;
+    }
+    public static EnumSet<BlockType> getGeneratedSolidTypes() {
+        if (generatedSolidTypes == null) {
+            generatedSolidTypes = EnumSet.of(DIRT, GRASS, SAND, STONE, CAVESTONE, BEDROCK, WATER);
+        }
+        return generatedSolidTypes;
+    }
+    public static Map<BlockType, Double> prevalenceTableForGeneratedSolidTypes() {
+        return prevalenceTable(getGeneratedSolidTypes(), totalPrevalence(getGeneratedSolidTypes()));
+    }
+    private static double totalPrevalence(Set<BlockType> blockTypeSet) {
+        double result = 0d;
+        Iterator<BlockType> iterator = blockTypeSet.iterator();
+        while(iterator.hasNext()) {
+            result += iterator.next().prevalence;
+        }
+        return result;
+    }
+    public static Map<BlockType, Double> prevalenceTable(Set<BlockType> blockTypeSet) {
+        return prevalenceTable(blockTypeSet, totalPrevalence(blockTypeSet));
+    }
+    private static Map<BlockType, Double> prevalenceTable(Set<BlockType> blockTypeSet, double totalPrevalence) {
+        Iterator<BlockType> iterator = blockTypeSet.iterator();
+        Map<BlockType, Double> result = new HashMap<BlockType, Double>(blockTypeSet.size());
+        while(iterator.hasNext()) {
+            BlockType bt = iterator.next();
+            result.put(bt, bt.prevalence / totalPrevalence);
+        }
+        return result;
+    }
 
 	public static BlockType get(int i) {
 		return (BlockType) lookup.get(i);
 	}
 
-	public static Color debugColor(int i) {
+    public static Color terrainDemoColor(BlockType blockType) { return terrainDemoColor(blockType.ordinal()); }
+
+	public static Color terrainDemoColor(int i) {
 		switch(BlockType.get(i)) {
 		case  NON_EXISTENT:
 			return Color.BLACK;
@@ -130,5 +178,6 @@ public enum BlockType {
     }
 
 	private int integer;
+    private double prevalence;
 	
 }
