@@ -94,7 +94,8 @@ public class JoiseDemoPanel extends JPanel {
             if (terrainNoiseSettings.moduleSelectSettings == null) {
                 addLabelTextFieldPairScale();
                 addLabelTextFieldPairOffset();
-                addLabelTextFieldPairYScale();
+                addLabelTextFieldPairYDomainScale();
+                addLabelTextFieldPairXDomainScale();
                 addLabelTextFieldPairFrequency();
                 addLabelTextFieldPairOctaves();
                 this.add(fractalTypeMenu());
@@ -205,15 +206,30 @@ public class JoiseDemoPanel extends JPanel {
             pairPanel.add(tf);
             this.add(pairPanel);
         }
-        private void addLabelTextFieldPairYScale() {
+        private void addLabelTextFieldPairYDomainScale() {
             JPanel pairPanel = new JPanel(new GridLayout(1,2));
-            pairPanel.add(new JLabel("y scale"));
+            pairPanel.add(new JLabel("y domain scale"));
             final JTextField tf = new JTextField(10);
             tf.setText("" + terrainNoiseSettings.yScale);
             tf.addActionListener(new AbstractAction() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     terrainNoiseSettings.yScale = Float.parseFloat(tf.getText());
+                    joiseMultiPanelExample.reloadModules();
+                }
+            });
+            pairPanel.add(tf);
+            this.add(pairPanel);
+        }
+        private void addLabelTextFieldPairXDomainScale() {
+            JPanel pairPanel = new JPanel(new GridLayout(1,2));
+            pairPanel.add(new JLabel("x domain scale"));
+            final JTextField tf = new JTextField(10);
+            tf.setText("" + terrainNoiseSettings.xScale);
+            tf.addActionListener(new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    terrainNoiseSettings.xScale = Float.parseFloat(tf.getText());
                     joiseMultiPanelExample.reloadModules();
                 }
             });

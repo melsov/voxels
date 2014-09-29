@@ -99,7 +99,6 @@ public class Example_02 {
     /*
      * lowland
      */
-
     // lowland_shape_fractal
     ModuleFractal lowlandShapeFractal = new ModuleFractal(FractalType.BILLOW, BasisType.GRADIENT, InterpolationType.QUINTIC);
     lowlandShapeFractal.setNumOctaves(2);

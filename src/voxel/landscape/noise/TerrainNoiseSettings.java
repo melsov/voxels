@@ -14,22 +14,7 @@ public class TerrainNoiseSettings {
         public ModuleBasisFunction.BasisType basisType = ModuleBasisFunction.BasisType.GRADIENT;
         public ModuleBasisFunction.InterpolationType interpolationType = ModuleBasisFunction.InterpolationType.QUINTIC;
         public long seed;
-
-        public Object[] getEnums() {
-            return new Object[] {
-              fractalType, basisType, interpolationType
-            };
-        }
-        public <E extends Enum<E>> void setEnum(Class<E> enumClass, E enumValue){
-            for (Object e : getEnums()) {
-                if (e.getClass().equals(enumClass)) {
-                    E theEnum = (E) e;
-                    theEnum = enumValue;
-                }
-            }
-        }
     }
-
 
     public FractalSettings fractalSettings;
     public ModuleSelectSettings moduleSelectSettings;
@@ -38,6 +23,7 @@ public class TerrainNoiseSettings {
     public float xzscale = 1f;
     public float offset = 0f;
     public float yScale = 1f;
+    public float xScale = 1f;
     public boolean renderWithBlockColors = false;
 
     public void setUpModuleSelectSettings(Module _controlSource) {
@@ -98,6 +84,9 @@ public class TerrainNoiseSettings {
         return blockSelect;
     }
 
+    /*
+     * TerrainNoiseSettings makes a module based on itself
+     * */
     public Module makeTerrainModule(Module groundGradient) {
         // land_shape_fractal
         Module landShape = makeFractalModule(fractalSettings);
@@ -116,6 +105,7 @@ public class TerrainNoiseSettings {
         // land_y_scale
         ModuleScaleDomain landYScale = new ModuleScaleDomain();
         landYScale.setScaleY(yScale);
+        landYScale.setScaleX(xScale); // should probably 1 for terrain.
         landYScale.setSource(landScale);
 
         if (groundGradient == null) {
