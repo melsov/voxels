@@ -1,8 +1,6 @@
 package com.sudoplay.joise.examples;
 
-import com.sudoplay.joise.module.Module;
-import com.sudoplay.joise.module.ModuleCombiner;
-import com.sudoplay.joise.module.ModuleGradient;
+import com.sudoplay.joise.module.*;
 import voxel.landscape.BlockType;
 import voxel.landscape.noise.TerrainNoiseSettings;
 import voxel.landscape.player.B;
@@ -53,6 +51,15 @@ public class JoiseMultiPanelExample extends JPanel {
         for (JoiseDemoPanel demoPanel : demoPanels.values()) {
             demoPanel.updateImage();
         }
+    }
+
+    private void addModuleToDisplay(Module mod, TerrainNoiseSettings terrainNoiseSettings, String noiseSettingsKey) {
+        TerrainNoiseSettings noiseSettings = getDemoPanelSettings(noiseSettingsKey);
+        if (terrainNoiseSettings == null) {
+            noiseSettings = terrainNoiseSettings; // TerrainNoiseSettings.MountainTerrainNoiseSettings(seed);
+        }
+        Module mountainTerrain = mod;
+        addDemoPanelWithModule(mountainTerrain, noiseSettingsKey, noiseSettings);
     }
 
     private void loadModules() {
@@ -128,6 +135,8 @@ public class JoiseMultiPanelExample extends JPanel {
         combineSettings.renderWithBlockColors = true;
         addDemoPanelWithModule(terrAndBlockTypeMod, combineTerrainAndBlockTypeKey, combineSettings);
         demoPanels.get(combineTerrainAndBlockTypeKey).removeGUI();
+
+
 
     }
 
