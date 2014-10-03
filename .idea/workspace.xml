@@ -97,7 +97,7 @@
         <entry file="file://$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.16666667" vertical-offset="0" max-vertical-offset="7710">
-              <caret line="55" column="16" selection-start-line="55" selection-start-column="16" selection-end-line="55" selection-end-column="16" />
+              <caret line="55" column="36" selection-start-line="55" selection-start-column="36" selection-end-line="55" selection-end-column="36" />
               <folding>
                 <element signature="method#makeInitialWorld#0;class#VoxelLandscape#0" expanded="false" />
                 <element signature="method#killThreadPools#0;class#VoxelLandscape#0" expanded="false" />
@@ -1045,7 +1045,11 @@
       <created>1412373250625</created>
       <updated>1412373250625</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="Test commit &amp; push">
+      <created>1412373313270</created>
+      <updated>1412373313270</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -1125,7 +1129,8 @@
     <MESSAGE value="Asynchronous chunk mesh building" />
     <MESSAGE value="Multi-panel demo program for terrain noise" />
     <MESSAGE value="Simplified noise setup. Pre-flood fill implementation!" />
-    <option name="LAST_COMMIT_MESSAGE" value="Simplified noise setup. Pre-flood fill implementation!" />
+    <MESSAGE value="Test commit &amp; push" />
+    <option name="LAST_COMMIT_MESSAGE" value="Test commit &amp; push" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1539,7 +1544,7 @@
     <entry file="file://$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.16666667" vertical-offset="0" max-vertical-offset="7710">
-          <caret line="55" column="16" selection-start-line="55" selection-start-column="16" selection-end-line="55" selection-end-column="16" />
+          <caret line="55" column="36" selection-start-line="55" selection-start-column="36" selection-end-line="55" selection-end-column="36" />
           <folding>
             <element signature="method#makeInitialWorld#0;class#VoxelLandscape#0" expanded="false" />
             <element signature="method#killThreadPools#0;class#VoxelLandscape#0" expanded="false" />
