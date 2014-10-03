@@ -144,20 +144,281 @@ public class TerrainDataProvider {
 //        return landTerrain;
 //    }
 
-    private void setupModuleCONDENSED() {
+    private void setupModule() {
         /*
          * ground_gradient
 	     */
         ModuleGradient groundGradient = new ModuleGradient();
         groundGradient.setGradient(0, 0, 0, 1);
 
-        Module lowlands = TerrainNoiseSettings.LowLandTerrainNoiseSettings(seed).makeTerrainModule(groundGradient); // MakeTerrainNoise(groundGradient, TerrainNoiseSettings.LowLandTerrainNoiseSettings(seed));
-        Module highlands = TerrainNoiseSettings.HighLandTerrainNoiseSettings(seed).makeTerrainModule(groundGradient); // MakeTerrainNoise(groundGradient, TerrainNoiseSettings.HighLandTerrainNoiseSettings(seed));
-        Module mountains = TerrainNoiseSettings.MountainTerrainNoiseSettings(seed).makeTerrainModule(groundGradient); // MakeTerrainNoise(groundGradient, TerrainNoiseSettings.MountainTerrainNoiseSettings(seed));
+//        Module lowlands = TerrainNoiseSettings.LowLandTerrainNoiseSettings(seed).makeTerrainModule(groundGradient); // MakeTerrainNoise(groundGradient, TerrainNoiseSettings.LowLandTerrainNoiseSettings(seed));
+//        Module highlands = TerrainNoiseSettings.HighLandTerrainNoiseSettings(seed).makeTerrainModule(groundGradient); // MakeTerrainNoise(groundGradient, TerrainNoiseSettings.HighLandTerrainNoiseSettings(seed));
+        Module mountains = TerrainNoiseSettings.MountainTerrainNoiseSettings(seed, false).makeTerrainModule(groundGradient); // MakeTerrainNoise(groundGradient, TerrainNoiseSettings.MountainTerrainNoiseSettings(seed));
+
+
+        ModuleSelectSettings dirtAirSelect = ModuleSelectSettings.BlockTypeSelectSettingsManualThreshold(mountains, BlockType.AIR, BlockType.DIRT, .5d);
+
+        noiseModule = dirtAirSelect.makeSelectModule();
+    }
+
+    //Simplified version (seems faster also...)
+    private void setupModuleBROKEN() {
+        // ========================================================================
+        // = Based on Joise module chain Example 2
+        // ========================================================================
+
+	    /*
+	     * ground_gradient
+	     */
+        ModuleGradient groundGradient = new ModuleGradient();
+        groundGradient.setGradient(0, 0, 0, 1);
+
+
+	    /*
+	     * mountain
+	     */
+        // mountain_shape_fractal
+        ModuleFractal mountainShapeFractal = new ModuleFractal(FractalType.RIDGEMULTI, BasisType.GRADIENT, InterpolationType.QUINTIC);
+        mountainShapeFractal.setNumOctaves(8);
+        mountainShapeFractal.setFrequency(1);
+        mountainShapeFractal.setSeed(seed);
+	    /*
+	     * MMP: cache for bedrock
+	     */
+        ModuleCache mp_mountainCache = new ModuleCache();
+        mp_mountainCache.setSource(mountainShapeFractal);
+
+        // mountain_autocorrect
+        ModuleAutoCorrect mountainAutoCorrect = new ModuleAutoCorrect(-1, 1);
+        mountainAutoCorrect.setSource(mountainShapeFractal);
+        mountainAutoCorrect.setSource(mp_mountainCache);
+        mountainAutoCorrect.calculate();
+
+
+        // mountain_scale
+        ModuleScaleOffset mountainScale = new ModuleScaleOffset();
+        mountainScale.setScale(0.45);
+        mountainScale.setOffset(0.15);
+        mountainScale.setSource(mountainAutoCorrect);
+
+        // mountain_y_scale
+        ModuleScaleDomain mountainYScale = new ModuleScaleDomain();
+        mountainYScale.setScaleY(0.1);
+        mountainYScale.setSource(mountainScale);
+
+        // mountain_terrain
+        ModuleTranslateDomain mountainTerrain = new ModuleTranslateDomain();
+        mountainTerrain.setAxisYSource(mountainYScale);
+        mountainTerrain.setSource(groundGradient);
+
+        // ground_select
+        ModuleSelect groundSelect = new ModuleSelect();
+        groundSelect.setLowSource(0);
+        groundSelect.setHighSource(1);
+        groundSelect.setThreshold(0.5);
+        groundSelect.setControlSource(mountainTerrain);
+
+	    /*
+	     * cave
+	     */
+        /*
+        ModuleFractal caveShape = new ModuleFractal(FractalType.RIDGEMULTI, BasisType.GRADIENT, InterpolationType.QUINTIC);
+        caveShape.setNumOctaves(1);
+        caveShape.setFrequency(4);
+        caveShape.setSeed(seed);
+
+        ModuleFractal caveShape2 = new ModuleFractal(FractalType.RIDGEMULTI, BasisType.GRADIENT, InterpolationType.QUINTIC);
+        caveShape2.setNumOctaves(1);
+        caveShape2.setFrequency(4);
+        caveShape2.setSeed(seed + 1000);
+
+        ModuleCombiner caveShape22 = new ModuleCombiner(CombinerType.MULT);
+        caveShape22.setSource(0, caveShape2);
+        caveShape22.setSource(1, caveShape2);
+
+        // combined, 'pre-perturbed' cave shape
+        ModuleCombiner caveShapeA = new ModuleCombiner(CombinerType.MULT);
+        caveShapeA.setSource(0, caveShape);
+        caveShapeA.setSource(1, caveShape22);
+
+        ModuleCache caveShapeCache = new ModuleCache();
+        caveShapeCache.setSource(caveShapeA); // use for terrain types as well
+
+        Module mp_caveModule = caveModuleCreate(caveShapeCache, seed);
+*/
+	    /*
+	     * Block Type
+	     */
+        BlockType blockMonoType = BlockType.STONE;
+        Float monoTypeFloat = blockMonoType.getFloat();
+        ModuleFractal terrainTypeHelperModule = new ModuleFractal(FractalType.RIDGEMULTI, BasisType.GRADIENT, InterpolationType.QUINTIC);
+        terrainTypeHelperModule.setNumOctaves(1);
+        terrainTypeHelperModule.setFrequency(2); //high for testing
+        terrainTypeHelperModule.setSeed(seed);
+
+        ModuleAutoCorrect terrAutoCorrect = new ModuleAutoCorrect(0, 1);
+        terrAutoCorrect.setSource(terrainTypeHelperModule);
+        terrAutoCorrect.calculate();
+
+        // lowland_scale
+        ModuleScaleOffset terrScaleOffset = new ModuleScaleOffset();
+        terrScaleOffset.setScale(.5);
+        terrScaleOffset.setOffset(-0.1);
+        terrScaleOffset.setSource(terrAutoCorrect);
+
+//        ModuleScaleOffset caveTampDown = new ModuleScaleOffset();
+//        caveTampDown.setScale(.2);
+//        caveTampDown.setSource(caveShapeCache);
+
+//        ModuleScaleOffset terrOffByCaveFrac = new ModuleScaleOffset();
+//        terrOffByCaveFrac.setOffset(caveTampDown);
+//        terrOffByCaveFrac.setSource(terrScaleOffset);
+
+        // lowland_y_scale
+//        ModuleScaleDomain terrScaleYDomain = new ModuleScaleDomain();
+//        terrScaleYDomain.setScaleY(.2);
+//        terrScaleYDomain.setSource(terrOffByCaveFrac);
+
+        // sand or grass ?
+        ModuleScaleOffset scaleTerrMountain = new ModuleScaleOffset();
+        scaleTerrMountain.setScale(6.5);
+        scaleTerrMountain.setSource(mp_mountainCache);
+
+        ModuleSelect terrainSelect = new ModuleSelect();
+        terrainSelect.setLowSource(BlockType.AIR.getFloat());
+        terrainSelect.setHighSource(monoTypeFloat);
+        terrainSelect.setControlSource(scaleTerrMountain);
+        terrainSelect.setThreshold(.4);
+        terrainSelect.setFalloff(0);
+
+//        ModuleTranslateDomain strataGradientPerturb = new ModuleTranslateDomain();
+//        strataGradientPerturb.setAxisYSource(terrScaleYDomain);
+//        strataGradientPerturb.setSource(groundGradient);
+
+        //SELECT SAND/GRASS or STONE
+//        ModuleSelect stoneSandGrassSelect = new ModuleSelect();
+//        stoneSandGrassSelect.setLowSource(terrainSelect); //stone value
+//        stoneSandGrassSelect.setHighSource(monoTypeFloat);
+//        stoneSandGrassSelect.setControlSource(strataGradientPerturb);
+//        stoneSandGrassSelect.setThreshold(.94);
+//        stoneSandGrassSelect.setFalloff(0);
+
+//        //ADD AREAS NEAR CAVES AS CAVE-ISH STONE
+//        ModuleSelect stoneSandGrassCaveSelect = new ModuleSelect();
+//        stoneSandGrassCaveSelect.setLowSource(stoneSandGrassSelect); //stone value
+//        stoneSandGrassCaveSelect.setHighSource(monoTypeFloat);
+//        stoneSandGrassCaveSelect.setControlSource(caveShapeCache);
+//        stoneSandGrassCaveSelect.setThreshold(.75);
+//        stoneSandGrassCaveSelect.setFalloff(0);
+
+//        ModuleCache terrSelectCache = new ModuleCache();
+//        terrSelectCache.setSource(terrainSelect);
+
+	    /*
+	     * final-almost
+	     */
+//        ModuleCombiner groundCaveMultiply = new ModuleCombiner(CombinerType.MULT);
+//        groundCaveMultiply.setSource(0, mp_caveModule);
+//        groundCaveMultiply.setSource(1, groundSelect);
+//        groundCaveMultiply.setSource(2, stoneSandGrassCaveSelect);
+
+	    /*
+	     * Bedrock
+	     */
+
+        ModuleGradient bedrockGradient = new ModuleGradient();
+        bedrockGradient.setGradient(0, 0, .95, 1);
+
+        ModuleScaleOffset bedrockScaleOffset = new ModuleScaleOffset();
+        bedrockScaleOffset.setScale(.05);
+        bedrockScaleOffset.setOffset(0.0);
+        bedrockScaleOffset.setSource(mp_mountainCache);
+
+        ModuleScaleDomain bedrockYScale = new ModuleScaleDomain();
+        bedrockYScale.setScaleY(0);
+        bedrockYScale.setSource(bedrockScaleOffset);
+
+        ModuleTranslateDomain bedrockTerrain = new ModuleTranslateDomain();
+        bedrockTerrain.setAxisYSource(bedrockYScale);
+        bedrockTerrain.setSource(bedrockGradient);
+
+        ModuleSelect bedrockSelect = new ModuleSelect();
+        bedrockSelect.setLowSource(terrainSelect);
+        bedrockSelect.setHighSource(monoTypeFloat); //BEDROCK VALUE
+        bedrockSelect.setControlSource(bedrockTerrain);
+        bedrockSelect.setThreshold(0.9);
+        bedrockSelect.setFalloff(0);
+
+
+	    /*
+	     * Draw it
+	     */
+
+        noiseModule =  bedrockSelect;
 
     }
 
-    private void setupModule() {
+    private static Module caveModuleCreateM(Module caveShapeA, long seed) {
+        int moduleSelect = 0;
+
+        // cave_perturb_fractal
+        ModuleFractal cavePerturbFractal = new ModuleFractal(FractalType.FBM, BasisType.GRADIENT, InterpolationType.QUINTIC);
+        cavePerturbFractal.setNumOctaves(6);
+        cavePerturbFractal.setFrequency(3);
+        cavePerturbFractal.setSeed(seed); //CONSIDER: adjust seed??
+
+        // cave_perturb_scale
+        ModuleScaleOffset cavePerturbScale = new ModuleScaleOffset();
+        cavePerturbScale.setScale(0.25);
+        cavePerturbScale.setOffset(0);
+        cavePerturbScale.setSource(cavePerturbFractal);
+
+        // cave_perturb
+        ModuleTranslateDomain cavePerturb = new ModuleTranslateDomain();
+        cavePerturb.setAxisXSource(cavePerturbScale);
+//        cavePerturb.setAxisZSource(cavePerturbScale);
+//        cavePerturb.setAxisYSource(cavePerturbScale);
+        cavePerturb.setSource(caveShapeA);
+
+        /*
+         * reduce caves at lower Ys with gradient
+         */
+        ModuleGradient caveDepthGradient = new ModuleGradient();
+        caveDepthGradient.setGradient(0, 0, .85, 1);
+        ModuleBias caveGradientBias = new ModuleBias();
+        caveGradientBias.setSource(caveDepthGradient);
+        caveGradientBias.setBias(.75);
+        ModuleScaleOffset flipCaveDepthGradient = new ModuleScaleOffset();
+        flipCaveDepthGradient.setScale(-3.5);
+        flipCaveDepthGradient.setOffset(1.5);
+        flipCaveDepthGradient.setSource(caveDepthGradient);
+
+        ModuleCombiner minCombiner = new ModuleCombiner(CombinerType.MIN);
+        minCombiner.setSource(0, 1);
+        minCombiner.setSource(1, flipCaveDepthGradient);
+
+        ModuleCombiner caveDepthCombiner = new ModuleCombiner(CombinerType.MULT);
+        caveDepthCombiner.setSource(0, cavePerturb);
+        caveDepthCombiner.setSource(1, minCombiner);
+
+        // cave_select
+        ModuleSelect caveSelect = new ModuleSelect();
+        caveSelect.setLowSource(1);
+        caveSelect.setHighSource(2);
+        caveSelect.setControlSource(caveDepthCombiner);
+        caveSelect.setThreshold(0.8);
+        caveSelect.setFalloff(0);
+
+        return caveSelect;
+//		    canvas.updateImage(caveSelect);
+//		    canvas.updateImage(caveDepthCombiner);
+//		    canvas.updateImage(caveGradientBias);
+//		    canvas.updateImage(minCombiner);
+//		    canvas.updateImage(flipCaveDepthGradient);
+//		    canvas.updateImage(caveShapeAttenuate);
+//		    canvas.updateImage(caveAttenuateBias);
+    }
+    private void setupModuleBIG() {
         // ========================================================================
         // = Based on Joise module chain Example 2
         // ========================================================================

@@ -5,17 +5,6 @@ import voxel.landscape.BlockType;
 
 public class TerrainNoiseSettings {
 
-    public class FractalSettings {
-        public FractalSettings (long _seed) { seed = _seed; }
-        public ModuleFractal.FractalType fractalType = ModuleFractal.FractalType.BILLOW;
-        public int octaves = 2;
-        public double frequency = 0.25f;
-        public double lacunarity = ModuleFractal.DEFAULT_LACUNARITY;
-        public ModuleBasisFunction.BasisType basisType = ModuleBasisFunction.BasisType.GRADIENT;
-        public ModuleBasisFunction.InterpolationType interpolationType = ModuleBasisFunction.InterpolationType.QUINTIC;
-        public long seed;
-    }
-
     public FractalSettings fractalSettings;
     public ModuleSelectSettings moduleSelectSettings;
     public float autoCorrectLow = 0f;
@@ -33,30 +22,33 @@ public class TerrainNoiseSettings {
        fractalSettings = new FractalSettings(_seed);
     }
 
-    public static TerrainNoiseSettings LowLandTerrainNoiseSettings(long _seed) {
+    public static TerrainNoiseSettings LowLandTerrainNoiseSettings(long _seed, boolean shouldCache) {
         TerrainNoiseSettings lowlandSettings = new TerrainNoiseSettings(_seed);
         lowlandSettings.fractalSettings.fractalType = ModuleFractal.FractalType.BILLOW;
         lowlandSettings.fractalSettings.octaves = 2;
         lowlandSettings.fractalSettings.frequency = 0.25f;
+        lowlandSettings.fractalSettings.shouldCache = shouldCache;
         lowlandSettings.xzscale = 0.435f;
         lowlandSettings.offset = -0.45f;
         lowlandSettings.yScale = 0f;
         return lowlandSettings;
     }
-    public static TerrainNoiseSettings HighLandTerrainNoiseSettings(long _seed) {
+    public static TerrainNoiseSettings HighLandTerrainNoiseSettings(long _seed, boolean shouldCache) {
         TerrainNoiseSettings highLandSettings = new TerrainNoiseSettings(_seed);
         highLandSettings.fractalSettings.fractalType = ModuleFractal.FractalType.FBM;
         highLandSettings.fractalSettings.octaves = 4;
         highLandSettings.fractalSettings.frequency = 2f;
+        highLandSettings.fractalSettings.shouldCache = shouldCache;
         highLandSettings.xzscale = .45f;
         highLandSettings.offset = 0f;
         return highLandSettings;
     }
-    public static TerrainNoiseSettings MountainTerrainNoiseSettings(long _seed) {
+    public static TerrainNoiseSettings MountainTerrainNoiseSettings(long _seed, boolean shouldCache) {
         TerrainNoiseSettings mountainSettings = new TerrainNoiseSettings(_seed);
         mountainSettings.fractalSettings.fractalType = ModuleFractal.FractalType.RIDGEMULTI;
         mountainSettings.fractalSettings.octaves = 8;
         mountainSettings.fractalSettings.frequency = 1f;
+        mountainSettings.fractalSettings.shouldCache = shouldCache;
         mountainSettings.autoCorrectLow = -1;
         mountainSettings.xzscale = .45f;
         mountainSettings.offset = .15f;
@@ -69,11 +61,12 @@ public class TerrainNoiseSettings {
         return selectorSettings;
     }
 
-    public static TerrainNoiseSettings TerrainTypeSelectModuleNoiseSettings(long _seed) {
+    public static TerrainNoiseSettings TerrainTypeSelectModuleNoiseSettings(long _seed, boolean shouldCache) {
         TerrainNoiseSettings typeSelectSettings = new TerrainNoiseSettings(_seed);
         typeSelectSettings.fractalSettings.fractalType = ModuleFractal.FractalType.FBM;
         typeSelectSettings.fractalSettings.octaves = 4;
         typeSelectSettings.fractalSettings.frequency = 1f;
+        typeSelectSettings.fractalSettings.shouldCache = shouldCache;
         typeSelectSettings.yScale = 1f;
         return typeSelectSettings;
     }
@@ -89,7 +82,7 @@ public class TerrainNoiseSettings {
      * */
     public Module makeTerrainModule(Module groundGradient) {
         // land_shape_fractal
-        Module landShape = makeFractalModule(fractalSettings);
+        Module landShape = fractalSettings.makeFractalModule();
         // land_autocorrect
         ModuleAutoCorrect landShapeAutoCorrect =
                 new ModuleAutoCorrect(autoCorrectLow, autoCorrectHigh);
@@ -118,13 +111,6 @@ public class TerrainNoiseSettings {
 
         return landTerrain;
     }
-    public Module makeFractalModule(TerrainNoiseSettings.FractalSettings fractalSettings) {
-        ModuleFractal landShape = new ModuleFractal(fractalSettings.fractalType,
-                fractalSettings.basisType, fractalSettings.interpolationType);
-        landShape.setNumOctaves(fractalSettings.octaves);
-        landShape.setFrequency(fractalSettings.frequency);
-        landShape.setSeed(fractalSettings.seed);
-        return landShape;
-    }
+
 
 }

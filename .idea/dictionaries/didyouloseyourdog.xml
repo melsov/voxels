@@ -5,6 +5,7 @@
       <w>coords</w>
       <w>defs</w>
       <w>glsl</w>
+      <w>lacunarity</w>
       <w>ortho</w>
       <w>vert</w>
       <w>voxel</w>

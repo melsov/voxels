@@ -3,6 +3,7 @@ package voxel.landscape;
 import com.jme3.scene.Node;
 import voxel.landscape.chunkbuild.ChunkBrain;
 import voxel.landscape.collection.ByteArray3D;
+import voxel.landscape.collection.chunkface.ChunkBlockFaceMap;
 import voxel.landscape.collection.coordmap.managepages.ConcurrentHashMapCoord3D;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;
@@ -38,6 +39,8 @@ public class Chunk
 	private ChunkBrain chunkBrain;
 	private TerrainMap terrainMap;
 
+    public final ChunkBlockFaceMap chunkBlockFaceMap = new ChunkBlockFaceMap();
+
     private volatile boolean isAllAir = false;
     public void setIsAllAir(boolean _allAir) {
         isAllAir = _allAir;
@@ -50,8 +53,7 @@ public class Chunk
 
     public static boolean USE_TEST_GEOMETRY = false;
 	
-	public Chunk(Coord3 _coord, TerrainMap _terrainMap)
-	{
+	public Chunk(Coord3 _coord, TerrainMap _terrainMap) {
 		position = _coord;
 		terrainMap = _terrainMap;
 	}

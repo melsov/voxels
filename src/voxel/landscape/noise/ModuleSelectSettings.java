@@ -20,6 +20,14 @@ public class ModuleSelectSettings {
 
     public ModuleSelectSettings(Module controlSource_) { controlSource = controlSource_; }
 
+    public static ModuleSelectSettings BlockTypeSelectSettingsManualThreshold (Module controlSource_, BlockType lowSource, BlockType highSource, double _threshold ) {
+        ModuleSelectSettings res = new ModuleSelectSettings(controlSource_);
+        res.threshold = new ScalarParameter( _threshold);
+        res.lowSource = new ScalarParameter(lowSource.ordinal());
+        res.highSource = new ScalarParameter( highSource.ordinal() );
+        return res;
+    }
+
     public static ModuleSelectSettings BlockTypeSelectSettings (Module controlSource_, BlockType a, BlockType b ) {
         ModuleSelectSettings res = new ModuleSelectSettings(controlSource_);
         Map<BlockType, Double> prevalenceLookUp = BlockType.prevalenceTable(EnumSet.of(a, b));

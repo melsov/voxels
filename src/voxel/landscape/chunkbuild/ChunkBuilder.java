@@ -12,16 +12,21 @@ import voxel.landscape.BlockMeshUtil;
 import voxel.landscape.BlockType;
 import voxel.landscape.Chunk;
 import voxel.landscape.MeshSet;
+import voxel.landscape.chunkbuild.blockfacefind.BlockFaceRecord;
+import voxel.landscape.chunkbuild.blockfacefind.ChunkBlockFaceCoord;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.util.Asserter;
 
+import java.util.Iterator;
+import java.util.Map;
+
 import static voxel.landscape.Chunk.*;
 
 public class ChunkBuilder 
 {
-	public static void buildMesh(Chunk chunk, MeshSet mset, MeshSet waterMSet, boolean lightOnly, boolean onlyLiquid)
+	public static void buildMesh(Chunk chunk, MeshSet mset, MeshSet waterMSet, boolean lightOnly, boolean liquidOnly)
 	{
 		int xin = 0, yin = 0, zin = 0;
 		Coord3 posi;
@@ -49,7 +54,7 @@ public class ChunkBuilder
                                 waterTriIndex += 4;
                             }
                         }
-                        if (onlyLiquid) continue;
+                        if (liquidOnly) continue;
                     } else {
                         for (int dir = 0; dir <= Direction.ZPOS; ++dir) {
                             if (IsFaceVisible(map, worldcoord, dir)) {
@@ -63,6 +68,42 @@ public class ChunkBuilder
 			}
 		}
 	}
+
+    /*
+     * Chunk Block Face Map Build
+     */
+    public static void buildMeshFromFaceMap(Chunk chunk, MeshSet mset, MeshSet waterMSet, boolean lightOnly, boolean liquidOnly) {
+        TerrainMap map = chunk.getTerrainMap();
+        Coord3 worldCoord = chunk.originInBlockCoords();
+        int triIndex = 0, waterTriIndex = 0;
+        Iterator<Map.Entry<ChunkBlockFaceCoord, BlockFaceRecord>> iterator = chunk.chunkBlockFaceMap.iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<ChunkBlockFaceCoord, BlockFaceRecord> entry = iterator.next();
+            ChunkBlockFaceCoord blockFaceCoord = entry.getKey();
+            BlockFaceRecord faceRecord = entry.getValue();
+            Coord3 blockWorldCoord = worldCoord.add(blockFaceCoord.toCoord3());
+            byte blockType = (byte) map.lookupOrCreateBlock(blockWorldCoord);
+
+            if (BlockType.AIR.equals(blockType)) continue;
+
+            if (BlockType.IsWaterType(blockType)) {
+                for (int dir : Direction.Directions) {
+                    if (IsWaterSurfaceFace(map, worldCoord, dir)) {
+                        if (!lightOnly) BlockMeshUtil.AddFaceMeshData(blockFaceCoord.toCoord3(), waterMSet, blockType, dir, waterTriIndex, map);
+                        BlockMeshUtil.AddFaceMeshLightData(blockWorldCoord, waterMSet, dir, map);
+                        waterTriIndex += 4;
+                    }
+                }
+            } else {
+                for (int dir = 0; dir <= Direction.ZPOS; ++dir) {
+                    if (!lightOnly) BlockMeshUtil.AddFaceMeshData(blockFaceCoord.toCoord3(), mset, blockType, dir, triIndex, map);
+                    BlockMeshUtil.AddFaceMeshLightData(blockWorldCoord, mset, dir, map);
+                    triIndex += 4;
+                }
+            }
+        }
+
+    }
 	
 	public static void ApplyMeshSet(MeshSet mset, Mesh bigMesh, boolean lightOnly)
     {

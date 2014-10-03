@@ -76,7 +76,7 @@ public class JoiseMultiPanelExample extends JPanel {
         String mountainsKey = "mountains";
         TerrainNoiseSettings mountainSettings = getDemoPanelSettings(mountainsKey);
         if (mountainSettings == null) {
-            mountainSettings = TerrainNoiseSettings.MountainTerrainNoiseSettings(seed);
+            mountainSettings = TerrainNoiseSettings.MountainTerrainNoiseSettings(seed, false);
         }
         Module mountainTerrain = mountainSettings.makeTerrainModule(groundGradient);
         addDemoPanelWithModule(mountainTerrain, mountainsKey, mountainSettings);
@@ -109,7 +109,7 @@ public class JoiseMultiPanelExample extends JPanel {
         String typeSelectSettingKey = "terrain type select";
         TerrainNoiseSettings typeSelectSettings = getDemoPanelSettings(typeSelectSettingKey);
         if (typeSelectSettings == null) {
-            typeSelectSettings = TerrainNoiseSettings.TerrainTypeSelectModuleNoiseSettings(seed);
+            typeSelectSettings = TerrainNoiseSettings.TerrainTypeSelectModuleNoiseSettings(seed, false);
         }
         Module selectTypeTerr = typeSelectSettings.makeTerrainModule(null);
         addDemoPanelWithModule(selectTypeTerr, typeSelectSettingKey, typeSelectSettings);

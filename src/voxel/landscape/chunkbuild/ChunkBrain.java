@@ -177,7 +177,6 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
         }
 
         applyMeshSet(waterMSet);
-        //TODO: JVM may need 'help' flushing unused Geometries: consider doing this manually
 	}
     public void applyMeshBuildingSet(ChunkMeshBuildingSet chunkMeshBuildingSet) {
         if (!chunkMeshBuildingSet.isOnlyLiquid) {

@@ -4,107 +4,125 @@ import com.jme3.math.Vector3f;
 import voxel.landscape.Axis;
 
 public class Direction {
-	public static final int XNEG = 0, XPOS = 1, YNEG = 2, YPOS = 3, ZNEG=4, ZPOS=5;
-	
-	/* Index-able order array */
-	public static Coord3[] DirectionCoords = new Coord3[] {
-		new Coord3(-1, 0, 0),
-		new Coord3( 1, 0, 0),
-		new Coord3( 0,-1, 0),
-		new Coord3( 0, 1, 0),
-		new Coord3( 0, 0,-1),
-		new Coord3( 0, 0, 1),
-	};
-	public static Vector3f[] DirectionVector3fs = new Vector3f[] {
-		new Vector3f(-1, 0, 0),
-		new Vector3f( 1, 0, 0),
-		new Vector3f( 0,-1, 0),
-		new Vector3f( 0, 1, 0),
-		new Vector3f( 0, 0,-1),
-		new Vector3f( 0, 0, 1),
-	};
-    public static Coord3[] DirectionXZCoords = new Coord3[] {
-            new Coord3(-1, 0, 0),
-            new Coord3( 1, 0, 0),
-            new Coord3( 0, 0,-1),
-            new Coord3( 0, 0, 1),
-    };
-    public static Vector3f[] DirectionXZVector3fs = new Vector3f[] {
-            new Vector3f(-1, 0, 0),
-            new Vector3f( 1, 0, 0),
-            new Vector3f( 0, 0,-1),
-            new Vector3f( 0, 0, 1),
-    };
-    public static Vector3f[] DirectionXZAndZeroVector3fs = new Vector3f[] {
-            new Vector3f( 0, 0, 0),
-            new Vector3f(-1, 0, 0),
-            new Vector3f( 1, 0, 0),
-            new Vector3f( 0, 0,-1),
-            new Vector3f( 0, 0, 1),
-    };
-    public static Coord3[] DirectionCoordsXZAndDown = new Coord3[] {
-            new Coord3( 0,-1, 0),
-            new Coord3(-1, 0, 0),
-            new Coord3( 1, 0, 0),
-            new Coord3( 0, 0,-1),
-            new Coord3( 0, 0, 1),
-    };
-    public static final Vector3f UNIT_XZ = new Vector3f(1f,0f,1f);
-	
-	public static int OppositeDirection(int dir) {
-		if (dir % 2 == 0) return dir + 1;
-		return dir - 1;
-	}
-	
-	public static Coord3 DirectionCoordForDirection(int dir)
-	{
-		return DirectionCoords[dir];
-	}
-	
-	public static boolean IsNegDir(int dir)
-	{
-		return dir % 2 == 0;
-	}
-	
-	public static Vector3f AddToComponentAtAxis(Vector3f vec, float whatToAdd, int axis) {
-		if (axis == Axis.X)
-			vec.x += whatToAdd;
-		else if (axis == Axis.Y)
-			vec.y += whatToAdd;
-		else
-			vec.z += whatToAdd;
-		return vec;
-	}
-	
-	
-	public static int AxisForDirection(int dir) {
-		if (dir <= Direction.XPOS) {
-			return Axis.X;
-		}
-		if (dir <= Direction.YPOS) {
-			return Axis.Y;
-		}
-		return Axis.Z;
-	}
+    public static final int XNEG = 0, XPOS = 1, YNEG = 2, YPOS = 3, ZNEG = 4, ZPOS = 5;
 
-	public static String ToString(int dir) {
+    public static final int[] Directions = new int[] {XNEG, XPOS, YNEG, YPOS, ZNEG, ZPOS};
 
-		switch(dir) {
-		case XPOS:
-			return "XPOS";
-		case XNEG:
-			return "XNEG";
-		case YNEG:
-			return "YNEG";
-		case YPOS: 
-			return "YPOS";
-		case ZNEG:
-			return "ZNEG";
-		case ZPOS:
-			return "ZPOS";
-		default:
-			return "INVALID DIRECTION";
-		
-		}
-	}
+    /* Index-able order array */
+    public static Coord3[] DirectionCoords = new Coord3[]{
+            new Coord3(-1, 0, 0),
+            new Coord3(1, 0, 0),
+            new Coord3(0, -1, 0),
+            new Coord3(0, 1, 0),
+            new Coord3(0, 0, -1),
+            new Coord3(0, 0, 1),
+    };
+    public static Vector3f[] DirectionVector3fs = new Vector3f[]{
+            new Vector3f(-1, 0, 0),
+            new Vector3f(1, 0, 0),
+            new Vector3f(0, -1, 0),
+            new Vector3f(0, 1, 0),
+            new Vector3f(0, 0, -1),
+            new Vector3f(0, 0, 1),
+    };
+    public static Coord3[] DirectionXZCoords = new Coord3[]{
+            new Coord3(-1, 0, 0),
+            new Coord3(1, 0, 0),
+            new Coord3(0, 0, -1),
+            new Coord3(0, 0, 1),
+    };
+    public static Vector3f[] DirectionXZVector3fs = new Vector3f[]{
+            new Vector3f(-1, 0, 0),
+            new Vector3f(1, 0, 0),
+            new Vector3f(0, 0, -1),
+            new Vector3f(0, 0, 1),
+    };
+    public static Vector3f[] DirectionXZAndZeroVector3fs = new Vector3f[]{
+            new Vector3f(0, 0, 0),
+            new Vector3f(-1, 0, 0),
+            new Vector3f(1, 0, 0),
+            new Vector3f(0, 0, -1),
+            new Vector3f(0, 0, 1),
+    };
+    public static Coord3[] DirectionCoordsXZAndDown = new Coord3[]{
+            new Coord3(0, -1, 0),
+            new Coord3(-1, 0, 0),
+            new Coord3(1, 0, 0),
+            new Coord3(0, 0, -1),
+            new Coord3(0, 0, 1),
+    };
+    public static final Vector3f UNIT_XZ = new Vector3f(1f, 0f, 1f);
+
+    public static int OppositeDirection(int dir) {
+        if (dir % 2 == 0) return dir + 1;
+        return dir - 1;
+    }
+
+    public static Coord3 DirectionCoordForDirection(int dir) {
+        return DirectionCoords[dir];
+    }
+
+    public static boolean IsNegDir(int dir) {
+        return dir % 2 == 0;
+    }
+
+    public static Vector3f AddToComponentAtAxis(Vector3f vec, float whatToAdd, int axis) {
+        if (axis == Axis.X)
+            vec.x += whatToAdd;
+        else if (axis == Axis.Y)
+            vec.y += whatToAdd;
+        else
+            vec.z += whatToAdd;
+        return vec;
+    }
+
+
+    public static int AxisForDirection(int dir) {
+        if (dir <= Direction.XPOS) {
+            return Axis.X;
+        }
+        if (dir <= Direction.YPOS) {
+            return Axis.Y;
+        }
+        return Axis.Z;
+    }
+
+    public static int[] BitMasks = new int[]{
+            1 << XNEG,
+            1 << XPOS,
+            1 << YNEG,
+            1 << YPOS,
+            1 << ZNEG,
+            1 << ZPOS
+    };
+    public static int[] NegativeBitMasks = new int[6];
+
+    static {
+        for (int i = XNEG; i <= ZPOS; ++i) {
+            NegativeBitMasks[i] = BitMasks[i] ^ Integer.MIN_VALUE;
+        }
+    }
+
+    ;
+
+    public static String ToString(int dir) {
+
+        switch (dir) {
+            case XPOS:
+                return "XPOS";
+            case XNEG:
+                return "XNEG";
+            case YNEG:
+                return "YNEG";
+            case YPOS:
+                return "YPOS";
+            case ZNEG:
+                return "ZNEG";
+            case ZPOS:
+                return "ZPOS";
+            default:
+                return "INVALID DIRECTION";
+
+        }
+    }
 }

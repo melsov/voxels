@@ -2,8 +2,24 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2e872303-ea44-4607-a6e7-17cb61097a83" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/BlockFaceFinder.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/BlockFaceRecord.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/ChunkBlockFaceCoord.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/voxel/landscape/collection/chunkface/ChunkBlockFaceMap.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/voxel/landscape/noise/FractalSettings.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/voxel/landscape/noise/ModuleCombinerSettings.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/voxel/landscape/tests/TestBlockFaceRecord.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/Chunk.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/Chunk.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBrain.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBrain.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBuilder.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBuilder.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/coord/Direction.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/coord/Direction.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/sudoplay/joise/examples/JoiseMultiPanelExample.java" afterPath="$PROJECT_DIR$/src/com/sudoplay/joise/examples/JoiseMultiPanelExample.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/noise/ModuleSelectSettings.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/noise/ModuleSelectSettings.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/noise/TerrainDataProvider.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/noise/TerrainDataProvider.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/map/TerrainMap.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/map/TerrainMap.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/noise/TerrainNoiseSettings.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/noise/TerrainNoiseSettings.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dictionaries/didyouloseyourdog.xml" afterPath="$PROJECT_DIR$/.idea/dictionaries/didyouloseyourdog.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="voxels.iws" />
@@ -63,8 +79,8 @@
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
     </breakpoint_any>
-    <breakpoint_rules converted="true" />
     <ui_properties converted="true" />
+    <breakpoint_rules converted="true" />
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FavoritesManager">
@@ -72,21 +88,46 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="TerrainDataProvider.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/voxel/landscape/noise/TerrainDataProvider.java">
+      <file leaf-file-name="ModuleCombinerSettings.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/voxel/landscape/noise/ModuleCombinerSettings.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="6810" max-vertical-offset="7935">
-              <caret line="461" column="4" selection-start-line="461" selection-start-column="4" selection-end-line="520" selection-end-column="5" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="555">
+              <caret line="22" column="25" selection-start-line="22" selection-start-column="25" selection-end-line="22" selection-end-column="25" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ChunkBlockFaceMap.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/voxel/landscape/collection/chunkface/ChunkBlockFaceMap.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="705">
+              <caret line="27" column="0" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="JoiseDemoPanel.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/sudoplay/joise/examples/JoiseDemoPanel.java">
+      <file leaf-file-name="VoxelLandscape.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="1455" max-vertical-offset="5580">
-              <caret line="97" column="52" selection-start-line="97" selection-start-column="52" selection-end-line="97" selection-end-column="52" />
+            <state vertical-scroll-proportion="2.7948165" vertical-offset="881" max-vertical-offset="7695">
+              <caret line="232" column="29" selection-start-line="232" selection-start-column="12" selection-end-line="232" selection-end-column="29" />
+              <folding>
+                <element signature="method#makeInitialWorld#0;class#VoxelLandscape#0" expanded="false" />
+                <element signature="method#killThreadPools#0;class#VoxelLandscape#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ColumnMap.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/voxel/landscape/collection/ColumnMap.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="855">
+              <caret line="18" column="16" selection-start-line="18" selection-start-column="16" selection-end-line="18" selection-end-column="16" />
               <folding />
             </state>
           </provider>
@@ -95,31 +136,18 @@
       <file leaf-file-name="BlockType.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/voxel/landscape/BlockType.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="900" max-vertical-offset="2820">
-              <caret line="60" column="41" selection-start-line="60" selection-start-column="41" selection-end-line="60" selection-end-column="41" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2490">
+              <caret line="84" column="24" selection-start-line="84" selection-start-column="24" selection-end-line="84" selection-end-column="24" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="JoiseMultiPanelExample.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/com/sudoplay/joise/examples/JoiseMultiPanelExample.java">
+      <file leaf-file-name="ChunkBlockFaceCoord.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/ChunkBlockFaceCoord.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.4558011" vertical-offset="1740" max-vertical-offset="3015">
-              <caret line="138" column="8" selection-start-line="138" selection-start-column="8" selection-end-line="138" selection-end-column="8" />
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="e#805#829#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TerrainNoiseSettings.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/voxel/landscape/noise/TerrainNoiseSettings.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="1395" max-vertical-offset="2040">
-              <caret line="93" column="37" selection-start-line="93" selection-start-column="37" selection-end-line="93" selection-end-column="37" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="570">
+              <caret line="15" column="51" selection-start-line="15" selection-start-column="51" selection-end-line="15" selection-end-column="51" />
               <folding />
             </state>
           </provider>
@@ -128,9 +156,42 @@
       <file leaf-file-name="ModuleSelectSettings.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/voxel/landscape/noise/ModuleSelectSettings.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="85" max-vertical-offset="885">
-              <caret line="22" column="39" selection-start-line="22" selection-start-column="39" selection-end-line="22" selection-end-column="39" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="915">
+              <caret line="22" column="77" selection-start-line="22" selection-start-column="77" selection-end-line="22" selection-end-column="77" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="BlockFaceFinder.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/BlockFaceFinder.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="600">
+              <caret line="33" column="26" selection-start-line="33" selection-start-column="26" selection-end-line="33" selection-end-column="26" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ChunkBuilder.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBuilder.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="1455" max-vertical-offset="2535">
+              <caret line="97" column="30" selection-start-line="97" selection-start-column="30" selection-end-line="97" selection-end-column="30" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="TerrainMap.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/voxel/landscape/map/TerrainMap.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="1665" max-vertical-offset="6900">
+              <caret line="159" column="16" selection-start-line="159" selection-start-column="16" selection-end-line="159" selection-end-column="16" />
+              <folding>
+                <element signature="e#5939#5940#0" expanded="true" />
+                <element signature="e#6007#6008#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -148,14 +209,6 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/src/MatDefs/BlockTexTranslucentAnimated.frag" />
-        <option value="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/MaterialLibrarian.java" />
-        <option value="$PROJECT_DIR$/src/voxel/landscape/map/light/BuildUtils.java" />
-        <option value="$PROJECT_DIR$/src/voxel/landscape/coord/Direction.java" />
-        <option value="$PROJECT_DIR$/src/voxel/landscape/collection/coordmap/HashMapCoord3D.java" />
-        <option value="$PROJECT_DIR$/src/voxel/landscape/collection/MapNibble3D.java" />
-        <option value="$PROJECT_DIR$/src/voxel/landscape/map/light/SunLightMap.java" />
-        <option value="$PROJECT_DIR$/src/voxel/landscape/map/light/SunLightComputer.java" />
         <option value="$PROJECT_DIR$/src/voxel/landscape/collection/chunkarray/ChunkHalfNibble3D.java" />
         <option value="$PROJECT_DIR$/src/voxel/landscape/map/water/WaterLevelMap.java" />
         <option value="$PROJECT_DIR$/src/voxel/landscape/collection/MapHalfNibble3D.java" />
@@ -175,38 +228,46 @@
         <option value="$PROJECT_DIR$/src/voxel/landscape/tests/VoxelLandscapeTestChunkMgmt.java" />
         <option value="$PROJECT_DIR$/src/voxel/landscape/player/B.java" />
         <option value="$PROJECT_DIR$/src/voxel/landscape/player/Audio.java" />
-        <option value="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBrain.java" />
         <option value="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkFinder.java" />
         <option value="$PROJECT_DIR$/src/voxel/landscape/map/surface/SurfaceMap.java" />
         <option value="$PROJECT_DIR$/src/voxel/landscape/collection/chunkarray/Chunk2D.java" />
-        <option value="$PROJECT_DIR$/src/voxel/landscape/Chunk.java" />
         <option value="$PROJECT_DIR$/src/voxel/landscape/collection/coordmap/managepages/ConcurrentHashMapCoord3D.java" />
         <option value="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/meshbuildasync/AsyncMeshBuilder.java" />
         <option value="$PROJECT_DIR$/src/voxel/landscape/MeshSet.java" />
         <option value="$PROJECT_DIR$/src/MatDefs/BlockTexNuevo.frag" />
         <option value="$PROJECT_DIR$/src/MatDefs/BlockTexTranslucentAnimated.vert" />
         <option value="$PROJECT_DIR$/src/voxel/landscape/BlockMeshUtil.java" />
-        <option value="$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java" />
-        <option value="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBuilder.java" />
-        <option value="$PROJECT_DIR$/src/voxel/landscape/map/TerrainMap.java" />
         <option value="$PROJECT_DIR$/src/com/sudoplay/joise/examples/Example_02_MP.java" />
         <option value="$PROJECT_DIR$/src/com/sudoplay/joise/examples/JoiseMultiPanelEx.java" />
         <option value="$PROJECT_DIR$/src/com/sudoplay/joise/examples/TerrainNoiseSettings.java" />
         <option value="$PROJECT_DIR$/src/voxel/landscape/BlockType.java" />
-        <option value="$PROJECT_DIR$/src/voxel/landscape/noise/ModuleSelectSettings.java" />
         <option value="$PROJECT_DIR$/src/com/sudoplay/joise/examples/JoiseDemoPanel.java" />
+        <option value="$PROJECT_DIR$/src/com/sudoplay/joise/examples/Example_02.java" />
+        <option value="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBrain.java" />
+        <option value="$PROJECT_DIR$/src/voxel/landscape/Chunk.java" />
+        <option value="$PROJECT_DIR$/src/voxel/landscape/coord/Direction.java" />
+        <option value="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBuilder.java" />
+        <option value="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/BlockFaceRecord.java" />
+        <option value="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/ChunkBlockFaceCoord.java" />
+        <option value="$PROJECT_DIR$/src/voxel/landscape/collection/chunkface/ChunkBlockFaceMap.java" />
+        <option value="$PROJECT_DIR$/src/voxel/landscape/tests/TestBlockFaceRecord.java" />
+        <option value="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/BlockFaceFinder.java" />
+        <option value="$PROJECT_DIR$/src/voxel/landscape/noise/ModuleSelectSettings.java" />
+        <option value="$PROJECT_DIR$/src/voxel/landscape/noise/ModuleCombinerSettings.java" />
+        <option value="$PROJECT_DIR$/src/voxel/landscape/noise/FractalSettings.java" />
         <option value="$PROJECT_DIR$/src/voxel/landscape/noise/TerrainNoiseSettings.java" />
         <option value="$PROJECT_DIR$/src/voxel/landscape/noise/TerrainDataProvider.java" />
-        <option value="$PROJECT_DIR$/src/com/sudoplay/joise/examples/Example_02.java" />
         <option value="$PROJECT_DIR$/src/com/sudoplay/joise/examples/JoiseMultiPanelExample.java" />
+        <option value="$PROJECT_DIR$/src/voxel/landscape/map/TerrainMap.java" />
+        <option value="$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="4" />
-    <option name="y" value="22" />
+    <option name="y" value="24" />
     <option name="width" value="1436" />
-    <option name="height" value="878" />
+    <option name="height" value="876" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -320,6 +381,7 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -378,6 +440,28 @@
               <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="tests" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="voxels" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="voxels" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="landscape" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="noise" />
               <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -395,22 +479,12 @@
               <option name="myItemId" value="src" />
               <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
             </PATH_ELEMENT>
-          </PATH>
-          <PATH>
             <PATH_ELEMENT>
-              <option name="myItemId" value="voxels" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="voxels" />
+              <option name="myItemId" value="landscape" />
               <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="sudoplay" />
+              <option name="myItemId" value="map" />
               <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -428,11 +502,15 @@
               <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="sudoplay" />
+              <option name="myItemId" value="landscape" />
               <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="joise" />
+              <option name="myItemId" value="map" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="surface" />
               <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -450,21 +528,130 @@
               <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="sudoplay" />
+              <option name="myItemId" value="landscape" />
               <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="joise" />
+              <option name="myItemId" value="collection" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="voxels" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="voxels" />
               <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="examples" />
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="landscape" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="collection" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="chunkface" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="voxels" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="voxels" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="landscape" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="collection" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="chunkarray" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="voxels" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="voxels" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="landscape" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="chunkbuild" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="voxels" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="voxels" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="landscape" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="chunkbuild" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="blockfacefind" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="voxels" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="voxels" />
+              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
               <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
       <pane id="Scope" />
     </panes>
   </component>
@@ -491,15 +678,15 @@
     <property name="restartRequiresConfirmation" value="true" />
     <property name="com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary" value="JUnit3" />
     <property name="com.intellij.testIntegration.createTest.CreateTestDialog.includeInheritedMembers" value="false" />
-    <property name="SearchEverywhereHistoryKey" value="blockTyp&#9;FILE&#9;file:///Users/didyouloseyourdog/all_codes/intelli/voxels/src/voxel/landscape/BlockType.java&#10;ModuleFr&#9;FILE&#9;file:///Users/didyouloseyourdog/all_codes/intelli/voxels/src/com/sudoplay/joise/module/ModuleFractal.java&#10;BlockTe&#9;PSI&#9;JAVA://voxel.landscape.VoxelLandscape#getBlockMaterialTexMap&#10;BlockTex&#9;FILE&#9;file:///Users/didyouloseyourdog/all_codes/intelli/voxels_initial_setup/src/assets_for_voxel/MatDefs/BlockTexNuevo.vert&#10;Vector3f&#9;PSI&#9;JAVA://com.jme3.math.Vector3f&#10;Vector3f.&#9;PSI&#9;JAVA://voxel.landscape.coord.Coord3#FromVector3f" />
+    <property name="SearchEverywhereHistoryKey" value="terr&#9;FILE&#9;file:///Users/didyouloseyourdog/all_codes/intelli/voxels/src/voxel/landscape/map/TerrainMap.java&#10;vox&#9;FILE&#9;file:///Users/didyouloseyourdog/all_codes/intelli/voxels/src/voxel/landscape/VoxelLandscape.java&#10;BlockType&#9;FILE&#9;file:///Users/didyouloseyourdog/all_codes/intelli/voxels/src/voxel/landscape/BlockType.java&#10;TeP&#9;FILE&#9;file:///Users/didyouloseyourdog/all_codes/intelli/voxels/src/voxel/landscape/noise/TerrainDataProvider.java&#10;TerrainN&#9;FILE&#9;file:///Users/didyouloseyourdog/all_codes/intelli/voxels/src/voxel/landscape/noise/TerrainNoiseSettings.java&#10;Dire&#9;FILE&#9;file:///Users/didyouloseyourdog/all_codes/intelli/voxels/src/voxel/landscape/coord/Direction.java&#10;coo&#9;FILE&#9;file:///Users/didyouloseyourdog/all_codes/intelli/voxels/src/voxel/landscape/coord/Coord3.java&#10;voxel&#9;FILE&#9;file:///Users/didyouloseyourdog/all_codes/intelli/voxels/src/voxel/landscape/VoxelLandscape.java&#10;chunk&#9;FILE&#9;file:///Users/didyouloseyourdog/all_codes/intelli/voxels/src/voxel/landscape/Chunk.java&#10;blockTyp&#9;FILE&#9;file:///Users/didyouloseyourdog/all_codes/intelli/voxels/src/voxel/landscape/BlockType.java&#10;ModuleFr&#9;FILE&#9;file:///Users/didyouloseyourdog/all_codes/intelli/voxels/src/com/sudoplay/joise/module/ModuleFractal.java&#10;BlockTe&#9;PSI&#9;JAVA://voxel.landscape.VoxelLandscape#getBlockMaterialTexMap&#10;BlockTex&#9;FILE&#9;file:///Users/didyouloseyourdog/all_codes/intelli/voxels_initial_setup/src/assets_for_voxel/MatDefs/BlockTexNuevo.vert&#10;Vector3f&#9;PSI&#9;JAVA://com.jme3.math.Vector3f&#10;Vector3f.&#9;PSI&#9;JAVA://voxel.landscape.coord.Coord3#FromVector3f" />
     <property name="LayoutCode.rearrangeEntriesJava" value="false" />
   </component>
   <component name="RecentsManager">
-    <key name="CreateTestDialog.RecentsKey">
-      <recent name="voxel.landscape.collection.chunkarray" />
-    </key>
     <key name="CreateTestDialog.Recents.Supers">
       <recent name="junit.framework.TestCase" />
+    </key>
+    <key name="CreateTestDialog.RecentsKey">
+      <recent name="voxel.landscape.collection.chunkarray" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="com.sudoplay.joise.examples" />
@@ -516,7 +703,7 @@
       <recent name="$PROJECT_DIR$/src" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.JoiseMultiPanelExample">
+  <component name="RunManager" selected="Application.VoxelLandscape">
     <configuration default="false" name="VoxelLandscape" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="voxel.landscape.VoxelLandscape" />
       <option name="VM_PARAMETERS" value="-Xmx2048m -Xms2048m -XX:MaxDirectMemorySize=1024M" />
@@ -571,28 +758,6 @@
       <ConfigurationWrapper RunnerId="Run" />
       <method />
     </configuration>
-    <configuration default="false" name="ChunkNibble3DTest2.testChunkNib3D" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="voxels" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" value="voxel.landscape.tests" />
-      <option name="MAIN_CLASS_NAME" value="voxel.landscape.tests.ChunkNibble3DTest2" />
-      <option name="METHOD_NAME" value="testChunkNib3D" />
-      <option name="TEST_OBJECT" value="method" />
-      <option name="VM_PARAMETERS" value="-ea" />
-      <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="moduleWithDependencies" />
-      </option>
-      <envs />
-      <patterns />
-      <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Run" />
-      <method />
-    </configuration>
     <configuration default="false" name="JoiseMultiPanelExample" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.sudoplay.joise.examples.JoiseMultiPanelExample" />
       <option name="VM_PARAMETERS" />
@@ -605,6 +770,28 @@
       <option name="PASS_PARENT_ENVS" value="true" />
       <module name="voxels" />
       <envs />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
+    <configuration default="false" name="TestBlockFaceRecord" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="voxels" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="voxel.landscape.tests" />
+      <option name="MAIN_CLASS_NAME" value="voxel.landscape.tests.TestBlockFaceRecord" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <envs />
+      <patterns />
       <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Run" />
       <method />
@@ -644,6 +831,19 @@
       <option name="PORT" value="5005" />
       <method />
     </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <method />
+    </configuration>
     <configuration default="true" type="TestNG" factoryName="TestNG">
       <module name="" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
@@ -669,19 +869,6 @@
       <envs />
       <properties />
       <listeners />
-      <method />
-    </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
       <method />
     </configuration>
     <configuration default="true" type="Application" factoryName="Application">
@@ -776,16 +963,16 @@
       <item index="2" class="java.lang.String" itemvalue="Application.VoxelLandscape" />
       <item index="3" class="java.lang.String" itemvalue="Application.JoiseMultiPanelEx" />
       <item index="4" class="java.lang.String" itemvalue="JUnit.TestHalfNibble3D.testHalfNibble3D" />
-      <item index="5" class="java.lang.String" itemvalue="JUnit.ChunkNibble3DTest2.testChunkNib3D" />
-      <item index="6" class="java.lang.String" itemvalue="Application.JoiseMultiPanelExample" />
+      <item index="5" class="java.lang.String" itemvalue="Application.JoiseMultiPanelExample" />
+      <item index="6" class="java.lang.String" itemvalue="JUnit.TestBlockFaceRecord" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Application.JoiseMultiPanelExample" />
-        <item index="1" class="java.lang.String" itemvalue="Application.VoxelLandscape" />
-        <item index="2" class="java.lang.String" itemvalue="Application.JoiseMultiPanelEx" />
-        <item index="3" class="java.lang.String" itemvalue="JUnit.TestHalfNibble3D.testHalfNibble3D" />
-        <item index="4" class="java.lang.String" itemvalue="JUnit.ChunkNibble3DTest2.testChunkNib3D" />
+        <item index="0" class="java.lang.String" itemvalue="Application.VoxelLandscape" />
+        <item index="1" class="java.lang.String" itemvalue="JUnit.TestBlockFaceRecord" />
+        <item index="2" class="java.lang.String" itemvalue="Application.JoiseMultiPanelExample" />
+        <item index="3" class="java.lang.String" itemvalue="Application.JoiseMultiPanelEx" />
+        <item index="4" class="java.lang.String" itemvalue="JUnit.TestHalfNibble3D.testHalfNibble3D" />
       </list>
     </recent_temporary>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
@@ -867,36 +1054,40 @@
       <created>1411993280699</created>
       <updated>1411993280699</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="Multi-panel demo program for terrain noise">
+      <created>1412117642615</created>
+      <updated>1412117642615</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="4" y="22" width="1436" height="878" extended-state="6" />
+    <frame x="4" y="24" width="1436" height="876" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32951653" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32880098" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32780612" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32824427" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2482066" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32780612" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24964131" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24964131" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2482066" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.55725193" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2482066" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.55484694" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32824427" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32824427" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
     </layout>
     <layout-to-restore>
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -915,13 +1106,13 @@
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32824427" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24964131" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2482066" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.55725193" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout-to-restore>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -961,97 +1152,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/collection/coordmap/managepages/ConcurrentHashMapCoord3D.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="55" max-vertical-offset="870">
-          <caret line="22" column="47" selection-start-line="22" selection-start-column="47" selection-end-line="22" selection-end-column="47" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/coord/Coord2.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1050">
-          <caret line="6" column="13" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/coord/Coord3.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1710">
-          <caret line="18" column="46" selection-start-line="18" selection-start-column="46" selection-end-line="18" selection-end-column="46" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/chunkbuild/AsyncGenerateColumnDataInfinite.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6468144" vertical-offset="88" max-vertical-offset="810">
-          <caret line="48" column="47" selection-start-line="48" selection-start-column="40" selection-end-line="48" selection-end-column="47" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/chunkbuild/meshbuildasync/AsyncMeshBuilder.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="165" max-vertical-offset="900">
-          <caret line="45" column="0" selection-start-line="45" selection-start-column="0" selection-end-line="45" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBrain.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1375" max-vertical-offset="3060">
-          <caret line="172" column="30" selection-start-line="172" selection-start-column="21" selection-end-line="172" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/coord/Direction.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1635">
-          <caret line="8" column="27" selection-start-line="8" selection-start-column="27" selection-end-line="8" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/util/Asserter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="345">
-          <caret line="2" column="13" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/MeshSet.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="735">
-          <caret line="20" column="48" selection-start-line="20" selection-start-column="48" selection-end-line="20" selection-end-column="48" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/chunkbuild/MaterialLibrarian.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="295" max-vertical-offset="1185">
-          <caret line="45" column="8" selection-start-line="45" selection-start-column="8" selection-end-line="49" selection-end-column="45" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/collection/ByteArray3D.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1155">
-          <caret line="16" column="5" selection-start-line="16" selection-start-column="5" selection-end-line="16" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/MatDefs/BlockTexNuevo.frag">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="270">
-          <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/MatDefs/BlockTexAnimated.frag">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="735">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/MatDefs/BlockTexAnimated.vert">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="735">
@@ -1066,34 +1166,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/Chunk.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="630" max-vertical-offset="1905">
-          <caret line="58" column="34" selection-start-line="58" selection-start-column="34" selection-end-line="58" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBuilder.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="90" max-vertical-offset="1665">
-          <caret line="39" column="0" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="3956" max-vertical-offset="9030">
-          <caret line="276" column="19" selection-start-line="276" selection-start-column="19" selection-end-line="276" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/map/TerrainMap.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="735" max-vertical-offset="6690">
-          <caret line="94" column="16" selection-start-line="94" selection-start-column="16" selection-end-line="94" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/MatDefs/BlockTexTranslucentAnimated.vert">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.3469388" vertical-offset="0" max-vertical-offset="735">
@@ -1105,13 +1177,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="735">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/BlockMeshUtil.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="2205" max-vertical-offset="3180">
-          <caret line="156" column="5" selection-start-line="156" selection-start-column="5" selection-end-line="156" selection-end-column="5" />
         </state>
       </provider>
     </entry>
@@ -1147,6 +1212,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-0.24489796" vertical-offset="270" max-vertical-offset="1545">
           <caret line="54" column="13" selection-start-line="54" selection-start-column="13" selection-end-line="54" selection-end-column="13" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1176,6 +1242,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="540" max-vertical-offset="3405">
           <caret line="123" column="14" selection-start-line="123" selection-start-column="14" selection-end-line="123" selection-end-column="14" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1190,6 +1257,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="135" max-vertical-offset="1050">
           <caret line="90" column="0" selection-start-line="90" selection-start-column="0" selection-end-line="90" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1239,21 +1307,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="175" max-vertical-offset="2730">
           <caret line="91" column="14" selection-start-line="91" selection-start-column="14" selection-end-line="91" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/BlockType.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="655" max-vertical-offset="2820">
-          <caret line="60" column="41" selection-start-line="60" selection-start-column="41" selection-end-line="60" selection-end-column="41" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/noise/ModuleSelectSettings.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="85" max-vertical-offset="885">
-          <caret line="22" column="39" selection-start-line="22" selection-start-column="39" selection-end-line="22" selection-end-column="39" />
           <folding />
         </state>
       </provider>
@@ -1262,6 +1315,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-2.5605443" vertical-offset="2167" max-vertical-offset="14670">
           <caret line="70" column="26" selection-start-line="70" selection-start-column="26" selection-end-line="70" selection-end-column="26" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1269,22 +1323,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="90" max-vertical-offset="4890">
           <caret line="97" column="52" selection-start-line="97" selection-start-column="52" selection-end-line="97" selection-end-column="52" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/noise/TerrainNoiseSettings.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1095" max-vertical-offset="1995">
-          <caret line="93" column="37" selection-start-line="93" selection-start-column="37" selection-end-line="93" selection-end-column="37" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/noise/TerrainDataProvider.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="6810" max-vertical-offset="7935">
-          <caret line="461" column="4" selection-start-line="461" selection-start-column="4" selection-end-line="520" selection-end-column="5" />
           <folding />
         </state>
       </provider>
@@ -1317,13 +1355,199 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/sudoplay/joise/examples/JoiseMultiPanelExample.java">
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/collection/coordmap/managepages/ConcurrentHashMapCoord3D.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.4558011" vertical-offset="1740" max-vertical-offset="3015">
-          <caret line="138" column="8" selection-start-line="138" selection-start-column="8" selection-end-line="138" selection-end-column="8" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="105" max-vertical-offset="840">
+          <caret line="45" column="13" selection-start-line="45" selection-start-column="13" selection-end-line="45" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBrain.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3150">
+          <caret line="34" column="5" selection-start-line="32" selection-start-column="4" selection-end-line="34" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/coord/Coord3.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="15" max-vertical-offset="1710">
+          <caret line="24" column="0" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/Chunk.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="435" max-vertical-offset="1920">
+          <caret line="41" column="79" selection-start-line="41" selection-start-column="79" selection-end-line="41" selection-end-column="79" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/coord/Direction.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="120" max-vertical-offset="2010">
+          <caret line="9" column="0" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/map/light/BuildUtils.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="105" max-vertical-offset="1275">
+          <caret line="13" column="26" selection-start-line="13" selection-start-column="26" selection-end-line="13" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/BlockMeshUtil.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="100" max-vertical-offset="3180">
+          <caret line="32" column="22" selection-start-line="32" selection-start-column="8" selection-end-line="32" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/BlockFaceRecord.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="480">
+          <caret line="19" column="19" selection-start-line="19" selection-start-column="19" selection-end-line="19" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/tests/TestBlockFaceRecord.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.8367347" vertical-offset="240" max-vertical-offset="975">
+          <caret line="57" column="5" selection-start-line="57" selection-start-column="5" selection-end-line="57" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBuilder.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="885" max-vertical-offset="2205">
+          <caret line="97" column="30" selection-start-line="97" selection-start-column="30" selection-end-line="97" selection-end-column="30" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/BlockType.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2490">
+          <caret line="84" column="24" selection-start-line="84" selection-start-column="24" selection-end-line="84" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/noise/ModuleCombinerSettings.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="555">
+          <caret line="22" column="25" selection-start-line="22" selection-start-column="25" selection-end-line="22" selection-end-column="25" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#805#829#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/noise/TerrainDataProvider.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.6041667" vertical-offset="1665" max-vertical-offset="11595">
+          <caret line="155" column="88" selection-start-line="155" selection-start-column="88" selection-end-line="155" selection-end-column="88" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/sudoplay/joise/examples/JoiseMultiPanelExample.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="1586" max-vertical-offset="3015">
+          <caret line="125" column="0" selection-start-line="125" selection-start-column="0" selection-end-line="125" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#805#829#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/BlockFaceFinder.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="600">
+          <caret line="33" column="26" selection-start-line="33" selection-start-column="26" selection-end-line="33" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/noise/FractalSettings.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.6957708" vertical-offset="0" max-vertical-offset="733">
+          <caret line="34" column="5" selection-start-line="34" selection-start-column="5" selection-end-line="34" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/noise/TerrainNoiseSettings.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.4761255" vertical-offset="551" max-vertical-offset="1785">
+          <caret line="63" column="107" selection-start-line="63" selection-start-column="107" selection-end-line="63" selection-end-column="107" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/ChunkBlockFaceCoord.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="570">
+          <caret line="15" column="51" selection-start-line="15" selection-start-column="51" selection-end-line="15" selection-end-column="51" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/collection/chunkface/ChunkBlockFaceMap.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="135" max-vertical-offset="870">
+          <caret line="27" column="0" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/noise/ModuleSelectSettings.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="60" max-vertical-offset="915">
+          <caret line="22" column="77" selection-start-line="22" selection-start-column="77" selection-end-line="22" selection-end-column="77" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/collection/ColumnMap.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="855">
+          <caret line="18" column="16" selection-start-line="18" selection-start-column="16" selection-end-line="18" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/map/TerrainMap.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="1665" max-vertical-offset="6900">
+          <caret line="159" column="16" selection-start-line="159" selection-start-column="16" selection-end-line="159" selection-end-column="16" />
+          <folding>
+            <element signature="e#5939#5940#0" expanded="true" />
+            <element signature="e#6007#6008#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="2.7948165" vertical-offset="881" max-vertical-offset="7695">
+          <caret line="232" column="29" selection-start-line="232" selection-start-column="12" selection-end-line="232" selection-end-column="29" />
+          <folding>
+            <element signature="method#makeInitialWorld#0;class#VoxelLandscape#0" expanded="false" />
+            <element signature="method#killThreadPools#0;class#VoxelLandscape#0" expanded="false" />
           </folding>
         </state>
       </provider>

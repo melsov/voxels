@@ -92,11 +92,11 @@ public class VoxelLandscape extends SimpleApplication
         if (TESTING_DEBUGGING_ON) {
             USE_TEXTURE_MAP = false;
             DEBUG_INFO_ON = false;
-            ADD_CHUNKS_DYNAMICALLY = true;
+            ADD_CHUNKS_DYNAMICALLY = false;
             COMPILE_CHUNK_DATA_ASYNC = true;
             DO_USE_TEST_GEOMETRY = false;
             CULLING_ON = true;
-            BUILD_INITIAL_CHUNKS = false;
+            BUILD_INITIAL_CHUNKS = true;
             DONT_BUILD_CHUNK_MESHES = false;
             SHOW_COLUMN_DEBUG_QUADS = false;
         } else {
@@ -106,7 +106,7 @@ public class VoxelLandscape extends SimpleApplication
             COMPILE_CHUNK_DATA_ASYNC = true;
             DO_USE_TEST_GEOMETRY = false;
             CULLING_ON = true;
-            BUILD_INITIAL_CHUNKS = true;
+            BUILD_INITIAL_CHUNKS = false;
             DONT_BUILD_CHUNK_MESHES = false;
             SHOW_COLUMN_DEBUG_QUADS = false;
         }

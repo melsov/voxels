@@ -4,6 +4,7 @@ import com.jme3.math.Vector3f;
 import voxel.landscape.BlockType;
 import voxel.landscape.Chunk;
 import voxel.landscape.VoxelLandscape;
+import voxel.landscape.collection.chunkface.ChunkBlockFaceMap;
 import voxel.landscape.collection.coordmap.managepages.ConcurrentHashMapCoord3D;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.light.LightComputer;
@@ -19,7 +20,7 @@ import voxel.landscape.util.Asserter;
 
 public class TerrainMap implements IBlockDataProvider
 {
-	private static final int MIN_DIM_HORIZONTAL = -8;
+	private static final int MIN_DIM_HORIZONTAL = 0;
 	private static final int MAX_DIM_HORIZONTAL = 8; // for limited dimension world only
 
     private static final int MIN_CHUNK_DIM_VERTICAL = 0;
@@ -51,6 +52,18 @@ public class TerrainMap implements IBlockDataProvider
         liquidUpdaterWater.StepScatter(this, tpf);
     }
 
+    /*
+     * CHUNK BLOCK FACE
+     */
+    public ChunkBlockFaceMap blockFaceMap(Coord3 chunkCoord) {
+        return lookupOrCreateChunkAtPosition(chunkCoord).chunkBlockFaceMap;
+    }
+    public void setBlockFace(Coord3 worldCoord, int direction, boolean exists) {
+        Coord3 chunkCo = Chunk.ToChunkPosition(worldCoord);
+        Coord3 localCo = Chunk.toChunkLocalCoord(worldCoord);
+        Chunk chunk = lookupOrCreateChunkAtPosition(chunkCo);
+        chunk.chunkBlockFaceMap.setFace(localCo, direction, exists);
+    }
     /*
      * WORLD INFO
      */
