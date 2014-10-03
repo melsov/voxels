@@ -2,24 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2e872303-ea44-4607-a6e7-17cb61097a83" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/BlockFaceFinder.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/BlockFaceRecord.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/ChunkBlockFaceCoord.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/voxel/landscape/collection/chunkface/ChunkBlockFaceMap.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/voxel/landscape/noise/FractalSettings.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/voxel/landscape/noise/ModuleCombinerSettings.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/voxel/landscape/tests/TestBlockFaceRecord.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/Chunk.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/Chunk.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBrain.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBrain.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBuilder.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBuilder.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/coord/Direction.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/coord/Direction.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/sudoplay/joise/examples/JoiseMultiPanelExample.java" afterPath="$PROJECT_DIR$/src/com/sudoplay/joise/examples/JoiseMultiPanelExample.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/noise/ModuleSelectSettings.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/noise/ModuleSelectSettings.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/noise/TerrainDataProvider.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/noise/TerrainDataProvider.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/map/TerrainMap.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/map/TerrainMap.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/noise/TerrainNoiseSettings.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/noise/TerrainNoiseSettings.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dictionaries/didyouloseyourdog.xml" afterPath="$PROJECT_DIR$/.idea/dictionaries/didyouloseyourdog.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="voxels.iws" />
@@ -113,8 +96,8 @@
       <file leaf-file-name="VoxelLandscape.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="2.7948165" vertical-offset="881" max-vertical-offset="7695">
-              <caret line="232" column="29" selection-start-line="232" selection-start-column="12" selection-end-line="232" selection-end-column="29" />
+            <state vertical-scroll-proportion="0.16666667" vertical-offset="0" max-vertical-offset="7710">
+              <caret line="55" column="16" selection-start-line="55" selection-start-column="16" selection-end-line="55" selection-end-column="16" />
               <folding>
                 <element signature="method#makeInitialWorld#0;class#VoxelLandscape#0" expanded="false" />
                 <element signature="method#killThreadPools#0;class#VoxelLandscape#0" expanded="false" />
@@ -1058,7 +1041,11 @@
       <created>1412117642615</created>
       <updated>1412117642615</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="Simplified noise setup. Pre-flood fill implementation!">
+      <created>1412373250625</created>
+      <updated>1412373250625</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -1070,7 +1057,7 @@
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32880098" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32780612" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32780612" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32824427" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
@@ -1137,7 +1124,8 @@
     <MESSAGE value="&#10;more commits" />
     <MESSAGE value="Asynchronous chunk mesh building" />
     <MESSAGE value="Multi-panel demo program for terrain noise" />
-    <option name="LAST_COMMIT_MESSAGE" value="Multi-panel demo program for terrain noise" />
+    <MESSAGE value="Simplified noise setup. Pre-flood fill implementation!" />
+    <option name="LAST_COMMIT_MESSAGE" value="Simplified noise setup. Pre-flood fill implementation!" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1390,6 +1378,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="120" max-vertical-offset="2010">
           <caret line="9" column="0" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#2061#2062#0" expanded="true" />
+            <element signature="e#2104#2105#0" expanded="true" />
+            <element signature="e#2151#2152#0" expanded="true" />
+            <element signature="e#2186#2187#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1543,8 +1538,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="2.7948165" vertical-offset="881" max-vertical-offset="7695">
-          <caret line="232" column="29" selection-start-line="232" selection-start-column="12" selection-end-line="232" selection-end-column="29" />
+        <state vertical-scroll-proportion="0.16666667" vertical-offset="0" max-vertical-offset="7710">
+          <caret line="55" column="16" selection-start-line="55" selection-start-column="16" selection-end-line="55" selection-end-column="16" />
           <folding>
             <element signature="method#makeInitialWorld#0;class#VoxelLandscape#0" expanded="false" />
             <element signature="method#killThreadPools#0;class#VoxelLandscape#0" expanded="false" />
