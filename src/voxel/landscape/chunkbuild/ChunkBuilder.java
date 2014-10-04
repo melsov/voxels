@@ -41,7 +41,9 @@ public class ChunkBuilder
 				for (k = 0; k < Chunk.YLENGTH; ++k) {
 					xin = i + worldPosBlocks.x; yin = k  + worldPosBlocks.y; zin = j  + worldPosBlocks.z;
 					posi = new Coord3(i,k,j);
-					byte btype = (byte) map.lookupOrCreateBlock(xin, yin, zin);
+//					byte btype = (byte) map.lookupOrCreateBlock(xin, yin, zin); // <--WANT
+                    byte btype = (byte) map.lookupBlock(xin, yin, zin); //TEST
+                    if (BlockType.NON_EXISTENT.equals(btype)) continue;
 
 					if (BlockType.AIR.equals(btype)) continue;
 

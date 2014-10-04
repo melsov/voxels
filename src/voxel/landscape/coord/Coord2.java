@@ -54,6 +54,9 @@ public class Coord2 implements ICoordXZ
 		return equals((Coord2) other);
 	}
 	public boolean equals(Coord2 other) { return x == other.x && y == other.y; }
+    public boolean greaterThan(Coord2 other) { return x > other.x && y > other.y; }
+    public boolean lessThan(Coord2 other) { return x < other.x && y < other.y; }
+
     @Override
 	public Coord2 clone() { return new Coord2(x,y); }
 	public Vector3f toVec3XZ() {

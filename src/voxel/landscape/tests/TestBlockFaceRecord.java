@@ -49,7 +49,7 @@ public class TestBlockFaceRecord extends TestCase {
                     Coord3 co = new Coord3(i,j,k);
                     for (int dir : Direction.Directions) {
                         assertNotNull(co);
-                        blockFaceMap.setFace(co, dir, true);
+                        blockFaceMap.addFace(co, dir);
                         String testStr = "just set it: " + co.toString();
                         assertTrue(testStr,
                                 blockFaceMap.getFace(co, dir));

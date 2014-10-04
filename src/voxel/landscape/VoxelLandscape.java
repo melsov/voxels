@@ -180,7 +180,6 @@ public class VoxelLandscape extends SimpleApplication
         for (int i = 0; i < COLUMN_DATA_BUILDER_THREAD_COUNT; ++i) {
             AsyncGenerateColumnDataInfinite infinColDataThread =
                     new AsyncGenerateColumnDataInfinite(terrainMap, columnMap, columnsToBeBuilt, columnBuildingThreadsShouldKeepGoing);
-
             colDataPool.execute(infinColDataThread);
         }
     }
@@ -215,9 +214,7 @@ public class VoxelLandscape extends SimpleApplication
 
     private boolean buildANearbyChunk() {
         Coord3 chcoord = ChunkFinder.ClosestReadyToBuildChunk(cam, terrainMap, columnMap);
-        if (chcoord == null) {
-            return false;
-        }
+        if (chcoord == null) return false;
         buildThisChunk(terrainMap.GetChunk(chcoord));
         return true;
     }
@@ -269,37 +266,23 @@ public class VoxelLandscape extends SimpleApplication
 	/* ***************************
 	 * *** Main update loop ******
 	   ****************************/
-    float artificialDelay = 0f;
     @Override
-    public void simpleUpdate(float tpf) 
-    {
+    public void simpleUpdate(float tpf) {
         GameTime += tpf;
-
         terrainMap.mapUpdate(tpf);
-
         if (!ADD_CHUNKS_DYNAMICALLY) return;
-        // TODO: get rid of artifical delay...(spread out the work more)
-        if (artificialDelay < .15f) {
-            artificialDelay += tpf;
-            return;
-        }
-        artificialDelay = 0;
-
         if (!COMPILE_CHUNK_DATA_ASYNC) return;
-
         addToColumnPriorityQueue();
         if(!DONT_BUILD_CHUNK_MESHES && buildANearbyChunk()) {}
         checkAsyncCompletedChunkMeshes();
         cullAnExcessColumn(tpf);
     }
 
-    private void checkAsyncCompletedChunkMeshes()
-    {
+    private void checkAsyncCompletedChunkMeshes() {
         int count = 0;
         while (count++ < 5) {
             ChunkMeshBuildingSet chunkMeshBuildingSet = completedChunkMeshSets.poll();
             if (chunkMeshBuildingSet == null) return;
-
             Chunk chunk = terrainMap.GetChunk(chunkMeshBuildingSet.chunkPosition);
             if (chunk == null) return;
             chunk.getChunkBrain().applyMeshBuildingSet(chunkMeshBuildingSet);

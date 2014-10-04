@@ -62,7 +62,10 @@ public class TerrainMap implements IBlockDataProvider
         Coord3 chunkCo = Chunk.ToChunkPosition(worldCoord);
         Coord3 localCo = Chunk.toChunkLocalCoord(worldCoord);
         Chunk chunk = lookupOrCreateChunkAtPosition(chunkCo);
-        chunk.chunkBlockFaceMap.setFace(localCo, direction, exists);
+        if (exists)
+            chunk.chunkBlockFaceMap.addFace(localCo, direction);
+        else
+            chunk.chunkBlockFaceMap.removeFace(localCo, direction);
     }
     /*
      * WORLD INFO
@@ -226,17 +229,15 @@ public class TerrainMap implements IBlockDataProvider
                     if (possibleChunk == null) continue; // must be at world limit?
                     byte block;
 
-                    // FAKE WATER
-                        // #FAKE WATER
                     block = (byte) lookupOrCreateBlock(absPos, _dataProvider);
 
-                    // should be grass?
 					/*
-					 * CONSIDER: this is too simplistic! grass should grow only
+					 * CONSIDER: grass is too simplistic! grass should grow only
 					 * where there's light... Also, put this logic somewhere
 					 * where it will also apply to newly created, destroyed blocks
 					 * may need a 'block time step' concept...
 					 */
+                    // should this block be grass?
                     if (BlockType.DIRT.ordinal() == block) {
                         Coord3 upOne = absPos.add(Coord3.ypos);
                         if (lookupOrCreateChunkAtPosition(Chunk.ToChunkPosition(upOne)) == null ||
@@ -421,7 +422,6 @@ public class TerrainMap implements IBlockDataProvider
 		Coord3 chunkPos = Chunk.ToChunkPosition(x, 0, z);
 		chunkPos.y = MAX_CHUNK_DIM_VERTICAL; // chunks.GetMax().y;
 		Coord3 localPos = Chunk.toChunkLocalCoord(x, 0, z);
-
 		for (; chunkPos.y >= 0; chunkPos.y--) {
 			localPos.y = Chunk.CHUNKDIMS.y - 1;
 			for (; localPos.y >= 0; localPos.y--) {
@@ -434,7 +434,6 @@ public class TerrainMap implements IBlockDataProvider
 				}
 			}
 		}
-
 		return 0;
 	}
 
