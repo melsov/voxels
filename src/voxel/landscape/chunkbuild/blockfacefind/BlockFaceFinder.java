@@ -4,8 +4,8 @@ import com.jme3.renderer.Camera;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * Created by didyouloseyourdog on 10/2/14.
@@ -13,29 +13,13 @@ import java.util.List;
 public class BlockFaceFinder {
 
     private final FloodFill floodFill;
+    public final BlockingQueue<Coord3> floodFilledChunkCoords = new ArrayBlockingQueue<Coord3>(256);
+
     public BlockFaceFinder(TerrainMap _map, Camera _cam) {
-        floodFill = new FloodFill(_map, _cam);
+        floodFill = new FloodFill(_map, _cam, floodFilledChunkCoords);
     }
-
-    public class FloodFill
-    {
-        private final TerrainMap map;
-        private final Camera camera;
-        private final List<Coord3> seeds = new ArrayList<Coord3>(30);
-        private int steps;
-        private static final int MAX_STEPS = 500;
-
-        public FloodFill(TerrainMap _map, Camera _cam) {
-            map = _map; camera = _cam;
-        }
-
-        public void flood() {
-            // TODO: explore around...
-            // find exposed faces...
-            // count steps for each legit move (to a non-existent block from an air block)
-            // when steps == MAX_STEPS add the current coord to seeds
-        }
-
+    public void floodFind() {
+        floodFill.flood();
     }
 
 }

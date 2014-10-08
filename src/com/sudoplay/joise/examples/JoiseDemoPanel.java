@@ -39,7 +39,7 @@ public class JoiseDemoPanel extends JPanel {
 
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < height; y++) {
-                    px = x / (float) width * SCALE;
+                    px = x / (float) height * SCALE;
                     py = y / (float) height * SCALE;
 
                     /*
@@ -336,7 +336,7 @@ public class JoiseDemoPanel extends JPanel {
         joiseMultiPanelExample = _joiseMultiPanelExample;
         module = mod;
         width = _w; height = _h;
-        this.setLayout(new GridLayout(1,2));
+        this.setLayout(new GridLayout(2,1));
         terrainSettingsGUI = new TerrainSettingsGUI(_marginRight, height - settingsGUIStartHeight,  _terrainNoiseSettings, _message);
         this.add(noiseImageHolder);
         this.add(terrainSettingsGUI);

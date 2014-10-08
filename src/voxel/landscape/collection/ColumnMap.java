@@ -13,24 +13,31 @@ public class ColumnMap {
     public Set<Coord2> getCoordXZSet() { return (Set<Coord2>) columns.keySet(); }
 
 	public void SetBuilt(int x, int z) {
-		GetColumnChunk(x, z).buildStatus = BuildStatus.BUILT_DATA.ordinal();
+		GetColumnChunk(x, z).buildStatus.set (BuildStatus.BUILT_DATA.ordinal());
 	}
 
     public void SetBuildingData(int x, int z) {
-        GetColumnChunk(x, z).buildStatus = BuildStatus.BUILDING_DATA.ordinal();
+        GetColumnChunk(x, z).buildStatus.set(BuildStatus.BUILDING_DATA.ordinal());
     }
 
     public void Destroy(int x, int z) { columns.Remove(x,z); }
 	
 	public boolean IsBuilt(int x, int z) {
-		return GetColumnChunk(x, z).buildStatus == BuildStatus.BUILT_DATA.ordinal();
+		return GetColumnChunk(x, z).buildStatus.get() == BuildStatus.BUILT_DATA.ordinal();
 	}
 
     public boolean HasNotBeenStarted(int x, int z) {
-        return GetColumnChunk(x, z).buildStatus == BuildStatus.HAS_NOT_BEEN_TOUCHED.ordinal();
+        return GetColumnChunk(x, z).buildStatus.get() == BuildStatus.HAS_NOT_BEEN_TOUCHED.ordinal();
     }
     public boolean IsBuiltOrIsBuilding(int x, int z) {
-        return GetColumnChunk(x, z).buildStatus > BuildStatus.HAS_NOT_BEEN_TOUCHED.ordinal();
+        return GetColumnChunk(x, z).buildStatus.get() > BuildStatus.HAS_NOT_BEEN_TOUCHED.ordinal();
+    }
+    public synchronized boolean SetIsBuildingOrReturnFalseIfStartedAlready(int x, int z) {
+        if (HasNotBeenStarted(x,z)) {
+            SetBuildingData(x,z);
+            return true;
+        }
+        return false;
     }
 	
 	public Coord3 GetClosestEmptyColumn(int cx, int cz, int rad) {

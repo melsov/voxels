@@ -26,17 +26,15 @@ public final class Coord3 implements ICoordXZ
 	public Coord3(int a) { this(a,a,a); }
 	public Coord3(double _x, double _y, double _z) { this((int) _x, (int) _y,(int) _z); }
 
-	public Coord3 multy(Coord3 other)
-	{
+	public Coord3 multy(Coord3 other) {
 		return new Coord3(this.x * other.x, this.y * other.y, this.z * other.z);
+	}
+	public Coord3 multy(int i) {
+		return new Coord3(this.x * i, this.y * i, this.z * i);
 	}
 	public Coord3 multy(Vector3f other)
 	{
 		return new Coord3(this.x * other.x, this.y * other.y, this.z * other.z);
-	}
-	public Coord3 multy(int i)
-	{
-		return new Coord3(this.x * i, this.y * i, this.z * i);
 	}
 	public Coord3 divideBy(Coord3 other) {
 		return new Coord3(x/other.x, y/other.y, z/other.z);
@@ -44,16 +42,13 @@ public final class Coord3 implements ICoordXZ
 	public Coord3 divideBy(double other) {
 		return new Coord3(x/other, y/other, z/other);
 	}
-	public Coord3 add(Coord3 other)
-	{
+	public Coord3 add(Coord3 other) {
 		return new Coord3(this.x + other.x, this.y + other.y, this.z + other.z);		
 	}
-	public Coord3 add(int i)
-	{
+	public Coord3 add(int i) {
 		return new Coord3(this.x + i, this.y + i, this.z + i);
 	}
-	public Coord3 minus (Coord3 other)
-	{
+	public Coord3 minus (Coord3 other) {
 		return new Coord3(this.x - other.x, this.y - other.y, this.z - other.z);		
 	}
 
@@ -78,6 +73,9 @@ public final class Coord3 implements ICoordXZ
 	public boolean greaterThan(Coord3 other) {
 		return x > other.x && y > other.y && z > other.z;
 	}
+    public boolean greaterThanOrEqual(Coord3 other) {
+        return x >= other.x && y >= other.y && z >= other.z;
+    }
 	public boolean lessThan(Coord3 other) {
 		return x < other.x && y < other.y && z < other.z;
 	}

@@ -402,8 +402,8 @@ public class ChunkFinder {
 
     private static boolean ChunkIsReady(ColumnMap columnMap, Chunk result, Coord3 foundCoord) {
         return columnMap.IsBuilt(foundCoord.x, foundCoord.z) && result != null &&
-                !result.getHasEverStartedBuilding() && !result.getIsAllAir();
-    }
+            !result.getHasEverStartedBuilding() && !result.getIsAllAir();
+}
 
     //DEBUG
     public static BufferedImage bufferedImageTest() {

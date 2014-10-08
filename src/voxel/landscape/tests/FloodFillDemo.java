@@ -20,7 +20,7 @@ public class FloodFillDemo extends JPanel implements ActionListener {
 
 
     private static int gridUnit = 16;
-    public final int width = 1200, height = 1200;
+    public final int width = 400, height = 400;
     public final int scale = 1;
     private BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
     private final Color targetColor = Color.WHITE;
@@ -49,15 +49,18 @@ public class FloodFillDemo extends JPanel implements ActionListener {
         public void flood() {
             Color current = Color.GREEN;
 //            for (int i = 0; i < 7; ++i) {
-            ArrayList<Coord2> neighborSeeds = new ArrayList<Coord2>(8);
+            ArrayList<Coord2> neighborSeeds = new ArrayList<Coord2>(120);
             neighborSeeds.add(startSeed);
             current = nextTargetColor(current);
             long start = System.currentTimeMillis();
             long snanos = System.nanoTime();
+            int neiSeedsSizeMax = 0;
             while(neighborSeeds.size() > 0) {
                 Rect bound = GridRectContaining(neighborSeeds.get(0));
                 neighborSeeds.addAll(floodScanLines(neighborSeeds.remove(0), current, nextColor(), bound));
+                neiSeedsSizeMax = Math.max(neiSeedsSizeMax, neighborSeeds.size());
             }
+            B.bugln("max seed size: " + neiSeedsSizeMax);
             long enanos = System.nanoTime();
             long end = System.currentTimeMillis();
             long time = end - start;
@@ -65,20 +68,6 @@ public class FloodFillDemo extends JPanel implements ActionListener {
             B.bug("took: millis: " + millis);
             long tnanos = enanos - snanos;
             B.bugln(" ... and nanos: " + tnanos);
-//            }
-//            for (int i = 0; i < 8; ++i) {
-//                current = nextTargetColor(current);
-//                long start = System.currentTimeMillis();
-//                long snanos = System.nanoTime();
-//                flood(startSeed, current, nextTargetColor(current));
-//                long enanos = System.nanoTime();
-//                long end = System.currentTimeMillis();
-//                long time = end - start;
-//                double millis = time; // (time / 1000d);
-//                B.bug("recursive took: millis: " + millis);
-//                long tnanos = enanos - snanos;
-//                B.bugln(" ... and nanos: " + tnanos);
-//            }
         }
         private Color nextTargetColor(Color current) {
             if (current.equals(Color.GREEN)) {
@@ -136,7 +125,9 @@ public class FloodFillDemo extends JPanel implements ActionListener {
                         if (!spanUp && colorAt(seed.x, y1 - 1) == targetColorRGB) {
                             neighborSeeds.add(new Coord2(seed.x, y1 - 1));
                             spanUp = true;
-                        } else if (spanUp && colorAt(seed.x, y1 - 1) == boundaryColor ) {
+                        }
+//                        else if (spanUp && colorAt(seed.x, y1 - 1) == boundaryColor ) {
+                        if (colorAt(seed.x, y1 - 1) == boundaryColor ) {
                             spanUp = false;
                         }
                     }
@@ -158,15 +149,16 @@ public class FloodFillDemo extends JPanel implements ActionListener {
                              spanLeft = true;
                          }
                         }
-                    } else {
+                    }
+//                    else {
                         if (seed.x > 0 &&  colorAt(seed.x - 1, y1) == boundaryColor) {
                             spanLeft = false;
                         }
-                    }
+//                    }
                     if (!spanRight) {
                         if (seed.x < width - 1) {
                             if (colorAt( seed.x + 1, y1) == targetColorRGB || colorAt(seed.x + 1, y1) == markerColor.getRGB()) {
-                                if (seed.x == xAreaEnd) {
+                                if (seed.x == xAreaEnd - 1 ) {
                                     neighborSeeds.add(new Coord2(seed.x + 1, y1));
                                 } else {
                                     seeds.add(new Coord2(seed.x + 1, y1));
@@ -174,16 +166,18 @@ public class FloodFillDemo extends JPanel implements ActionListener {
                                 spanRight = true;
                             }
                         }
-                    } else {
+                    }
+//                    else {
                         if (seed.x < width - 1 && colorAt(seed.x + 1, y1) == boundaryColor) {
                             spanRight = false;
                         }
-                    }
+//                    }
                     if (y1 < height - 1 && y1 == yAreaEnd - 1) {
                         if (!spanDown && colorAt(seed.x, y1 + 1) == targetColorRGB) {
                             neighborSeeds.add(new Coord2(seed.x, y1 + 1));
                             spanDown = true;
-                        } else if (spanDown && colorAt(seed.x, y1 + 1) == boundaryColor) {
+                        }
+                        if (colorAt(seed.x, y1 + 1) == boundaryColor) {
                             spanDown = false;
                         }
                     }
@@ -256,24 +250,42 @@ public class FloodFillDemo extends JPanel implements ActionListener {
         g.setPaint(targetColor);
         g.fillRect(0, 0, width, height);
         randomBoundaries();
-        randomBoundaries();
+//        randomBoundaries();
         paintMode = false;
         update(floodFiller.startSeed);
     }
 
+//    private void circularBoundary(int radMultiplier) {
+////        Coord2 or = new Coord2(width/2, height/2);
+//        Point.Double origin = new Point.Double(width/2, height/2);
+//        int radius = Math.min(width,height)/10;
+//        double angle = 0d;
+//        while(angle <= Math.PI * 2) {
+//            Point.Double point = new Point2D.Double(origin.x + radMultiplier * Math.cos(angle), origin.y + radMultiplier * Math.sin(angle));
+//        }
+//        for(int x = 0; x< width; ++x) {
+//            int r = random.nextInt(3) - 1;
+//            y = Math.min(height - 1, y + r );
+//            if (!floodFiller.bounds.contains(new Coord2(x,y)))
+//                return;
+//            image.setRGB(x,y, boundaryColor);
+//        }
+//    }
+
     private void randomBoundaries() {
         Random random = new Random();
-        int y = random.nextInt(height);
-        for(int x = 0; x< width; ++x) {
-            int r = random.nextInt(3) - 1;
+        int y = height/2; // random.nextInt(height);
+        int hedge = 0;
+        for(int x = hedge; x< width  - hedge; ++x) {
+            int r = 1; //random.nextInt(3) - 1;
             y = Math.min(height - 1, y + r );
             if (!floodFiller.bounds.contains(new Coord2(x,y)))
                 return;
             image.setRGB(x,y, boundaryColor);
         }
-        int xx = random.nextInt(width);
-        for(int yy = 0; yy< height; ++yy) {
-            int r = random.nextInt(3) - 1;
+        int xx = width/2; // random.nextInt(width);
+        for(int yy = hedge; yy< height - hedge; ++yy) {
+            int r = 1; // random.nextInt(3) - 1;
             xx = Math.min(width - 1, xx + r );
             if (!floodFiller.bounds.contains(new Coord2(xx,yy)))
                 return;

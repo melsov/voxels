@@ -6,7 +6,6 @@ import voxel.landscape.map.TerrainMap;
 import voxel.landscape.map.light.ChunkSunLightComputer;
 import voxel.landscape.map.water.ChunkWaterLevelComputer;
 import voxel.landscape.noise.TerrainDataProvider;
-import voxel.landscape.util.Asserter;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -36,7 +35,6 @@ public class AsyncGenerateColumnDataInfinite implements Runnable // extends Resp
         while(keepGoing.get()) {
             try {
                 Coord2 colCoord = columnsToBeBuilt.take(); //thread will block while nothing is available...maybe forever...
-                Asserter.assertTrue(colCoord != null, "async got null col coord?? (not supposed to happen)");
                 x = colCoord.x; z = colCoord.y;
             } catch (InterruptedException e) {
                 e.printStackTrace();

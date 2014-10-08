@@ -26,6 +26,7 @@ import com.jme3.ui.Picture;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.SkyFactory;
 import voxel.landscape.chunkbuild.*;
+import voxel.landscape.chunkbuild.blockfacefind.BlockFaceFinder;
 import voxel.landscape.chunkbuild.meshbuildasync.AsyncMeshBuilder;
 import voxel.landscape.chunkbuild.meshbuildasync.ChunkMeshBuildingSet;
 import voxel.landscape.collection.ColumnMap;
@@ -56,6 +57,7 @@ public class VoxelLandscape extends SimpleApplication
     //TEST a different commit & push
 	private static boolean USE_TEXTURE_MAP = false, DEBUG_INFO_ON = false, ADD_CHUNKS_DYNAMICALLY = true, COMPILE_CHUNK_DATA_ASYNC = false,
             CULLING_ON = false, BUILD_INITIAL_CHUNKS = true, DONT_BUILD_CHUNK_MESHES = true, SHOW_COLUMN_DEBUG_QUADS = false;
+    private static boolean TEST_BLOCK_FACE_MESH_BUILDING = true;
 
     public static boolean TESTING_DEBUGGING_ON = false, DO_USE_TEST_GEOMETRY = true, SHOULD_BUILD_CHUNK_MESH_ASYNC = true;
 
@@ -65,7 +67,7 @@ public class VoxelLandscape extends SimpleApplication
     public static int ADD_COLUMN_RADIUS = 12;
     private static int COLUMN_CULLING_MIN = (int) ((ADD_COLUMN_RADIUS * 1 + 2)*(ADD_COLUMN_RADIUS * 1 + 2));
 
-	private TerrainMap terrainMap; // = new TerrainMap();
+	private TerrainMap terrainMap;
 	private ColumnMap columnMap = new ColumnMap();
 	private Player player;
 
@@ -88,6 +90,8 @@ public class VoxelLandscape extends SimpleApplication
 
     private AtomicBoolean columnBuildingThreadsShouldKeepGoing = new AtomicBoolean(true);
 
+    private BlockFaceFinder blockFaceFinder;
+
     private static void setupTestStateVariables()
     {
         if (TESTING_DEBUGGING_ON) {
@@ -100,6 +104,7 @@ public class VoxelLandscape extends SimpleApplication
             BUILD_INITIAL_CHUNKS = true;
             DONT_BUILD_CHUNK_MESHES = false;
             SHOW_COLUMN_DEBUG_QUADS = false;
+            TEST_BLOCK_FACE_MESH_BUILDING = false;
         } else {
             USE_TEXTURE_MAP = true;
             DEBUG_INFO_ON = false;
@@ -110,6 +115,7 @@ public class VoxelLandscape extends SimpleApplication
             BUILD_INITIAL_CHUNKS = false;
             DONT_BUILD_CHUNK_MESHES = false;
             SHOW_COLUMN_DEBUG_QUADS = false;
+            TEST_BLOCK_FACE_MESH_BUILDING = true;
         }
     }
 
@@ -129,6 +135,7 @@ public class VoxelLandscape extends SimpleApplication
 	{
 		rootNode.attachChild(worldNode);
 
+        blockFaceFinder.floodFind();
         if (!BUILD_INITIAL_CHUNKS) return;
 
         int half_area = 1; // (int) (ADD_COLUMN_RADIUS *.35f);
@@ -163,6 +170,7 @@ public class VoxelLandscape extends SimpleApplication
 	}
 
     private void addToColumnPriorityQueue() {
+        if (columnsToBeBuilt == null) return;
         PriorityBlockingQueue<Coord2> queue = (PriorityBlockingQueue<Coord2>) columnsToBeBuilt;
         if (queue.size() > 10) return;
         Coord3 emptyCol = ChunkFinder.ClosestEmptyColumn(cam,terrainMap,columnMap);
@@ -183,6 +191,22 @@ public class VoxelLandscape extends SimpleApplication
             colDataPool.execute(infinColDataThread);
         }
     }
+
+    private final int COLUMN_DATA_BUILDER_THREAD_COUNT_CHUNKWISE = 1;
+    private final BlockingQueue<Coord3> chunkCoordsToBeMeshFromChunkWise = new ArrayBlockingQueue<Coord3>(256);
+    ExecutorService colDataPoolCHUNKWISE;
+
+    private void initColumnDataThreadExecutorServiceCHUNKWISE() {
+        colDataPoolCHUNKWISE = Executors.newFixedThreadPool(COLUMN_DATA_BUILDER_THREAD_COUNT_CHUNKWISE);
+        for (int i = 0; i < COLUMN_DATA_BUILDER_THREAD_COUNT_CHUNKWISE; ++i) {
+            AsyncGenerateColumnDataChunkWise asyncChunkWise = new AsyncGenerateColumnDataChunkWise(terrainMap,
+                    columnMap,
+                    blockFaceFinder.floodFilledChunkCoords,
+                    chunkCoordsToBeMeshFromChunkWise,
+                    columnBuildingThreadsShouldKeepGoing );
+            colDataPoolCHUNKWISE.execute(asyncChunkWise);
+        }
+    }
     private void initChunkMeshBuildThreadExecutorService() {
         ChunkCoordCamComparator chunkCoordCamComparator = new ChunkCoordCamComparator(cam);
         chunksToBeMeshed = new PriorityBlockingQueue<ChunkMeshBuildingSet>(50, chunkCoordCamComparator);
@@ -197,7 +221,10 @@ public class VoxelLandscape extends SimpleApplication
 
     private void killThreadPools() {
         columnBuildingThreadsShouldKeepGoing.set(false);
-        colDataPool.shutdownNow();
+        if (colDataPool != null)
+            colDataPool.shutdownNow();
+        if (colDataPoolCHUNKWISE != null)
+            colDataPoolCHUNKWISE.shutdownNow();
 
         asyncChunkMeshThreadsShouldKeepGoing.set(false);
         chunkMeshBuildPool.shutdownNow();
@@ -215,6 +242,17 @@ public class VoxelLandscape extends SimpleApplication
     private boolean buildANearbyChunk() {
         Coord3 chcoord = ChunkFinder.ClosestReadyToBuildChunk(cam, terrainMap, columnMap);
         if (chcoord == null) return false;
+        buildThisChunk(terrainMap.GetChunk(chcoord));
+        return true;
+    }
+    private boolean buildANearbyChunkCHUNKWISE() {
+        Coord3 chcoord = chunkCoordsToBeMeshFromChunkWise.poll();
+        if (chcoord == null) return false;
+
+        if (terrainMap.GetChunk(chcoord) == null) {
+            B.bugln(" build nearby chunk chunkWiSE null Chunk at " + chcoord.toString());
+        }
+
         buildThisChunk(terrainMap.GetChunk(chcoord));
         return true;
     }
@@ -273,7 +311,7 @@ public class VoxelLandscape extends SimpleApplication
         if (!ADD_CHUNKS_DYNAMICALLY) return;
         if (!COMPILE_CHUNK_DATA_ASYNC) return;
         addToColumnPriorityQueue();
-        if(!DONT_BUILD_CHUNK_MESHES && buildANearbyChunk()) {}
+        if(!DONT_BUILD_CHUNK_MESHES && buildANearbyChunkCHUNKWISE()) {}
         checkAsyncCompletedChunkMeshes();
         cullAnExcessColumn(tpf);
     }
@@ -287,6 +325,10 @@ public class VoxelLandscape extends SimpleApplication
             if (chunk == null) return;
             chunk.getChunkBrain().applyMeshBuildingSet(chunkMeshBuildingSet);
         }
+    }
+
+    private void initBlockFaceFinder() {
+        blockFaceFinder = new BlockFaceFinder(terrainMap, cam);
     }
 
     //<editor-fold desc="Simple Init and main">
@@ -303,9 +345,11 @@ public class VoxelLandscape extends SimpleApplication
 //    	viewPort.removeProcessor(...); // KEEP FOR REFERENCE: COULD PERHAPS USE THIS TO TOGGLE WIRE FRAMES
         }
 
+        initBlockFaceFinder();
+
         materialLibrarian = new MaterialLibrarian(assetManager);
 
-        initColumnDataThreadExecutorService();
+        initColumnDataThreadExecutorServiceCHUNKWISE();
         initChunkMeshBuildThreadExecutorService();
 
         setupTestStateVariables();

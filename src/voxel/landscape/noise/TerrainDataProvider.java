@@ -66,14 +66,19 @@ public class TerrainDataProvider {
     }
 
     public int getBlockDataAtPosition(int xin, int yin, int zin) {
-        if (mode == Mode.ImageMode) {
-            return 4; // (int) readImageAt(xin, yin);
+        return testNoise(xin, yin, zin);
+
+//        double r = noiseModule.get(
+//                xin / WORLD_TO_HORIZONTAL_NOISE_SCALE,
+//                (WORLD_TO_VERTICAL_NOISE_SCALE - yin) / WORLD_TO_VERTICAL_NOISE_SCALE,
+//                zin / WORLD_TO_HORIZONTAL_NOISE_SCALE);
+//        return r < 0.001 ? BlockType.AIR.ordinal() : (int) r;
+    }
+    public int testNoise(int x, int y, int z) {
+        if (y < 12 ) {
+            if ((x & 15) + (z & 15) < 16) return 3;
         }
-        double r = noiseModule.get(
-                xin / WORLD_TO_HORIZONTAL_NOISE_SCALE,
-                (WORLD_TO_VERTICAL_NOISE_SCALE - yin) / WORLD_TO_VERTICAL_NOISE_SCALE,
-                zin / WORLD_TO_HORIZONTAL_NOISE_SCALE);
-        return r < 0.001 ? BlockType.AIR.ordinal() : (int) r;
+        return 1;
     }
 
     private BufferedImage getBufferedImage(String src) {
@@ -167,24 +172,24 @@ public class TerrainDataProvider {
         // = Based on Joise module chain Example 2
         // ========================================================================
 
-	    /*
-	     * ground_gradient
-	     */
+        /*
+         * ground_gradient
+         */
         ModuleGradient groundGradient = new ModuleGradient();
         groundGradient.setGradient(0, 0, 0, 1);
 
 
-	    /*
-	     * mountain
-	     */
+        /*
+         * mountain
+         */
         // mountain_shape_fractal
         ModuleFractal mountainShapeFractal = new ModuleFractal(FractalType.RIDGEMULTI, BasisType.GRADIENT, InterpolationType.QUINTIC);
         mountainShapeFractal.setNumOctaves(8);
         mountainShapeFractal.setFrequency(1);
         mountainShapeFractal.setSeed(seed);
-	    /*
-	     * MMP: cache for bedrock
-	     */
+        /*
+         * MMP: cache for bedrock
+         */
         ModuleCache mp_mountainCache = new ModuleCache();
         mp_mountainCache.setSource(mountainShapeFractal);
 
@@ -193,7 +198,6 @@ public class TerrainDataProvider {
         mountainAutoCorrect.setSource(mountainShapeFractal);
         mountainAutoCorrect.setSource(mp_mountainCache);
         mountainAutoCorrect.calculate();
-
 
         // mountain_scale
         ModuleScaleOffset mountainScale = new ModuleScaleOffset();

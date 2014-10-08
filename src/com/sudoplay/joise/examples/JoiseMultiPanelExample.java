@@ -15,8 +15,8 @@ import java.util.HashMap;
  * Created by didyouloseyourdog on 9/26/14.
  */
 public class JoiseMultiPanelExample extends JPanel {
-    private static int panelWidth = 200, panelHeight = 250, panelMarginRight = 100;
-    private static int panelsPerRow = 3;
+    private static int panelWidth = 750, panelHeight = 250, panelMarginRight = 100;
+    private static int panelsPerRow = 1;
     private static int panelsPerColumn = 2;
     private static long seed = 1236;
 
@@ -73,13 +73,25 @@ public class JoiseMultiPanelExample extends JPanel {
         addDemoPanelWithModule(groundGradient, gradientKey, null);
         demoPanels.get(gradientKey).removeGUI();
 
-        String mountainsKey = "mountains";
+        String mountainsKey = "mountains before gradient";
         TerrainNoiseSettings mountainSettings = getDemoPanelSettings(mountainsKey);
         if (mountainSettings == null) {
             mountainSettings = TerrainNoiseSettings.MountainTerrainNoiseSettings(seed, false);
         }
-        Module mountainTerrain = mountainSettings.makeTerrainModule(groundGradient);
-        addDemoPanelWithModule(mountainTerrain, mountainsKey, mountainSettings);
+        Module mountainTerrainNoGradient = mountainSettings.makeTerrainModule(null);
+        addDemoPanelWithModule(mountainTerrainNoGradient, mountainsKey, mountainSettings);
+
+        String mountainsWithGradientKey = "translate gradient domain with mountains";
+        TerrainNoiseSettings gradMountainSettings = getDemoPanelSettings(mountainsWithGradientKey);
+        if (gradMountainSettings == null) {
+            gradMountainSettings = TerrainNoiseSettings.MountainTerrainNoiseSettings(seed, false);
+        }
+        ModuleTranslateDomain mountainTerrain = new ModuleTranslateDomain();
+        mountainTerrain.setAxisYSource(mountainTerrainNoGradient);
+        mountainTerrain.setSource(groundGradient);
+
+        addDemoPanelWithModule(mountainTerrain, mountainsWithGradientKey, gradMountainSettings);
+        demoPanels.get(mountainsWithGradientKey).removeGUI();
 
         /*
         String highlandKey = "highlands";
@@ -112,7 +124,7 @@ public class JoiseMultiPanelExample extends JPanel {
             typeSelectSettings = TerrainNoiseSettings.TerrainTypeSelectModuleNoiseSettings(seed, false);
         }
         Module selectTypeTerr = typeSelectSettings.makeTerrainModule(null);
-        addDemoPanelWithModule(selectTypeTerr, typeSelectSettingKey, typeSelectSettings);
+        //addDemoPanelWithModule(selectTypeTerr, typeSelectSettingKey, typeSelectSettings);
 
         String dirtOrStoneSelectSettingsKey = "dirt of stone";
         TerrainNoiseSettings dirtOrStoneSelectSettings = getDemoPanelSettings(dirtOrStoneSelectSettingsKey);
@@ -122,7 +134,7 @@ public class JoiseMultiPanelExample extends JPanel {
             dirtOrStoneSelectSettings.moduleSelectSettings.controlSource = selectTypeTerr;
         }
         Module dirtOrStoneModule = dirtOrStoneSelectSettings.moduleSelectSettings.makeSelectModule();
-        addDemoPanelWithModule(dirtOrStoneModule, dirtOrStoneSelectSettingsKey, dirtOrStoneSelectSettings);
+        //addDemoPanelWithModule(dirtOrStoneModule, dirtOrStoneSelectSettingsKey, dirtOrStoneSelectSettings);
 
         /*
          * combine terrain select and block type select
@@ -133,8 +145,8 @@ public class JoiseMultiPanelExample extends JPanel {
         terrAndBlockTypeMod.setSource(1, dirtOrStoneModule);
         TerrainNoiseSettings combineSettings = new TerrainNoiseSettings(seed); //defaults
         combineSettings.renderWithBlockColors = true;
-        addDemoPanelWithModule(terrAndBlockTypeMod, combineTerrainAndBlockTypeKey, combineSettings);
-        demoPanels.get(combineTerrainAndBlockTypeKey).removeGUI();
+        //addDemoPanelWithModule(terrAndBlockTypeMod, combineTerrainAndBlockTypeKey, combineSettings);
+        //demoPanels.get(combineTerrainAndBlockTypeKey).removeGUI();
 
 
 

@@ -3,7 +3,6 @@ package voxel.landscape.chunkbuild.meshbuildasync;
 import voxel.landscape.Chunk;
 import voxel.landscape.MeshSet;
 import voxel.landscape.VoxelLandscape;
-import voxel.landscape.chunkbuild.ChunkBuilder;
 import voxel.landscape.map.TerrainMap;
 
 import java.util.concurrent.BlockingQueue;
@@ -49,7 +48,12 @@ public class AsyncMeshBuilder implements Runnable
             chunkMeshBuildingSet.meshSet = mset;
             chunkMeshBuildingSet.liquidMeshSet = waterMSet;
 
-            ChunkBuilder.buildMesh(chunk, mset, waterMSet, chunkMeshBuildingSet.isOnlyLight, chunkMeshBuildingSet.isOnlyLiquid);
+            // STILL WANT TO TEST
+            if (!chunk.chunkBlockFaceMap.empty()) {
+                chunk.chunkBlockFaceMap.buildMeshFromMap(chunk, mset, waterMSet, chunkMeshBuildingSet.isOnlyLight, chunkMeshBuildingSet.isOnlyLiquid);
+            }
+            //TEST! WANT \|/
+//            ChunkBuilder.buildMesh(chunk, mset, waterMSet, chunkMeshBuildingSet.isOnlyLight, chunkMeshBuildingSet.isOnlyLiquid);
 
             try {
                 completedChunkMeshSets.put(chunkMeshBuildingSet);

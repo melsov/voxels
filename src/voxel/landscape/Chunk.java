@@ -5,6 +5,7 @@ import voxel.landscape.chunkbuild.ChunkBrain;
 import voxel.landscape.collection.ByteArray3D;
 import voxel.landscape.collection.chunkface.ChunkBlockFaceMap;
 import voxel.landscape.collection.coordmap.managepages.ConcurrentHashMapCoord3D;
+import voxel.landscape.coord.Box;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;
 
@@ -121,6 +122,7 @@ public class Chunk
 		int worldZ = (chunkPosition.z << SIZE_Z_BITS) + localPosition.z;
 		return new Coord3(worldX, worldY, worldZ);
 	}
+    public static Box ChunkLocalBox = new Box(new Coord3(0), new Coord3(XLENGTH, YLENGTH, ZLENGTH));
     public static int ToWorldPositionY(int chunkPositionY, int relPositionY) { return chunkPositionY << SIZE_Y_BITS + relPositionY; }
 	
 	public byte blockAt(Coord3 co) { return blockAt(co.x, co.y, co.z); }

@@ -1,6 +1,5 @@
 package voxel.landscape.map;
 
-import com.jme3.math.Vector3f;
 import voxel.landscape.BlockType;
 import voxel.landscape.Chunk;
 import voxel.landscape.VoxelLandscape;
@@ -37,13 +36,14 @@ public class TerrainMap implements IBlockDataProvider
     private WaterLevelMap liquidLevelMap = new WaterLevelMap();
     private LiquidUpdater liquidUpdaterWater = new LiquidUpdater(BlockType.LiquidFlowTimeStepSeconds(BlockType.WATER.ordinal()));
 
-    private VoxelLandscape app;
+    private final VoxelLandscape app;
 
 	public TerrainMap(VoxelLandscape _app) {
         app = _app;
 	}
 
     public VoxelLandscape getApp() { return app; }
+
 
     /*
      * DYNAMIC MAP UPDATES
@@ -58,14 +58,15 @@ public class TerrainMap implements IBlockDataProvider
     public ChunkBlockFaceMap blockFaceMap(Coord3 chunkCoord) {
         return lookupOrCreateChunkAtPosition(chunkCoord).chunkBlockFaceMap;
     }
-    public void setBlockFace(Coord3 worldCoord, int direction, boolean exists) {
+    public void setBlockFace(Coord3 worldCoord, int direction, boolean shouldExist) {
         Coord3 chunkCo = Chunk.ToChunkPosition(worldCoord);
         Coord3 localCo = Chunk.toChunkLocalCoord(worldCoord);
         Chunk chunk = lookupOrCreateChunkAtPosition(chunkCo);
-        if (exists)
+        if (shouldExist) {
             chunk.chunkBlockFaceMap.addFace(localCo, direction);
-        else
+        } else {
             chunk.chunkBlockFaceMap.removeFace(localCo, direction);
+        }
     }
     /*
      * WORLD INFO
@@ -84,8 +85,6 @@ public class TerrainMap implements IBlockDataProvider
     public byte lookupBlock(int x, int y, int z) {
 		return lookupBlock(new Coord3(x, y, z));
 	}
-
-    public byte lookupBlock(Vector3f v) {  return lookupBlock((int)v.x, (int)v.y, (int)v.z); }
 
 	public byte lookupBlock(Coord3 co) {
 		Chunk chunk = GetChunk(Chunk.ToChunkPosition(co));
@@ -143,6 +142,9 @@ public class TerrainMap implements IBlockDataProvider
     public boolean ChunkCoordWithinWorldBounds(Coord3 chunkCoord) {
         return chunkCoord.y >= MIN_CHUNK_DIM_VERTICAL && chunkCoord.y < MAX_CHUNK_DIM_VERTICAL;
     }
+    public boolean isGlobalCoordWithingWorldBounds(Coord3 global) {
+        return global.y >= MIN_CHUNK_DIM_VERTICAL * Chunk.YLENGTH && global.y < MAX_CHUNK_DIM_VERTICAL * Chunk.YLENGTH;
+    }
 
     /*
      * Clean up
@@ -155,6 +157,10 @@ public class TerrainMap implements IBlockDataProvider
             lightmap.RemoveLightData(chunkPos);
         }
         sunLightmap.RemoveRays(x,z);
+    }
+
+    public void assertChunkNotNull(Coord3 co, String msg) {
+        Asserter.assertTrue(GetChunk(co) != null, "chunk was null: " + co.toString() + " : " + msg);
     }
 
 	/*
@@ -444,12 +450,11 @@ public class TerrainMap implements IBlockDataProvider
 		return lookupOrCreateChunkAtPosition(new Coord3(x, y, z));
 	}
 	public Chunk lookupOrCreateChunkAtPosition(Coord3 chunkPos) {
-        if (!ChunkCoordWithinWorldBounds(chunkPos))
-            return null;
-
+        if (!ChunkCoordWithinWorldBounds(chunkPos)) return null;
+        // Sets chunk at key if not there before. Returns previous value! (null if nothing was there)
         Chunk result = chunks.putIfKeyIsAbsent(chunkPos, new Chunk(chunkPos, this));
         if (result == null) {
-            result = chunks.Get(chunkPos);
+            result = chunks.Get(chunkPos); // re-get the Chunk if it was null. now guaranteed to be there.
         }
         return result;
 	}
@@ -460,14 +465,6 @@ public class TerrainMap implements IBlockDataProvider
     public Chunk GetChunk(int x, int y, int z) {
         return GetChunk(new Coord3(x,y,z));
     }
-
-//	public List3D<Chunk> GetChunks() {
-//		return chunks;
-//	}
-
-//    public HashMapCoord3D<Chunk> GetChunks() {
-//        return chunks;
-//    }
 
 	public SunLightMap GetSunLightmap() {
 		return sunLightmap;
