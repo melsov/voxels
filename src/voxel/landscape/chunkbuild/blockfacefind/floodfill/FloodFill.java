@@ -1,4 +1,4 @@
-package voxel.landscape.chunkbuild.blockfacefind;
+package voxel.landscape.chunkbuild.blockfacefind.floodfill;
 
 import com.jme3.renderer.Camera;
 import voxel.landscape.BlockType;
@@ -29,7 +29,6 @@ public class FloodFill
     private static List<Coord3> fakeChunkList = new ArrayList<Coord3>();
     private static int fakeRange = 2;
     static {
-
         for(int x = -fakeRange; x < fakeRange ; ++x ) {
             for(int z = -fakeRange; z < fakeRange; ++z) {
                 for(int y = 0; y < TerrainMap.GetWorldHeightInChunks(); ++y) {
@@ -37,8 +36,8 @@ public class FloodFill
                 }
             }
         }
-
     }
+
 
     public FloodFill(TerrainMap _map, Camera _cam, BlockingQueue<Coord3> _floodFilledChunkCoords) {
         map = _map; camera = _cam; floodFilledChunkCoords = _floodFilledChunkCoords;
@@ -96,7 +95,7 @@ public class FloodFill
         seeds.add(seed);
     }
 
-    private ArrayList<Coord3> floodScanLines(Coord3 initialSeedGlobal, int untouchedType) {
+    public ArrayList<Coord3> floodScanLines(Coord3 initialSeedGlobal, int untouchedType) {
         // TODO: deal with water!
         ArrayList<Coord3> neighborSeeds = new ArrayList<Coord3>(6 * 3);
 
@@ -113,6 +112,10 @@ public class FloodFill
             return neighborSeeds;
         }
 
+        /* wasIs arrays used to check whether blocks were unset before lookup:
+         * we (mostly) want to continue flooding only over air blocks that were of type "non_existant"
+         * before we looked them up. *wasIs[0] stores the type before lookup.
+         * *wasIs[1] stores the type after lookup */
         byte[] thisCoordWasIs = new byte[2];
         byte[] xNEGWasIs = new byte[2];
         byte[] xPOSWasIs = new byte[2];

@@ -40,6 +40,18 @@ public class Direction {
             new Coord3(0, 0, -1),
             new Coord3(0, 0, 1),
     };
+    public static Coord3[] DirectionXYCoords = new Coord3[]{
+            new Coord3(-1, 0, 0),
+            new Coord3(1, 0, 0),
+            new Coord3(0, -1, 0),
+            new Coord3(0, 1, 0),
+    };
+    public static Coord3[] DirectionYZCoords = new Coord3[]{
+            new Coord3(0, -1, 0),
+            new Coord3(0, 1, 0),
+            new Coord3(0, 0, -1),
+            new Coord3(0, 0, 1),
+    };
     public static Vector3f[] DirectionXZVector3fs = new Vector3f[]{
             new Vector3f(-1, 0, 0),
             new Vector3f(1, 0, 0),
@@ -65,6 +77,11 @@ public class Direction {
     public static int OppositeDirection(int dir) {
         if (dir % 2 == 0) return dir + 1;
         return dir - 1;
+    }
+    public static Coord3[] NudgeDirectionsNormalToAxis(int axis) {
+        if (axis == Axis.X) return DirectionYZCoords;
+        if (axis == Axis.Y) return DirectionXZCoords;
+        return DirectionXYCoords;
     }
 
     public static Coord3 DirectionCoordForDirection(int dir) {

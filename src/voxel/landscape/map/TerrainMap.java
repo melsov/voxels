@@ -19,8 +19,8 @@ import voxel.landscape.util.Asserter;
 
 public class TerrainMap implements IBlockDataProvider
 {
-	private static final int MIN_DIM_HORIZONTAL = 0;
-	private static final int MAX_DIM_HORIZONTAL = 8; // for limited dimension world only
+	private static final int MIN_DIM_HORIZONTAL = -8;
+	private static final int MAX_DIM_HORIZONTAL = 8;
 
     private static final int MIN_CHUNK_DIM_VERTICAL = 0;
 	private static final int MAX_CHUNK_DIM_VERTICAL = 4;

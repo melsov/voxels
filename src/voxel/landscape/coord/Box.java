@@ -36,6 +36,16 @@ public class Box {
         }
         return -1;
     }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof Box ) return equals((Box) other);
+        return false;
+    }
+    public boolean equals(Box other) {
+        return start.equal(other.start) && dimensions.equal(other.dimensions);
+    }
+
     public static Box WorldCoordBoxForChunkAtWorldCoord(Chunk chunk) {
         return new Box(chunk.originInBlockCoords(), Chunk.CHUNKDIMS);
     }

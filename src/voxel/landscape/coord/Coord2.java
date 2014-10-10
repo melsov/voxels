@@ -23,8 +23,6 @@ public class Coord2 implements ICoordXZ
 
     public Coord2() {}
 
-
-
     public Coord2 multy(Coord2 other) {
 		return new Coord2(this.x * other.x, this.y * other.y);
 	}

@@ -250,7 +250,7 @@ public class FloodFillDemo extends JPanel implements ActionListener {
         g.setPaint(targetColor);
         g.fillRect(0, 0, width, height);
         randomBoundaries();
-//        randomBoundaries();
+        randomBoundaries();
         paintMode = false;
         update(floodFiller.startSeed);
     }
@@ -274,18 +274,18 @@ public class FloodFillDemo extends JPanel implements ActionListener {
 
     private void randomBoundaries() {
         Random random = new Random();
-        int y = height/2; // random.nextInt(height);
+        int y = random.nextInt(height);
         int hedge = 0;
         for(int x = hedge; x< width  - hedge; ++x) {
-            int r = 1; //random.nextInt(3) - 1;
+            int r = random.nextInt(3) - 1;
             y = Math.min(height - 1, y + r );
             if (!floodFiller.bounds.contains(new Coord2(x,y)))
                 return;
             image.setRGB(x,y, boundaryColor);
         }
-        int xx = width/2; // random.nextInt(width);
+        int xx = random.nextInt(width);
         for(int yy = hedge; yy< height - hedge; ++yy) {
-            int r = 1; // random.nextInt(3) - 1;
+            int r = random.nextInt(3) - 1;
             xx = Math.min(width - 1, xx + r );
             if (!floodFiller.bounds.contains(new Coord2(xx,yy)))
                 return;

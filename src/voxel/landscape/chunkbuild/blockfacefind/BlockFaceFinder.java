@@ -1,6 +1,7 @@
 package voxel.landscape.chunkbuild.blockfacefind;
 
 import com.jme3.renderer.Camera;
+import voxel.landscape.chunkbuild.blockfacefind.floodfill.FloodFill;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;
 

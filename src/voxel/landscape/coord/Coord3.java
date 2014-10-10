@@ -2,7 +2,7 @@ package voxel.landscape.coord;
 
 import com.jme3.math.Vector3f;
 
-public final class Coord3 implements ICoordXZ
+public class Coord3 implements ICoordXZ
 {
 	public int x,y,z;
 	
