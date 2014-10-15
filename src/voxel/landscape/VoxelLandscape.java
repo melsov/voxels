@@ -369,9 +369,9 @@ public class VoxelLandscape extends SimpleApplication
         setupInfoView();
         setupPlayerDebugHat();
 
+        makeInitialWorld(); //TODO: ORDER OF THESE TWO/THREE MATTERS RIGHT NOW—AND SHOULDN'T
         initColumnDataThreadExecutorServiceCHUNKWISE();
         initChunkMeshBuildThreadExecutorService();
-        makeInitialWorld(); //TODO: ORDER OF THESE TWO/THREE MATTERS RIGHT NOW—AND SHOULDN'T
 
         setupInputs();
         setupWASDInput();

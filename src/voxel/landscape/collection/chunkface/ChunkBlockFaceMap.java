@@ -9,7 +9,6 @@ import voxel.landscape.chunkbuild.blockfacefind.ChunkBlockFaceCoord;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
 import voxel.landscape.map.TerrainMap;
-import voxel.landscape.player.B;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -120,10 +119,7 @@ public class ChunkBlockFaceMap {
             byte blockType = (byte) map.lookupOrCreateBlock(blockWorldCoord);
 
             if (BlockType.AIR.equals(blockType)) continue;
-            if(!faceRecord.DEBUGisOnlyXAxisFalse()) {
-//            if(!faceRecord.DEBUGisOnlyZAxisFalse()) {
-                B.bugln("non conformist block at " + blockWorldCoord.toString() + "\n" + faceRecord.toString());
-            }
+
             for (int dir : Direction.Directions)
             {
                 if (faceRecord.getFace(dir)) {

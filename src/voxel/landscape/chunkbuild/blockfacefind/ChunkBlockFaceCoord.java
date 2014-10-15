@@ -22,7 +22,7 @@ public class ChunkBlockFaceCoord
         return new Coord3(
                 storage & localCoordBitMask,
                 (storage >>> Chunk.SIZE_X_BITS) & localCoordBitMask,
-                (storage >> Chunk.SIZE_X_BITS * 2) & localCoordBitMask
+                (storage >>> Chunk.SIZE_X_BITS * 2) & localCoordBitMask
         );
     }
     @Override

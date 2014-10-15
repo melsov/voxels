@@ -6,6 +6,7 @@ import voxel.landscape.map.TerrainMap;
 import voxel.landscape.map.light.ChunkSunLightComputer;
 import voxel.landscape.map.water.ChunkWaterLevelComputer;
 import voxel.landscape.noise.TerrainDataProvider;
+import voxel.landscape.player.B;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -48,12 +49,17 @@ public class AsyncGenerateColumnDataChunkWise implements Runnable // extends Res
             }
             if (columnMap.SetIsBuildingOrReturnFalseIfStartedAlready(x,z)) {
                 terrainMap.generateNoiseForChunkColumn(x, z, dataProvider);
+                terrainMap.populateFloodFillSeedsUpdateFaceMapsInChunkColumn(x,z, dataProvider); // ORDER OF THIS LINE AND THE COMPUTERS MATTER! TODO: FIX
+                B.bug("got a chunk coord");
                 ChunkSunLightComputer.ComputeRays(terrainMap, x, z);
 
                 if (!keepGoing.get()) break; // SEEMS TO PREVENT HANG WHEN QUITTING
 
                 ChunkSunLightComputer.Scatter(terrainMap, columnMap, x, z);
                 ChunkWaterLevelComputer.Scatter(terrainMap, columnMap, x, z);
+
+                /* flood fill and column sides */
+
                 columnMap.SetBuilt(x, z);
             }
             try {

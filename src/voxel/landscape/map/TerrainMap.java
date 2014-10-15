@@ -261,6 +261,7 @@ public class TerrainMap implements IBlockDataProvider
                         foundDirt = BlockType.IsSolid(block);
                     }
                     if (BlockType.IsSolid(block)) {
+                        possibleChunk.chunkBlockFaceMap.addFace(relPos, Direction.YPOS);
                         /* Set sunlight map here */
                         sunLightmap.SetSunHeight(wocoY + 1, absPos.x, absPos.z );
                         break;
@@ -278,7 +279,7 @@ public class TerrainMap implements IBlockDataProvider
     public void populateFloodFillSeedsUpdateFaceMapsInChunkColumn(int cx, int cz, TerrainDataProvider _terrainDataProvider) {
         Coord3 worldPos = Chunk.ToWorldPosition(new Coord3(cx, 0, cz));
 
-        Coord3 absPos;
+        Coord3 surfacePos;
         /*
          * ONLY LOOK FOR COLUMNS THAT ARE HIGHER THAN 'US'
          * IN THE DIRECTION IN WHICH WE ARE LOOKING
@@ -288,30 +289,30 @@ public class TerrainMap implements IBlockDataProvider
         for (int i = -1; i < Chunk.XLENGTH; ++i) {
             for (int j = -1; j < Chunk.ZLENGTH; ++j) {
                 if (i == -1 && j == -1) continue;
-                absPos = worldPos.add(new Coord3(i, 0, j));
-                absPos.y = getSurfaceHeight(absPos.x, absPos.z);
+                surfacePos = worldPos.add(new Coord3(i, 0, j));
+                surfacePos.y = getSurfaceHeight(surfacePos.x, surfacePos.z);
 
-                if (i > -1 && j < Chunk.ZLENGTH - 1) {
-                    populateFloodFillSeedsUpdateFaceMaps(absPos, absPos.y, Direction.ZPOS, _terrainDataProvider );
-                }
-                if (j > -1 && i < Chunk.XLENGTH - 1) {
-                    populateFloodFillSeedsUpdateFaceMaps(absPos, absPos.y, Direction.XPOS, _terrainDataProvider );
-                }
+//                if (i > -1 && j < Chunk.ZLENGTH - 1) {
+                    populateFloodFillSeedsUpdateFaceMaps(surfacePos, surfacePos.y, Direction.ZPOS, _terrainDataProvider );
+//                }
+//                if (j > -1 && i < Chunk.XLENGTH - 1) {
+                    populateFloodFillSeedsUpdateFaceMaps(surfacePos, surfacePos.y, Direction.XPOS, _terrainDataProvider );
+//                }
             }
         }
         // X and Z neg
         for (int i = Chunk.XLENGTH; i >= 0 ; --i) {
             for (int j = Chunk.ZLENGTH; j >= 0 ; --j) {
                 if (i == 0 && j == 0) continue;
-                absPos = worldPos.add(new Coord3(i, 0, j));
-                absPos.y = getSurfaceHeight(absPos.x, absPos.z);
+                surfacePos = worldPos.add(new Coord3(i, 0, j));
+                surfacePos.y = getSurfaceHeight(surfacePos.x, surfacePos.z);
 
-                if (i < Chunk.XLENGTH && j > 0) {
-                    populateFloodFillSeedsUpdateFaceMaps(absPos, absPos.y, Direction.ZNEG, _terrainDataProvider );
-                }
-                if (j < Chunk.ZLENGTH && i > 0) {
-                    populateFloodFillSeedsUpdateFaceMaps(absPos, absPos.y, Direction.XNEG, _terrainDataProvider );
-                }
+//                if (i < Chunk.XLENGTH && j > 0) {
+                    populateFloodFillSeedsUpdateFaceMaps(surfacePos, surfacePos.y, Direction.ZNEG, _terrainDataProvider );
+//                }
+//                if (j < Chunk.ZLENGTH && i > 0) {
+                    populateFloodFillSeedsUpdateFaceMaps(surfacePos, surfacePos.y, Direction.XNEG, _terrainDataProvider );
+//                }
             }
         }
     }
@@ -325,30 +326,31 @@ public class TerrainMap implements IBlockDataProvider
         if (height >= neighborHeight) {
             return;
         }
-        Chunk chunk = GetChunk(neighbor);
-        chunk.chunkBlockFaceMap.addFace(Chunk.toChunkLocalCoord(new Coord3(neighbor.x, neighborHeight, neighbor.z)), Direction.OppositeDirection(direction));
-        if (height + 1 == neighborHeight) {
+        Chunk chunk_ = GetChunk(Chunk.ToChunkPosition(neighbor));
+        if (chunk_ == null) {
             return;
         }
-        Coord3 neighborInspect = neighbor; //.clone();
-        for(neighborInspect.y = height + 1; neighborInspect.y < neighborHeight; ++neighborInspect.y ) {
-            int was = chunk.blockAt(Chunk.toChunkLocalCoord(neighborInspect));
+
+        for(neighbor.y = height + 1; neighbor.y <= neighborHeight; ++neighbor.y ) {
+            Chunk chunk = GetChunk(Chunk.ToChunkPosition(neighbor));
+            if (chunk == null) continue;
+            int was = chunk.blockAt(Chunk.toChunkLocalCoord(neighbor));
             int is;
             if (was == BlockType.NON_EXISTENT.ordinal()) {
-                is = lookupOrCreateBlock(neighborInspect, _terrainDataProvider);
+                is = lookupOrCreateBlock(neighbor, _terrainDataProvider);
             } else {
                 is = was;
             }
-            if (was == BlockType.NON_EXISTENT.ordinal()) {
-                if (BlockType.IsTranslucent(is)) {
-                    // TODO: deal with water
-                    chunk.chunkFloodFillSeedSet.addCoord(neighborInspect);
-                } else if (BlockType.IsSolid(is)) {
-                    chunk.chunkBlockFaceMap.addFace(Chunk.toChunkLocalCoord(neighborInspect),Direction.OppositeDirection(direction));
-                }
-            }
-        }
 
+            if (BlockType.IsTranslucent(is)) {
+                // TODO: deal with water
+                chunk.chunkFloodFillSeedSet.addCoord(neighbor);
+                try { floodFillSeedSetsToFlood.put(chunk.position); } catch (InterruptedException e) {  e.printStackTrace(); }
+            } else if (BlockType.IsSolid(is)) {
+                chunk.chunkBlockFaceMap.addFace(Chunk.toChunkLocalCoord(neighbor),Direction.OppositeDirection(direction));
+            }
+
+        }
     }
 
     /*

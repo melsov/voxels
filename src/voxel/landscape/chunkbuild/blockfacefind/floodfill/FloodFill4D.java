@@ -55,7 +55,24 @@ public class FloodFill4D
 //        return new Box(start, FFBoundsHalf.multy(2)); //WANT
     }
 
+    private boolean testSurfaceMapping() {
+        for (int x = 0 ; x < 4; x++)
+            for(int z = 0; z < 4; z++)
+                for(int y = 0; y < 4; y++) {
+                    Coord3 co = new Coord3(x,y,z);
+                    Chunk chunk = map.lookupOrCreateChunkAtPosition(co);
+                    try {
+                        floodFilledChunkCoords.put(co);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+        B.bugln("done");
+        return true;
+    }
+
     public void flood(boolean forever) {
+        if (testSurfaceMapping()) return; //TEST!!!
         Coord3 initialSeed = new Coord3(14, 0, 14); //TEST WANT-> // Coord3.FromVector3f(camera.getLocation());
 
         initialSeed = floodFill.findAirCoord(initialSeed);

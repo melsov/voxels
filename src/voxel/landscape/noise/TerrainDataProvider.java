@@ -66,13 +66,13 @@ public class TerrainDataProvider {
     }
 
     public int getBlockDataAtPosition(int xin, int yin, int zin) {
-        return testNoise(xin, yin, zin);
+//        return testNoise(xin, yin, zin);
 
-//        double r = noiseModule.get(
-//                xin / WORLD_TO_HORIZONTAL_NOISE_SCALE,
-//                (WORLD_TO_VERTICAL_NOISE_SCALE - yin) / WORLD_TO_VERTICAL_NOISE_SCALE,
-//                zin / WORLD_TO_HORIZONTAL_NOISE_SCALE);
-//        return r < 0.001 ? BlockType.AIR.ordinal() : (int) r;
+        double r = noiseModule.get(
+                xin / WORLD_TO_HORIZONTAL_NOISE_SCALE,
+                (WORLD_TO_VERTICAL_NOISE_SCALE - yin) / WORLD_TO_VERTICAL_NOISE_SCALE,
+                zin / WORLD_TO_HORIZONTAL_NOISE_SCALE);
+        return r < 0.001 ? BlockType.AIR.ordinal() : (int) r;
     }
     private int testNoise(int x, int y, int z) {
 //        if  ( (x & 15 + x & 7) + (z & 15 + z & 7) + y < 54) return 3;
