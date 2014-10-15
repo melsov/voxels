@@ -77,12 +77,18 @@ public class Player
             }
             else if (name.equals("Inventory") && !keyPressed) {
             }
-
+            else if (name.equals("DebugBlock") && !keyPressed) {
+                printBlockCursorInfo();
+            }
     	}
     };
+    private void printBlockCursorInfo() {
+        Coord3 global = Coord3.FromVector3f(blockCursor.getLocalTranslation());
+        B.bugln(terrainMap.getBlockInfoString(global));
+    }
     private void teleportHome() {
         Coord3 home = new Coord3(1,0,1);
-        playerNode.setLocalTranslation(new Vector3f(home.x,terrainMap.GetMaxY(home.x,home.z) + 4,home.z));
+        playerNode.setLocalTranslation(new Vector3f(home.x,terrainMap.GetMaxY(home.x,home.z, false) + 4,home.z));
     }
     private void toggleFlyMode() {
         FLY_MODE = FLY_MODE == 1 ? 0 : 1;
@@ -416,6 +422,7 @@ public class Player
 			if (timeSinceUpdate > TIME_PER_UPDATE) {
 				timeSinceUpdate = 0;
 				moveBlockCursor();
+
 			}
             rotatePlayerHead();
 			movePlayer(tpf);

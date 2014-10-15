@@ -1,6 +1,7 @@
 package voxel.landscape.chunkbuild.blockfacefind.floodfill.chunkslice;
 
 import voxel.landscape.coord.Box;
+import voxel.landscape.coord.Coord3;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,8 +10,7 @@ import java.util.List;
  * Created by didyouloseyourdog on 10/9/14.
  */
 public class ChunkSliceBag {
-    private List<ChunkSlice> slicesWithin = new ArrayList<ChunkSlice>(128);
-    private List<ChunkSlice> slicesWithout = new ArrayList<ChunkSlice>(128);
+    private List<ChunkSlice> slices = new ArrayList<ChunkSlice>(128);
     private Box bounds;
     public Box getBounds() { return bounds; }
     public void setBounds(Box _bounds) {
@@ -26,12 +26,22 @@ public class ChunkSliceBag {
     public static ChunkSliceBag UnboundedChunkSliceBag() {
         return new ChunkSliceBag();
     }
-    public void add(ChunkSlice chunkSlice) {
-
+    public boolean add(ChunkSlice chunkSlice) {
+        if (contains(chunkSlice.getChunkCoord())) {
+            slices.add(chunkSlice);
+            return true;
+        }
+        return false;
+    }
+    private boolean contains(Coord3 co) {
+        if (bounds == null) return true;
+        return bounds.contains(co);
     }
     public ChunkSlice removeNext() {
-        if (slicesWithin.size() == 0) return null;
-        return slicesWithin.remove(0);
+        if (slices.size() == 0) return null;
+        return slices.remove(0);
     }
-    public int size() { return slicesWithin.size(); }
+    public int size() { return slices.size(); }
+
+
 }

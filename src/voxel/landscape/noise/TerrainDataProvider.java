@@ -74,10 +74,18 @@ public class TerrainDataProvider {
 //                zin / WORLD_TO_HORIZONTAL_NOISE_SCALE);
 //        return r < 0.001 ? BlockType.AIR.ordinal() : (int) r;
     }
-    public int testNoise(int x, int y, int z) {
-        if (y < 12 ) {
-            if ((x & 15) + (z & 15) < 16) return 3;
+    private int testNoise(int x, int y, int z) {
+//        if  ( (x & 15 + x & 7) + (z & 15 + z & 7) + y < 54) return 3;
+//        int sumxz = (x & 15) + (z & 15);
+//        if ( y < 17 || (y != 20 && y != 19 && ((sumxz + 8) & 31) < 16 && y < 22)) return 3;
+        int across = z;
+        if ((y == 14) && ((across & 3) == 1)) {
+            if ((z & 1) == 1) return 8;
+            else return 5;
         }
+        if (y == 10 && (across & 15) == 5) return 7;
+        if (y == 12 && (across & 3) == 2) return 4;
+//        if (y < 8) return 3;
         return 1;
     }
 

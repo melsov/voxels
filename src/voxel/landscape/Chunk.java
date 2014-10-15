@@ -2,6 +2,7 @@ package voxel.landscape;
 
 import com.jme3.scene.Node;
 import voxel.landscape.chunkbuild.ChunkBrain;
+import voxel.landscape.chunkbuild.blockfacefind.floodfill.chunkseeds.ChunkFloodFillSeedSet;
 import voxel.landscape.collection.ByteArray3D;
 import voxel.landscape.collection.chunkface.ChunkBlockFaceMap;
 import voxel.landscape.collection.coordmap.managepages.ConcurrentHashMapCoord3D;
@@ -41,6 +42,7 @@ public class Chunk
 	private TerrainMap terrainMap;
 
     public final ChunkBlockFaceMap chunkBlockFaceMap = new ChunkBlockFaceMap();
+    public ChunkFloodFillSeedSet chunkFloodFillSeedSet;
 
     private volatile boolean isAllAir = false;
     public void setIsAllAir(boolean _allAir) {
@@ -57,6 +59,7 @@ public class Chunk
 	public Chunk(Coord3 _coord, TerrainMap _terrainMap) {
 		position = _coord;
 		terrainMap = _terrainMap;
+        chunkFloodFillSeedSet = new ChunkFloodFillSeedSet(position);
 	}
 	
 	public Node getRootSpatial() {
@@ -134,7 +137,7 @@ public class Chunk
 	public void setBlockAt(byte block, Coord3 co) { setBlockAt(block, co.x, co.y, co.z); }
 	
 	public void setBlockAt(byte block, int x, int y, int z) {
-		blocks.Set(block, x, y, z);
+        blocks.Set(block, x, y, z);
 	}
 	
 	public Coord3 originInBlockCoords() { return Chunk.ToWorldPosition(position); }

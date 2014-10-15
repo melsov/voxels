@@ -16,6 +16,7 @@ public class SunLightMap
 	public void SetSunHeight(int height, int x, int z) {
 		rays.Set(height, x, z);
 	}
+    public int GetSunHeight(Coord3 coord3) { return GetSunHeight(coord3.x, coord3.z); }
 	public int GetSunHeight(int x, int z) {
 		return rays.Get(x, z);
 	}

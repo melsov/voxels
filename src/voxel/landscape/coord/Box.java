@@ -14,8 +14,11 @@ public class Box {
     public Box(Coord3 start_, Coord3 dimensions_) {
         start = start_; dimensions = dimensions_;
     }
+    public static Box BoxWithStartAndExtent(Coord3 _start, Coord3 extent) {
+        return new Box (_start, extent.minus(_start));
+    }
     public boolean contains(Coord3 co) {
-        return dimensions.greaterThan(co.minus(start));
+        return co.greaterThanOrEqual(start) && dimensions.greaterThan(co.minus(start));
     }
     public int outsideOfInDirection(Coord3 co) {
         Coord3 dif = co.minus(start);
@@ -44,6 +47,15 @@ public class Box {
     }
     public boolean equals(Box other) {
         return start.equal(other.start) && dimensions.equal(other.dimensions);
+    }
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Box: start: ");
+        sb.append(start.toString());
+        sb.append(" dimensions: ");
+        sb.append(dimensions.toString());
+        return sb.toString();
     }
 
     public static Box WorldCoordBoxForChunkAtWorldCoord(Chunk chunk) {

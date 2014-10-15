@@ -17,7 +17,8 @@ public enum BlockType {
     LANTERN(7, 0d),
     BEDROCK(8, 0d),
     WATER(9, .3d),
-    WATER_RUNOFF (10, 0d);
+    WATER_RUNOFF (10, 0d),
+    PLACEHOLDER_AIR (11, 0d); // DECOMMISSIONED!
 	
 	BlockType(int i, double _prevalence) {
 		integer = i;
@@ -38,6 +39,7 @@ public enum BlockType {
         if (existentBlockTypes == null) {
             existentBlockTypes = EnumSet.allOf(BlockType.class);
             existentBlockTypes.remove(NON_EXISTENT);
+            existentBlockTypes.remove(PLACEHOLDER_AIR);
         }
         return existentBlockTypes;
     }
@@ -121,17 +123,18 @@ public enum BlockType {
 	}
 	
 	public static boolean IsTranslucent(int i) {
-		return i == AIR.ordinal() || i == NON_EXISTENT.ordinal() || IsWaterType(i);
+		return i == AIR.ordinal() || i == NON_EXISTENT.ordinal() || i == PLACEHOLDER_AIR.ordinal() || IsWaterType(i);
 	}
     public static boolean IsWaterSurface(int i) {
         return !IsWaterType(i);
     }
+    public static boolean IsNonExistentOrPlaceHolderAir(int i) { return i == NON_EXISTENT.ordinal() || i == PLACEHOLDER_AIR.ordinal(); }
 
 	public static boolean IsAirOrNonExistent(int i) {
-		return i == AIR.ordinal() || i == NON_EXISTENT.ordinal();
+		return i == AIR.ordinal() || i == NON_EXISTENT.ordinal() || i == PLACEHOLDER_AIR.ordinal();
 	}
     public static boolean AcceptsWater(int i) {
-        return i == AIR.ordinal() || IsWaterType(i); // || i == NON_EXISTENT.ordinal();
+        return i == AIR.ordinal() || i == PLACEHOLDER_AIR.ordinal() || IsWaterType(i); // || i == NON_EXISTENT.ordinal();
     }
 
 	public static boolean IsSolid(int i) {

@@ -17,10 +17,30 @@ public class BlockFaceRecord
             storage &= Direction.NegativeBitMasks[direction];
         }
     }
+    public boolean hasFaces() {
+        return storage != 0;
+    }
     public boolean getFace(int direction) {
         return 0 < (storage & Direction.BitMasks[direction]);
     }
+
+    public boolean DEBUGisOnlyXAxisFalse() {
+        return storage == 0B111100;
+    }
+    public boolean DEBUGisOnlyZAxisFalse() {
+        return storage == 0B001111;
+    }
+
+    @Override
     public String toString() {
-        return "BlockFace: " + Integer.toBinaryString(storage);
+        StringBuilder sb = new StringBuilder();
+        sb.append("BlockFaceRecord: \n");
+        for (int dir : Direction.Directions) {
+            sb.append(Direction.Names[dir]);
+            sb.append(" : ");
+            sb.append(getFace(dir));
+            sb.append("\n");
+        }
+        return sb.toString();
     }
 }

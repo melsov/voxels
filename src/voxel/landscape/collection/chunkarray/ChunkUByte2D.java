@@ -9,6 +9,7 @@ public class ChunkUByte2D extends ChunkPrimitiveType2D
     @Override
     public void Set(int val, int x, int z) {
         chunk[z * Chunk.CHUNKDIMS.x + x] = (byte)val;
+//        chunk[z * Chunk.CHUNKDIMS.x + x] = (byte)val;
     }
     @Override
     public int Get(int x, int z) {

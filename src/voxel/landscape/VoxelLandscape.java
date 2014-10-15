@@ -16,6 +16,7 @@ import com.jme3.scene.CameraNode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
+import com.jme3.scene.debug.Arrow;
 import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.Image;
@@ -349,9 +350,6 @@ public class VoxelLandscape extends SimpleApplication
 
         materialLibrarian = new MaterialLibrarian(assetManager);
 
-        initColumnDataThreadExecutorServiceCHUNKWISE();
-        initChunkMeshBuildThreadExecutorService();
-
         setupTestStateVariables();
         Chunk.USE_TEST_GEOMETRY = DO_USE_TEST_GEOMETRY;
         inputManager.setCursorVisible(false);
@@ -365,10 +363,15 @@ public class VoxelLandscape extends SimpleApplication
         player = new Player(terrainMap, cam, audio, this, overlayNode, rootNode);
         rootNode.attachChild(player.getPlayerNode());
 
+        attachCoordinateGrid(4,4);
+
         setupSkyTexture();
         setupInfoView();
         setupPlayerDebugHat();
-        makeInitialWorld();
+
+        initColumnDataThreadExecutorServiceCHUNKWISE();
+        initChunkMeshBuildThreadExecutorService();
+        makeInitialWorld(); //TODO: ORDER OF THESE TWO/THREE MATTERS RIGHT NOW—AND SHOULDN'T
 
         setupInputs();
         setupWASDInput();
@@ -431,7 +434,8 @@ public class VoxelLandscape extends SimpleApplication
         inputManager.addMapping("Right", new KeyTrigger(KeyInput.KEY_J));
         inputManager.addMapping("Left", new KeyTrigger(KeyInput.KEY_L));
         inputManager.addMapping("Inventory", new KeyTrigger(KeyInput.KEY_E));
-        inputManager.addListener(player.getUserInputListener(), "Break", "Place", "GoHome", "Up", "Down", "Right", "Left", "Inventory");
+        inputManager.addMapping("DebugBlock", new KeyTrigger(KeyInput.KEY_B));
+        inputManager.addListener(player.getUserInputListener(), "Break", "Place", "GoHome", "Up", "Down", "Right", "Left", "Inventory", "DebugBlock");
     }
 
     private void setupWASDInput() {
@@ -465,7 +469,49 @@ public class VoxelLandscape extends SimpleApplication
 
     //<editor-fold desc="DEBUG AND HELPER METHODS">
     //region Debug and helper
+    private void attachCoordinateGrid(int maxX, int maxZ) {
+        for (int x = 0; x < maxX; x++) {
+            for (int z = 0; z < maxZ; ++z) {
+                attachCoordinateAxes(new Vector3f(x * Chunk.XLENGTH, 0, z * Chunk.ZLENGTH));
+            }
+        }
+    }
 
+    private void attachCoordinateAxes(Vector3f pos){
+        Arrow arrow = new Arrow(Vector3f.UNIT_X.clone().mult(16f));
+        arrow.setLineWidth(4); // make arrow thicker
+        putShape(arrow, ColorRGBA.Red).setLocalTranslation(pos);
+
+        Vector3f yArrowV = Vector3f.UNIT_Y.clone().mult(16f);
+        arrow = new Arrow(yArrowV);
+        arrow.setLineWidth(4); // make arrow thicker
+        putShape(arrow, ColorRGBA.Green).setLocalTranslation(pos);
+
+        arrow = new Arrow(yArrowV);
+        arrow.setLineWidth(4); // make arrow thicker
+        putShape(arrow, ColorRGBA.Yellow).setLocalTranslation(pos.add(yArrowV));
+
+        arrow = new Arrow(yArrowV);
+        arrow.setLineWidth(4); // make arrow thicker
+        putShape(arrow, ColorRGBA.Pink).setLocalTranslation(pos.add(yArrowV.mult(2f)));
+
+        arrow = new Arrow(yArrowV);
+        arrow.setLineWidth(4); // make arrow thicker
+        putShape(arrow, ColorRGBA.Magenta).setLocalTranslation(pos.add(yArrowV.mult(3f)));
+
+        arrow = new Arrow(Vector3f.UNIT_Z.clone().mult(16f));
+        arrow.setLineWidth(4); // make arrow thicker
+        putShape(arrow, ColorRGBA.Blue).setLocalTranslation(pos);
+    }
+    private Geometry putShape(Mesh shape, ColorRGBA color){
+        Geometry g = new Geometry("coordinate axis", shape);
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.getAdditionalRenderState().setWireframe(true);
+        mat.setColor("Color", color);
+        g.setMaterial(mat);
+        rootNode.attachChild(g);
+        return g;
+    }
 /*
      * Debug and helper methods
      */

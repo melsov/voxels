@@ -23,6 +23,7 @@ public class ChunkBuilder
 {
 	public static void buildMesh(Chunk chunk, MeshSet mset, MeshSet waterMSet, boolean lightOnly, boolean liquidOnly)
 	{
+        Asserter.assertFalseAndDie("not calling build mesh in chunk builder");
 		int xin = 0, yin = 0, zin = 0;
 		Coord3 posi;
 		int triIndex = 0, waterTriIndex = 0;

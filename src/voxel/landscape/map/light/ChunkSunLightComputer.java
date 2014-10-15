@@ -28,7 +28,7 @@ public class ChunkSunLightComputer
 		
 		for(int z=z1; z<z2; z++) {
 			for(int x=x1; x<x2; x++) {
-				SunLightComputer.ComputeRayAtPosition(map, x, z);
+				SunLightComputer.ComputeRayAtPosition(map, x, z, false);
 			}
 		}
 	}

@@ -18,8 +18,8 @@ public class SunLightComputer {
 	
 	private static ArrayList<Coord3> list = new ArrayList<Coord3>();
 
-	public static void ComputeRayAtPosition(TerrainMap map, int x, int z) {
-		int maxY = map.GetMaxY( x, z );
+	public static void ComputeRayAtPosition(TerrainMap map, int x, int z, boolean forceLookup) {
+		int maxY = map.GetMaxY(x, z, forceLookup);
 		map.GetSunLightmap().SetSunHeight(maxY+1, x, z);
 	}
 	
@@ -47,7 +47,7 @@ public class SunLightComputer {
 	public static void RecomputeLightAtPosition(TerrainMap map, Coord3 pos) {
 		SunLightMap lightmap = map.GetSunLightmap();
 		int oldSunHeight = lightmap.GetSunHeight(pos.x, pos.z);
-		ComputeRayAtPosition(map, pos.x, pos.z);
+		ComputeRayAtPosition(map, pos.x, pos.z, true);
 		int newSunHeight = lightmap.GetSunHeight(pos.x, pos.z);
 		if(newSunHeight < oldSunHeight) { //sun reaching further down
 			list.clear();

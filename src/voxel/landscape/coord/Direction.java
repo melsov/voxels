@@ -72,6 +72,9 @@ public class Direction {
             new Coord3(0, 0, -1),
             new Coord3(0, 0, 1),
     };
+    public static String[] Names = new String[] {
+            "XNEG", "XPOS", "YNEG", "YPOS", "ZNEG", "ZPOS"
+    };
     public static final Vector3f UNIT_XZ = new Vector3f(1f, 0f, 1f);
 
     public static int OppositeDirection(int dir) {

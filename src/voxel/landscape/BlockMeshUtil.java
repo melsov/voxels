@@ -23,51 +23,14 @@ public class BlockMeshUtil
 		 */
 		BlockMeshUtil.FaceVertices(mset, pos, direction);
 		BlockMeshUtil.UVsForDirection(mset, direction, blockType);
-//		BlockMeshUtil.TexCoordOffsetsForBlockTypePREPURGE(mset, blockType, direction);
 		BlockMeshUtil.FaceNormalsForDirection(mset,direction);
 		BlockMeshUtil.IndicesForDirection(mset, triIndexStart);
 	}
 	
-	public static void AddFaceMeshLightData(Coord3 pos, MeshSet mset, int direction, TerrainMap terrainData)
-	{
+	public static void AddFaceMeshLightData(Coord3 pos, MeshSet mset, int direction, TerrainMap terrainData) {
 		BuildFaceLight(direction, terrainData, pos, mset);  
 	}
-	
-	private static void TexCoordOffsetsForBlockTypePREPURGE(MeshSet mset, int btype, int dir)
-	{
-		Vector2f ret = new Vector2f(0f,0f);
-		if (BlockType.DIRT.equals(btype)) {
-			ret.y = .25f;
-		}
-		else if (BlockType.GRASS.equals(btype) && dir != Direction.YPOS) {
-			if (dir != Direction.YNEG) ret.y = .75f;
-			else ret.y = .25f;
-		}
-		else if (BlockType.SAND.equals(btype)) {
-			ret.x = .25f;
-			ret.y = .75f;
-		} 
-		else if (BlockType.STONE.equals(btype)) {
-			ret.x = .25f;
-			ret.y = .25f;
-		}
-		else if (BlockType.CAVESTONE.equals(btype)) {
-			ret.x = .75f;
-			ret.y = .25f;
-		}
-        else if (BlockType.LANTERN.equals(btype)) {
-            ret.x = .5f;
-            ret.y = .75f;
-        }
-        else if (BlockType.WATER.equals(btype) || BlockType.WATER_RUNOFF.equals(btype)) {
-            ret.x = .75f;
-            ret.y = .75f;
-        }
-		else if (BlockType.BEDROCK.equals(btype)) {
-			ret.x = .75f;
-		}
-		mset.texMapOffsets.addAll(Arrays.asList(ret,ret,ret,ret));
-	}
+
     private static Vector2f TexCoordOffsetsForBlockType(MeshSet mset, int btype, int dir)
     {
         Vector2f ret = new Vector2f(0f,0f);
@@ -101,8 +64,11 @@ public class BlockMeshUtil
         else if (BlockType.BEDROCK.equals(btype)) {
             ret.x = .75f;
         }
+        else if (BlockType.PLACEHOLDER_AIR.equals(btype)) {
+            ret.x = .5f;
+            ret.y = .5f;
+        }
         return ret;
-//        mset.texMapOffsets.addAll(Arrays.asList(ret,ret,ret,ret));
     }
 	private static void FaceNormalsForDirection(MeshSet mset, int dir) {
 		int axis = Direction.AxisForDirection(dir);
@@ -134,18 +100,13 @@ public class BlockMeshUtil
 			mset.indices.add(i + triIndexStart);
 		}
 	}
-	
-//	private static void UVsForDirection(MeshSet mset, int dir) {
-//		BlockMeshUtil.UVsForDirection(mset, dir, 1, 1);
-//	}
-	
 	private static void UVsForDirection(MeshSet mset, int dir, byte blockType) // int height, int width)
 	{
 //		if (Direction.AxisForDirection(dir) == Axis.Y) {
 //			mset.uvs.addAll(Arrays.asList(new Vector2f(0,0),new Vector2f(width,0),new Vector2f(width,height),new Vector2f(0,height)));
 //			return;
 //		}
-		//HACK FLIP HEIGHT AND WIDTH?? // TODO: FIGURE THIS WHOLE THING A LITTLE MORE...
+		//HACK FLIP HEIGHT AND WIDTH?? //
 //		mset.uvs.addAll(Arrays.asList(new Vector2f(0,0),new Vector2f(0,height),new Vector2f(width,height),new Vector2f(width,0)));
         Vector2f offsetStart = TexCoordOffsetsForBlockType(mset, blockType, dir);
         mset.uvs.addAll(Arrays.asList(

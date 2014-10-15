@@ -1,7 +1,7 @@
 package voxel.landscape.chunkbuild.blockfacefind.floodfill.chunkslice;
 
-import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
+import voxel.landscape.coord.Direction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,14 +21,46 @@ public class ChunkSlice
     public int getDirection() { return direction; }
     private List<ChunkSliceBlockSet> blockSets = new ArrayList<ChunkSliceBlockSet>(3);
 
-    public void addCoord(Coord2 co){
-
+    public ChunkSlice(Coord3 _chunkCoord, int _direction) {
+        chunkCoord = _chunkCoord; direction = _direction;
     }
+
+    public void addCoord(Coord3 co){
+        ChunkSliceBlockSet addedToSliceBlockSet = null;
+        for (int i = 0; i < blockSets.size(); ++i) {
+            ChunkSliceBlockSet chunkSliceBlockSet = blockSets.get(i);
+            if (addedToSliceBlockSet == null) {
+                if (chunkSliceBlockSet.addCoord(co)) {
+                    addedToSliceBlockSet = chunkSliceBlockSet;
+                }
+            } else {
+                if (chunkSliceBlockSet.isCoordAdjacent(co)) {
+                    addedToSliceBlockSet.addMembersOfSet(chunkSliceBlockSet);
+                    blockSets.remove(i--);
+                }
+            }
+        }
+        if (addedToSliceBlockSet == null) {
+            blockSets.add(new ChunkSliceBlockSet(co, Direction.AxisForDirection(direction)));
+        }
+    }
+
     public Coord3 removeNext() {
         if (blockSets.size() == 0) return null;
         return blockSets.remove(0).getSeed();
     }
     public int size() {
         return blockSets.size();
+    }
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("ChunkSlice: Chunk coord: ");
+        sb.append(chunkCoord.toString());
+        sb.append(" block set size: ");
+        sb.append(blockSets.size());
+        sb.append(" direction: ");
+        sb.append(direction);
+        return sb.toString();
     }
 }

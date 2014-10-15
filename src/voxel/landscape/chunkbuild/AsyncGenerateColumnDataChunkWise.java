@@ -6,7 +6,6 @@ import voxel.landscape.map.TerrainMap;
 import voxel.landscape.map.light.ChunkSunLightComputer;
 import voxel.landscape.map.water.ChunkWaterLevelComputer;
 import voxel.landscape.noise.TerrainDataProvider;
-import voxel.landscape.player.B;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -41,22 +40,17 @@ public class AsyncGenerateColumnDataChunkWise implements Runnable // extends Res
     public void run() {
         while(keepGoing.get()) {
             Coord3 chunkCoord = null;
-            B.bugln("running chunk wise async col gen");
             try {
                 chunkCoord = chunksCoordsThatNeedColumnData.take(); //thread will block while nothing is available...maybe forever...
                 x = chunkCoord.x; z = chunkCoord.z;
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            B.bugln("got a coord: " + chunkCoord.toString());
             if (columnMap.SetIsBuildingOrReturnFalseIfStartedAlready(x,z)) {
-//            if (!columnMap.IsBuiltOrIsBuilding(x,z)) {
-//                columnMap.SetBuildingData(x, z);
-                B.bugln("needed col data at: " + chunkCoord.toString());
                 terrainMap.generateNoiseForChunkColumn(x, z, dataProvider);
                 ChunkSunLightComputer.ComputeRays(terrainMap, x, z);
 
-                if (!keepGoing.get()) break; // PREVENT HANG WHEN QUITTING?
+                if (!keepGoing.get()) break; // SEEMS TO PREVENT HANG WHEN QUITTING
 
                 ChunkSunLightComputer.Scatter(terrainMap, columnMap, x, z);
                 ChunkWaterLevelComputer.Scatter(terrainMap, columnMap, x, z);
