@@ -26,7 +26,7 @@ public class AsyncGenerateColumnData extends ResponsiveRunnable
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        terrainMap.generateNoiseForChunkColumn(x,z, dataProvider);
+        terrainMap.generateNoiseForChunkColumn(x,z, dataProvider, null);
 		ChunkSunLightComputer.ComputeRays(terrainMap, x, z);
 		ChunkSunLightComputer.Scatter(terrainMap, columnMap, x, z); //TEST WANT
 	}

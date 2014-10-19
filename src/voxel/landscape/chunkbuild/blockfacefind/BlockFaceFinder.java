@@ -21,7 +21,9 @@ public class BlockFaceFinder {
         floodFill = new FloodFill4D(_map, _cam, floodFilledChunkCoords, new AtomicBoolean(false));
     }
     public void floodFind() {
-        floodFill.flood(false);
+        Thread thread = new Thread(floodFill);
+        thread.start();
+//        floodFill.flood(false);
     }
 
 }

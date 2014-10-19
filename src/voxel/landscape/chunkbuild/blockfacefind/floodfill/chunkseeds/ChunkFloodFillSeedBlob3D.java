@@ -8,14 +8,17 @@ import java.util.HashSet;
 
 /**
  * Created by didyouloseyourdog on 10/14/14.
+ * A collection of 'chunk local' block coords that
+ * are all contiguous, where contiguity is valid in
+ * any direction x, y or z
  */
-public class ChunkFloodFillSeed {
+public class ChunkFloodFillSeedBlob3D {
 
     private Coord3 seed;
     public Coord3 getSeed() { return  seed; }
     public final HashSet<ChunkLocalCoord> coords = new HashSet<ChunkLocalCoord>(128);
 
-    public ChunkFloodFillSeed(Coord3 _seed) {
+    public ChunkFloodFillSeedBlob3D(Coord3 _seed) {
         seed = _seed;
         coords.add(new ChunkLocalCoord(seed));
     }
@@ -28,7 +31,7 @@ public class ChunkFloodFillSeed {
         return false;
     }
 
-    public void addMembersOfSet(ChunkFloodFillSeed other) {
+    public void addMembersOfSet(ChunkFloodFillSeedBlob3D other) {
         coords.addAll(other.coords);
     }
 

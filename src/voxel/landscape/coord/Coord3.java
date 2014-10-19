@@ -127,10 +127,14 @@ public class Coord3 implements ICoordXZ
         return x==other.x && y==other.y && z==other.z;
     }
 
-    /* chunk y ranges btwn -1 and 16, local block coords x,y,z are between -1 and 16. so y
+    /* hashCode method that's tailored to collection classes in the voxel engine.
+     * I.e. collections of blocks in a chunk (local coords) and collections of
+     * chunks (chunk coords). DOES NOT work for collections of global block coords
+     * but non exist in this program.
+     * chunk y ranges btwn -1 and 16, local block coords x,y,z are between -1 and 16. so y
      * never needs more than 18 (-1 through 16) values which we can cover with 5 bits (2^5 = 32)
      * so 'skimp' appropriately on y's bits... (only need first 5)
-      */
+     */
     @Override
     public int hashCode() {
         return (z & Integer.MIN_VALUE) | ((y & Integer.MIN_VALUE) >>> 1 ) | ((x & Integer.MIN_VALUE) >>> 2 ) |

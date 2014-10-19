@@ -9,17 +9,21 @@ import voxel.landscape.chunkbuild.blockfacefind.ChunkBlockFaceCoord;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
 import voxel.landscape.map.TerrainMap;
+import voxel.landscape.player.B;
+import voxel.landscape.util.Asserter;
 
-import java.util.HashMap;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by didyouloseyourdog on 10/2/14.
  */
 public class ChunkBlockFaceMap {
 
-    private volatile Map<ChunkBlockFaceCoord, BlockFaceRecord> faces = new HashMap<ChunkBlockFaceCoord, BlockFaceRecord>(16*16*4);
+//    private volatile Map<ChunkBlockFaceCoord, BlockFaceRecord> faces = new HashMap<>(16*16*4);
+    private volatile ConcurrentHashMap<ChunkBlockFaceCoord, BlockFaceRecord> faces = new ConcurrentHashMap<>(16*16*4);
     public volatile boolean deleteDirty; //True is face(s) has been deleted and map hasn't yet re-meshed
 
     private Map<ChunkBlockFaceCoord, BlockFaceRecord> getFaces() {
@@ -43,7 +47,10 @@ public class ChunkBlockFaceMap {
                 faceMap = getFaces();
             } else {
                 Chunk neighbor = map.GetChunk(Chunk.ToChunkPosition(global.add(Direction.DirectionCoords[dir])));
-                faceMap = neighbor.chunkBlockFaceMap.getFaces();
+                if (neighbor == null) {
+                    Asserter.assertFalseAndDie("null chunk!");
+                }
+                faceMap = neighbor.chunkBlockFaceMap.getFaces(); // TODO: FIX NULL P EXCEPTION HERE
             }
             BlockFaceRecord blockFaceRecord = faceMap.get(new ChunkBlockFaceCoord(localNudge));
             if (blockFaceRecord == null) {
@@ -109,11 +116,19 @@ public class ChunkBlockFaceMap {
         int triIndex = 0, waterTriIndex = 0;
 
         Iterator<Map.Entry<ChunkBlockFaceCoord, BlockFaceRecord>> iterator = chunk.chunkBlockFaceMap.iterator();
+//        Map<ChunkBlockFaceCoord, BlockFaceRecord> faces = chunk.chunkBlockFaceMap.getFaces();
         while (iterator.hasNext())
         {
-            Map.Entry<ChunkBlockFaceCoord, BlockFaceRecord> entry = iterator.next();
+            Map.Entry<ChunkBlockFaceCoord, BlockFaceRecord> entry = null;
+            try {
+                entry = iterator.next();
+            } catch (ConcurrentModificationException e) {
+                B.bug("concurrent modif exception with chunk Coord: " + chunk.position.toString());
+                e.printStackTrace();
+                Asserter.assertFalseAndDie("death");
+            }
             ChunkBlockFaceCoord blockFaceCoord = entry.getKey();
-            BlockFaceRecord faceRecord = entry.getValue();
+            BlockFaceRecord faceRecord =  entry.getValue(); //faces.get(blockFaceCoord);
             Coord3 blockWorldCoord = worldCoord.add(blockFaceCoord.toCoord3());
 
             byte blockType = (byte) map.lookupOrCreateBlock(blockWorldCoord);

@@ -236,7 +236,7 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
         chunkMeshBuildingSet.isOnlyLight = onlyLight;
         chunkMeshBuildingSet.chunkPosition = chunk.position;
 
-        chunk.getTerrainMap().getApp().enqueueChunkMeshSets(chunkMeshBuildingSet);
+        chunk.getTerrainMap().getApp().getWorldGenerator().enqueueChunkMeshSets(chunkMeshBuildingSet);
 
     }
 

@@ -2,6 +2,7 @@ package voxel.landscape.chunkbuild.blockfacefind.floodfill.chunkslice;
 
 import voxel.landscape.coord.Box;
 import voxel.landscape.coord.Coord3;
+import voxel.landscape.player.B;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +42,21 @@ public class ChunkSliceBag {
         if (slices.size() == 0) return null;
         return slices.remove(0);
     }
+    public List<ChunkSlice> getSlices() { return slices; }
+    public ChunkSlice remove(int index) {
+        return slices.remove(index);
+    }
     public int size() { return slices.size(); }
+
+    public void debugListSlices() {
+        StringBuilder sb = new StringBuilder(120);
+        sb.append("Chunk Slice Bag:: \n");
+        for(ChunkSlice chunkSlice : slices) {
+            sb.append(chunkSlice.getChunkCoord().toString());
+            sb.append("\n");
+        }
+        B.bugln(sb.toString());
+    }
 
 
 }

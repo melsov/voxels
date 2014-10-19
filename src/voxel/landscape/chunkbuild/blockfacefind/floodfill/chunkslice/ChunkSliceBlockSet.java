@@ -1,5 +1,6 @@
 package voxel.landscape.chunkbuild.blockfacefind.floodfill.chunkslice;
 
+import voxel.landscape.Chunk;
 import voxel.landscape.coord.ChunkLocalCoord;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
@@ -20,9 +21,10 @@ public class ChunkSliceBlockSet
         coords.add(new ChunkLocalCoord(seed));
     }
 
-    public boolean addCoord(Coord3 co) {
-        if (isCoordAdjacent(co)) {
-            coords.add(new ChunkLocalCoord(co));
+    public boolean addCoord(Coord3 global) {
+        Coord3 local = Chunk.toChunkLocalCoord(global);
+        if (isCoordAdjacent(local)) {
+            coords.add(new ChunkLocalCoord(local));
             return true;
         }
         return false;
@@ -32,9 +34,10 @@ public class ChunkSliceBlockSet
         coords.addAll(other.coords);
     }
 
-    public boolean isCoordAdjacent(Coord3 co) {
+    public boolean isCoordAdjacent(Coord3 global) {
+        Coord3 local = Chunk.toChunkLocalCoord(global);
         for(Coord3 nudge : Direction.NudgeDirectionsNormalToAxis(axis)) {
-            if (coords.contains(new ChunkLocalCoord(co.add(nudge)))) {
+            if (coords.contains(new ChunkLocalCoord(local.add(nudge)))) {
                 return true;
             }
         }

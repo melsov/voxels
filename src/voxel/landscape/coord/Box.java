@@ -59,9 +59,12 @@ public class Box {
     }
 
     public static Box WorldCoordBoxForChunkAtWorldCoord(Chunk chunk) {
-        return new Box(chunk.originInBlockCoords(), Chunk.CHUNKDIMS);
+        return Box.WorldCoordBoxForChunkCoord(chunk.position.clone());
     }
-    public static Box WorldCoordBoxForChunkCoord(Coord3 chunkStart, Coord3 chunkEnd) {
+    public static Box WorldCoordBoxForChunkCoord(Coord3 chunkStart) {
+        return Box.WorldCoordBoxForChunkRegion(chunkStart, chunkStart.add(new Coord3(1)));
+    }
+    public static Box WorldCoordBoxForChunkRegion(Coord3 chunkStart, Coord3 chunkEnd) {
         Coord3 start = Chunk.ToWorldPosition(chunkStart);
         return new Box(start, Chunk.ToWorldPosition(chunkEnd).minus(start));
     }

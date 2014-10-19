@@ -34,6 +34,7 @@ public class ChunkFinder {
     private static List<Coord3> SurroundingCoordIncrements2D = new ArrayList<Coord3>();
     private static List<Coord3> OrthoCoordIncrements3D = new ArrayList<Coord3>();
     private static List<Coord3> DiagonalCoordIncrements3D = new ArrayList<Coord3>();
+    private static List<Coord3> TestColumnCoords = new ArrayList<Coord3>();
 
     public static Vector3f DebugPosition = new Vector3f();
 
@@ -45,6 +46,14 @@ public class ChunkFinder {
         SetupSurroundingCoordLook2D();
         SetupOrthoCoordLook3D();
         SetupDiagonalCoordLook3D();
+        SetupTestColumCoords();
+    }
+    private static void SetupTestColumCoords() {
+        for(int x = 0; x < 4; ++x) {
+            for(int z=0; z < 4; ++z) {
+                TestColumnCoords.add(new Coord3(x, 0, z));
+            }
+        }
     }
     private static void SetupLookDirections() {
         Quaternion q = Quaternion.IDENTITY.clone();
@@ -243,8 +252,14 @@ public class ChunkFinder {
         return ClosestChunk(cam, terrainMap, columnMap);
     }
 
+    private static int TestColumnIndex = 0;
     public static Coord3 ClosestEmptyColumn(Camera cam, TerrainMap terrainMap, ColumnMap columnMap) {
-        return ClosestColumn(cam, terrainMap, columnMap);
+        if (TestColumnIndex < TestColumnCoords.size()) {
+            return TestColumnCoords.get(TestColumnIndex++);
+        }
+        return new Coord3(0);
+        // TODO: ensure we're not providing chunks that will be culled because they're far away.
+//        return ClosestColumn(cam, terrainMap, columnMap); // ***** WANT
     }
 
     private static Coord3 SignCoordXZ(Vector3f direction) {

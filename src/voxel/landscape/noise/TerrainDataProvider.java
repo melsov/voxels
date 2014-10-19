@@ -7,7 +7,9 @@ import com.sudoplay.joise.module.ModuleCombiner.CombinerType;
 import com.sudoplay.joise.module.ModuleFractal.FractalType;
 import voxel.landscape.BlockType;
 import voxel.landscape.Chunk;
+import voxel.landscape.coord.Box;
 import voxel.landscape.coord.Coord2;
+import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;
 
 import javax.imageio.ImageIO;
@@ -62,17 +64,52 @@ public class TerrainDataProvider {
         } else {
             seed = -21234;
             setupModule();
+//            setupModuleBIG();
         }
     }
 
     public int getBlockDataAtPosition(int xin, int yin, int zin) {
+//        return fakeCaveWithBox(xin, yin, zin);
 //        return testNoise(xin, yin, zin);
+        if (fakeCave(xin, yin, zin)) return BlockType.LANTERN.ordinal();
 
         double r = noiseModule.get(
                 xin / WORLD_TO_HORIZONTAL_NOISE_SCALE,
                 (WORLD_TO_VERTICAL_NOISE_SCALE - yin) / WORLD_TO_VERTICAL_NOISE_SCALE,
                 zin / WORLD_TO_HORIZONTAL_NOISE_SCALE);
         return r < 0.001 ? BlockType.AIR.ordinal() : (int) r;
+    }
+    public class BorderBox {
+        public Box box;
+        public BorderBox(Box b) {
+            box = b;
+        }
+        public boolean isOnBorder(Coord3 co) {
+            return box.contains(co) && (box.start.x == co.x || box.start.y == co.y || box.start.z == co.z ||
+                    box.extent().x - 1 == co.x || box.extent().y - 1 == co.y || box.extent().z - 1  == co.z);
+        }
+    }
+    private static BorderBox fakeCaveBorderBox;
+    public BorderBox getFakeCaveBorderBox() {
+        if (fakeCaveBorderBox == null) fakeCaveBorderBox = new BorderBox(new Box(new Coord3(0, 0, 12), new Coord3(6,6,22)));
+        return fakeCaveBorderBox;
+    }
+    private int fakeCaveWithBox(int x, int y, int z) {
+        if (y < 4) return BlockType.GRASS.ordinal();
+        if (getFakeCaveBorderBox().isOnBorder(new Coord3(x,y,z))) {
+            if ((x == 0 && y > 0) || (x == 1 && y > 12)) {
+                return BlockType.AIR.ordinal();
+            }
+            return BlockType.LANTERN.ordinal();
+        }
+        return BlockType.AIR.ordinal();
+    }
+    private boolean fakeCave(int xin, int yin, int zin) {
+        Coord3 dims = new Coord3(12, 8, 32);
+        Box box = new Box (new Coord3(10, 40, 0), dims);
+        Coord3 co = new Coord3(xin, yin, zin);
+        return box.contains(co);
+
     }
     private int testNoise(int x, int y, int z) {
 //        if  ( (x & 15 + x & 7) + (z & 15 + z & 7) + y < 54) return 3;

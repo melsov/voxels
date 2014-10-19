@@ -2,11 +2,13 @@ package voxel.landscape.chunkbuild;
 
 import voxel.landscape.collection.ColumnMap;
 import voxel.landscape.coord.Coord2;
+import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.map.light.ChunkSunLightComputer;
 import voxel.landscape.map.water.ChunkWaterLevelComputer;
 import voxel.landscape.noise.TerrainDataProvider;
 
+import java.util.HashSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -24,11 +26,15 @@ public class AsyncGenerateColumnDataInfinite implements Runnable // extends Resp
     private TerrainDataProvider dataProvider = new TerrainDataProvider();
     BlockingQueue<Coord2> columnsToBeBuilt;
     AtomicBoolean keepGoing;
+
+    private HashSet<Coord3> touchedChunkCoords;
+
     public AsyncGenerateColumnDataInfinite(final TerrainMap _terrainMap, final ColumnMap _columnMap, final BlockingQueue<Coord2> _columnsToBeBuilt, AtomicBoolean _keepGoing) {
         columnsToBeBuilt = _columnsToBeBuilt;
         columnMap = _columnMap;
         terrainMap = _terrainMap;
         keepGoing = _keepGoing;
+        touchedChunkCoords = new HashSet<>(terrainMap.getMaxChunkCoordY() - terrainMap.getMaxChunkCoordY());
     }
     @Override
     public void run() {
@@ -39,14 +45,31 @@ public class AsyncGenerateColumnDataInfinite implements Runnable // extends Resp
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            columnMap.SetBuildingData(x,z);
-            terrainMap.generateNoiseForChunkColumn(x, z, dataProvider);
-            ChunkSunLightComputer.ComputeRays(terrainMap, x, z);
-            if (keepGoing.get()) { //PREVENT FREEZE AT END OF RUN??
+
+            if (columnMap.SetIsBuildingOrReturnFalseIfStartedAlready(x,z)) {
+                touchedChunkCoords.clear();
+                terrainMap.generateNoiseForChunkColumn(x, z, dataProvider, touchedChunkCoords);
+                terrainMap.populateFloodFillSeedsUpdateFaceMapsInChunkColumn(x, z, dataProvider, touchedChunkCoords); // ORDER OF THIS LINE AND THE COMPUTER LINES MATTERS! TODO: FIX
+
+//                try {
+//                    sleep(2000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+                ChunkSunLightComputer.ComputeRays(terrainMap, x, z);
+
+                if (!keepGoing.get()) break; //PREVENT FREEZE AT END OF RUN??
+
                 ChunkSunLightComputer.Scatter(terrainMap, columnMap, x, z);
                 ChunkWaterLevelComputer.Scatter(terrainMap, columnMap, x, z);
                 columnMap.SetBuilt(x, z);
-                try { sleep(10); } catch (InterruptedException e) { e.printStackTrace(); }
+                try {
+                    sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                terrainMap.updateChunksToBeFlooded(touchedChunkCoords);
             }
         }
     }

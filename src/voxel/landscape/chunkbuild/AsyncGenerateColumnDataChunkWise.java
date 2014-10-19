@@ -8,6 +8,7 @@ import voxel.landscape.map.water.ChunkWaterLevelComputer;
 import voxel.landscape.noise.TerrainDataProvider;
 import voxel.landscape.player.B;
 
+import java.util.HashSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -48,8 +49,9 @@ public class AsyncGenerateColumnDataChunkWise implements Runnable // extends Res
                 e.printStackTrace();
             }
             if (columnMap.SetIsBuildingOrReturnFalseIfStartedAlready(x,z)) {
-                terrainMap.generateNoiseForChunkColumn(x, z, dataProvider);
-                terrainMap.populateFloodFillSeedsUpdateFaceMapsInChunkColumn(x,z, dataProvider); // ORDER OF THIS LINE AND THE COMPUTERS MATTER! TODO: FIX
+                HashSet<Coord3> touchedChunkCoords = new HashSet<Coord3>(terrainMap.getMaxChunkCoordY() - terrainMap.getMaxChunkCoordY());
+                terrainMap.generateNoiseForChunkColumn(x, z, dataProvider, touchedChunkCoords);
+                terrainMap.populateFloodFillSeedsUpdateFaceMapsInChunkColumn(x,z, dataProvider, touchedChunkCoords); // ORDER OF THIS LINE AND THE COMPUTERS MATTER! TODO: FIX
                 B.bug("got a chunk coord");
                 ChunkSunLightComputer.ComputeRays(terrainMap, x, z);
 
