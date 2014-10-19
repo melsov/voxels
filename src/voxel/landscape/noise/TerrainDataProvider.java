@@ -16,6 +16,8 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 //import com.sudoplay.joise.examples.Canvas;
 
@@ -69,15 +71,18 @@ public class TerrainDataProvider {
     }
 
     public int getBlockDataAtPosition(int xin, int yin, int zin) {
+        return enclosuresBorder(xin, yin, zin);
+//        return fakeTallCaveWithBoxAndAdjacentEnclosure(xin, yin, zin);
 //        return fakeCaveWithBox(xin, yin, zin);
 //        return testNoise(xin, yin, zin);
-        if (fakeCave(xin, yin, zin)) return BlockType.LANTERN.ordinal();
 
-        double r = noiseModule.get(
-                xin / WORLD_TO_HORIZONTAL_NOISE_SCALE,
-                (WORLD_TO_VERTICAL_NOISE_SCALE - yin) / WORLD_TO_VERTICAL_NOISE_SCALE,
-                zin / WORLD_TO_HORIZONTAL_NOISE_SCALE);
-        return r < 0.001 ? BlockType.AIR.ordinal() : (int) r;
+//        if (fakeCave(xin, yin, zin)) return BlockType.LANTERN.ordinal();
+//
+//        double r = noiseModule.get(
+//                xin / WORLD_TO_HORIZONTAL_NOISE_SCALE,
+//                (WORLD_TO_VERTICAL_NOISE_SCALE - yin) / WORLD_TO_VERTICAL_NOISE_SCALE,
+//                zin / WORLD_TO_HORIZONTAL_NOISE_SCALE);
+//        return r < 0.001 ? BlockType.AIR.ordinal() : (int) r;
     }
     public class BorderBox {
         public Box box;
@@ -90,9 +95,70 @@ public class TerrainDataProvider {
         }
     }
     private static BorderBox fakeCaveBorderBox;
+    private static BorderBox fakeTallCaveBorderBox;
+    private static BorderBox enclosure;
+    private static List<BorderBox> enclosures;
+    private static final int ENCLOSURE_COUNT = 8;
+    private List<BorderBox> getEnclosures() {
+        if (enclosures == null) {
+            enclosures = new ArrayList<>(ENCLOSURE_COUNT);
+            int xzdim = 8;
+            int startxz = 2;
+            int incrxz = (int) (xzdim * .75);
+            int yDim = 10;
+            for (int i = 0; i < ENCLOSURE_COUNT; ++i) {
+                BorderBox b = new BorderBox(new Box(new Coord3(startxz, 2, startxz), new Coord3(xzdim, yDim, xzdim)));
+                startxz += incrxz;
+                yDim = Math.min(50, yDim + 6);
+                enclosures.add(b);
+            }
+        }
+        return enclosures;
+    }
+    private int enclosuresBorder(int x, int y, int z) {
+        if (y < 4) return BlockType.GRASS.ordinal();
+        Coord3 co = new Coord3(x,y,z);
+        for (int i = 0 ; i < getEnclosures().size(); ++i) {
+            BorderBox bb = getEnclosures().get(i);
+            if (bb.box.contains(co)) {
+                BorderBox prevbb = null, nextbb = null;
+                if (!bb.isOnBorder(co))
+                    return BlockType.AIR.ordinal();
+                if (co.y == bb.box.extent().y - 1)
+                    return BlockType.GRASS.ordinal();
+                if (i < getEnclosures().size() - 1 && getEnclosures().get(i + 1).box.contains(co))
+                    return BlockType.AIR.ordinal();
+                if (i > 0 && getEnclosures().get(i - 1).box.contains(co))
+                    return BlockType.AIR.ordinal();
+                return (i & 1) == 1 ? BlockType.SAND.ordinal() : BlockType.STONE.ordinal();
+            }
+        }
+        return BlockType.AIR.ordinal();
+    }
     public BorderBox getFakeCaveBorderBox() {
         if (fakeCaveBorderBox == null) fakeCaveBorderBox = new BorderBox(new Box(new Coord3(0, 0, 12), new Coord3(6,6,22)));
         return fakeCaveBorderBox;
+    }
+    public BorderBox getFakeTallCaveBorderBox() {
+        if (fakeTallCaveBorderBox == null) fakeTallCaveBorderBox = new BorderBox(new Box(new Coord3(2, 0, 2), new Coord3(6,22,6)));
+        return fakeTallCaveBorderBox;
+    }
+    public BorderBox getEnclosure() {
+        if (enclosure == null) enclosure = new BorderBox(new Box(new Coord3(2, 8, 7), new Coord3(6,14,22)));
+        return enclosure;
+    }
+    private int fakeTallCaveWithBoxAndAdjacentEnclosure(int x, int y, int z) {
+        if (y < 4) return BlockType.GRASS.ordinal();
+        if (getFakeTallCaveBorderBox().isOnBorder(new Coord3(x,y,z))) {
+            if ((x == 2 && y < 21 && y > 16)) {
+                return BlockType.AIR.ordinal();
+            }
+            return BlockType.LANTERN.ordinal();
+        }
+        if (getEnclosure().isOnBorder(new Coord3(x,y,z))) {
+            return BlockType.SAND.ordinal();
+        }
+        return BlockType.AIR.ordinal();
     }
     private int fakeCaveWithBox(int x, int y, int z) {
         if (y < 4) return BlockType.GRASS.ordinal();

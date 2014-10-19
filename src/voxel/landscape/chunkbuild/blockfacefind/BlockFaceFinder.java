@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class BlockFaceFinder {
 
-    private final FloodFill4D floodFill;
+    public final FloodFill4D floodFill;
     public final BlockingQueue<Coord3> floodFilledChunkCoords = new ArrayBlockingQueue<Coord3>(456);
 
     public BlockFaceFinder(TerrainMap _map, Camera _cam) {

@@ -88,7 +88,6 @@ public class FloodFill4D implements Runnable
     }
 
     private void flood(Coord3 initialSeed) {
-        B.bugln("initial seed in FF4D: " + initialSeed.toString());
         Coord3 initialChunkCoord = Chunk.ToChunkPosition(initialSeed);
         /*
          * flood fill the initial chunk

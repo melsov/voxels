@@ -47,12 +47,12 @@ public class WorldGenerator {
 
     private Node worldNode;
     private TerrainMap map;
-    private ColumnMap columnMap;
-    public MaterialLibrarian materialLibrarian;
+    public final ColumnMap columnMap;
+    public final MaterialLibrarian materialLibrarian;
 
-    private BlockFaceFinder blockFaceFinder;
+    public final BlockFaceFinder blockFaceFinder;
 
-    public WorldGenerator(Node _worldNode, Camera _camera, TerrainMap _map, ColumnMap _columnMap, AssetManager _assetManager) {
+    public WorldGenerator(Node _worldNode, Camera _camera, TerrainMap _map, final ColumnMap _columnMap, AssetManager _assetManager) {
         worldNode = _worldNode;
         camera = _camera;
         map = _map;

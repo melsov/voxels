@@ -40,34 +40,55 @@ public class ChunkBlockFaceMap {
         Coord3 localCoord = Chunk.toChunkLocalCoord(global);
         removeAllFaces(localCoord);
         for (int dir : Direction.Directions) {
-            Coord3 localNudge = localCoord.add(Direction.DirectionCoords[dir]);
+//            Coord3 localNudge = localCoord.add(Direction.DirectionCoords[dir]);
+            Coord3 globalNudge = global.add(Direction.DirectionCoords[dir]);
             /* Which faceMap? Ours or a neighbors? */
             Map<ChunkBlockFaceCoord, BlockFaceRecord> faceMap;
-            if (Chunk.ChunkLocalBox.contains(localNudge)) {
+            if (Chunk.ChunkLocalBox.contains(localCoord.add(Direction.DirectionCoords[dir]))) {
                 faceMap = getFaces();
             } else {
-                Chunk neighbor = map.GetChunk(Chunk.ToChunkPosition(global.add(Direction.DirectionCoords[dir])));
-                if (neighbor == null) {
-                    Asserter.assertFalseAndDie("null chunk!");
-                }
+                Chunk neighbor = map.GetChunk(Chunk.ToChunkPosition(globalNudge));
+                Asserter.assertTrue(neighbor != null, "null chunk!");
                 faceMap = neighbor.chunkBlockFaceMap.getFaces(); // TODO: FIX NULL P EXCEPTION HERE
             }
+            Coord3 localNudge = Chunk.toChunkLocalCoord(globalNudge);
             BlockFaceRecord blockFaceRecord = faceMap.get(new ChunkBlockFaceCoord(localNudge));
             if (blockFaceRecord == null) {
                 /* have we revealed a solid block here? */
                 int blockType = map.lookupOrCreateBlock(global);
                 if (BlockType.IsSolid(blockType)) {
                     blockFaceRecord = new BlockFaceRecord();
-                    faceMap.put(new ChunkBlockFaceCoord(localCoord), blockFaceRecord);
-                } else {
-//                    continue;
-                    // TODO: mechanism for adding a flood fill seed here: we could be opening up a view to a cave
-                    // TODO: make this logic deal with with translucent but rendered types. glass-water, etc.
-                    // they need to render but also should cause a flood fill seed.
+                    faceMap.put(new ChunkBlockFaceCoord(localNudge), blockFaceRecord);
                 }
             }
             if (blockFaceRecord != null) {
                 blockFaceRecord.setFace(Direction.OppositeDirection(dir), true);
+            }
+        }
+    }
+    public void addExposedFacesUpdateNeighbors(Coord3 global, TerrainMap map) {
+        Coord3 localCoord = Chunk.toChunkLocalCoord(global);
+        for (int dir : Direction.Directions) {
+            Coord3 globalNudge = global.add(Direction.DirectionCoords[dir]);
+//            Coord3 localNudge = localCoord.add(Direction.DirectionCoords[dir]);
+            /* Which faceMap? Ours or a neighbors? */
+            Map<ChunkBlockFaceCoord, BlockFaceRecord> neighborFaceMap;
+
+            if (Chunk.ChunkLocalBox.contains(localCoord.add(Direction.DirectionCoords[dir]))) {
+                neighborFaceMap = getFaces();
+            } else {
+                Chunk neighbor = map.GetChunk(Chunk.ToChunkPosition(globalNudge));
+                Asserter.assertTrue(neighbor != null, "null chunk!");
+                neighborFaceMap = neighbor.chunkBlockFaceMap.getFaces();
+            }
+            Coord3 localNudge = Chunk.toChunkLocalCoord(globalNudge);
+            ChunkBlockFaceCoord neighborBFCoord = new ChunkBlockFaceCoord(localNudge);
+            BlockFaceRecord blockFaceRecord = neighborFaceMap.get(neighborBFCoord);
+
+            if (blockFaceRecord == null || !blockFaceRecord.getFace(Direction.OppositeDirection(dir))) {
+                addFace(localCoord, dir);
+            } else {
+                blockFaceRecord.setFace(Direction.OppositeDirection(dir), false);
             }
         }
     }
@@ -78,7 +99,6 @@ public class ChunkBlockFaceMap {
     }
     public void removeFace(Coord3 localCoord, int direction) {
         setFace(localCoord, direction, false);
-
     }
     public void addFace(Coord3 localCoord, int direction) {
         setFace(localCoord, direction, true);

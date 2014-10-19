@@ -1,9 +1,7 @@
 package voxel.landscape.chunkbuild.blockfacefind.floodfill.chunkseeds;
 
-import com.jme3.math.ColorRGBA;
 import voxel.landscape.Chunk;
 import voxel.landscape.coord.Coord3;
-import voxel.landscape.debug.DebugGeometry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +37,6 @@ public class ChunkFloodFillSeedSet {
         }
         if (adjacentFloodFillSeed == null) {
             seeds.add(new ChunkFloodFillSeedBlob3D(local));
-            DebugGeometry.addDebugBlock(global, ColorRGBA.Magenta);
         }
     }
 

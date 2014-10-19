@@ -124,15 +124,15 @@ public class Direction {
             1 << ZNEG,
             1 << ZPOS
     };
-    public static int[] NegativeBitMasks = new int[6];
+    public static int[] NegativeBitMasks = new int[] {
+            0b111110,
+            0b111101,
+            0b111011,
+            0b110111,
+            0b101111,
+            0b011111
+    };
 
-    static {
-        for (int i = XNEG; i <= ZPOS; ++i) {
-            NegativeBitMasks[i] = BitMasks[i] ^ Integer.MIN_VALUE;
-        }
-    }
-
-    ;
 
     public static String ToString(int dir) {
 

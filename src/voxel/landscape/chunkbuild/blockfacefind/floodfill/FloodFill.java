@@ -7,7 +7,6 @@ import voxel.landscape.chunkbuild.blockfacefind.floodfill.chunkslice.ChunkSlice;
 import voxel.landscape.coord.Box;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
-import voxel.landscape.debug.DebugGeometry;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.player.B;
 import voxel.landscape.util.Asserter;
@@ -71,9 +70,9 @@ public class FloodFill
             }
 //            if (yNegChunkSliceNext.size() == 0) break;
             slice = yNegChunkSliceNext;
-            if (yCoordIter == 0) {
-                chunkSliceShell[Direction.YNEG] = yNegChunkSliceNext;
-            }
+//            if (yCoordIter == 0) {
+//                chunkSliceShell[Direction.YNEG] = yNegChunkSliceNext;
+//            }
             yCoordIter--;
         }
         yCoordIter = seed_Y;
@@ -85,9 +84,9 @@ public class FloodFill
             }
             if (yPosChunkSliceNext.size() == 0) break;
             slice = yPosChunkSliceNext;
-            if (yCoordIter == Chunk.YLENGTH - 1) {
-                chunkSliceShell[Direction.YPOS] = yPosChunkSliceNext;
-            }
+//            if (yCoordIter == Chunk.YLENGTH - 1) {
+//                chunkSliceShell[Direction.YPOS] = yPosChunkSliceNext;
+//            }
             yCoordIter++;
         }
         return didAddFacesSeed | didAddFacesNeg | didAddFacesPos;
@@ -150,7 +149,6 @@ public class FloodFill
 
         while(seeds.size() > 0) {
             Coord3 seed = seeds.remove(0);
-            B.bugln("FFSCANLINES. another seed at: " + seed.toString());
             z1 = seed.z;
             Coord3 lessZNEGCoord;
             while (true) {
@@ -192,23 +190,23 @@ public class FloodFill
                     Asserter.assertFalseAndDie("death by iteration: z1 : " + z1 + "chunk box: " + chunkBox.toString());
                     return didAddFaces; // *****!!TEST!!
                 }
-                else if (testSafteyIterCount > 0 && testSafteyIterCount < 220) {
-//                    DebugGeometry.addDebugBlock(new Coord3(seed.x, seed.y, z1), DebugColorPlus(ColorRGBA.Blue, z1));
-                }
+
                 //#TEST
 
+                /*
+                 * Look up the current block. And possibly set it in the map as a side effect.
+                 */
                 getCurrentWasIsWithin(new Coord3(seed.x, seed.y, z1), seedChunk, thisCoordWasIs, (byte) untouchedType);
-//                if (thisCoordWasIs[1] == BlockType.PLACEHOLDER_AIR.ordinal()) {
-//                    seedChunk.setBlockAt((byte) BlockType.AIR.ordinal(), Chunk.toChunkLocalCoord(seed.x, seed.y, z1) );
-//                } else
+                // Place holder air is no longer needed (or wanted)
+                if (thisCoordWasIs[1] == BlockType.PLACEHOLDER_AIR.ordinal()) {
+                    map.setBlockAtWorldCoord((byte) BlockType.AIR.ordinal(),new Coord3(seed.x, seed.y, z1) );
+                }
+
+                /*
+                 * ZPOS: hit a wall?
+                 * */
                 if (BlockType.IsSolid(thisCoordWasIs[1])) {
                     addFace(seedChunk, chunkBox, new Coord3(seed.x, seed.y, z1), Direction.ZNEG);
-                    //TEST!!
-                    if (testSafteyIterCount > 0 && testSafteyIterCount < 220) {
-                        DebugGeometry.addDebugBlock(new Coord3(seed.x, seed.y, z1 - 1), ColorRGBA.Orange);
-                    }
-                    //#TEST
-
                     break;
                 }
 
@@ -274,14 +272,9 @@ public class FloodFill
                     if (ShouldSeedBlock(yNEGWasIs)) {
                         if (seed.y == yAreaStart) {
                             chunkSliceFromShell(chunkSliceShell, Direction.YNEG).addCoord(yNegNeighbor);
-                            DebugGeometry.addDebugBlock(yNegNeighbor, ColorRGBA.Red);
                         } else {
                             yNegChunkSlice.addCoord(yNegNeighbor);
                         }
-                    }
-                    //DEBUG
-                    else if (seed.y == yAreaStart) {
-                        DebugGeometry.addDebugSphere(yNegNeighbor, ColorRGBA.Black, .5f);
                     }
                 }
                 if (BlockType.IsSolid(yNEGWasIs[1])) {
@@ -318,13 +311,6 @@ public class FloodFill
                     if (BlockType.IsSolid(zPOSWasIs[1])) {
                         addFace(seedChunk, chunkBox, zPosNeighbor, Direction.ZNEG);
                     }
-
-                    //TEST
-                    if (testSafteyIterCount > 40 && testSafteyIterCount < 220) {
-                        DebugGeometry.addDebugBlock(new Coord3(seed.x, seed.y, z1), ColorRGBA.Yellow);
-                    }
-                    //#TEST
-
                     break;
                 }
 

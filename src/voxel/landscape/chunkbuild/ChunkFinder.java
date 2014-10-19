@@ -46,11 +46,12 @@ public class ChunkFinder {
         SetupSurroundingCoordLook2D();
         SetupOrthoCoordLook3D();
         SetupDiagonalCoordLook3D();
-        SetupTestColumCoords();
+        SetupTestColumnCoords();
     }
-    private static void SetupTestColumCoords() {
-        for(int x = 0; x < 4; ++x) {
-            for(int z=0; z < 4; ++z) {
+    private static final int TestColumnsXZDim = 6;
+    private static void SetupTestColumnCoords() {
+        for(int x = 0; x < TestColumnsXZDim; ++x) {
+            for(int z=0; z < TestColumnsXZDim; ++z) {
                 TestColumnCoords.add(new Coord3(x, 0, z));
             }
         }
@@ -253,6 +254,7 @@ public class ChunkFinder {
     }
 
     private static int TestColumnIndex = 0;
+
     public static Coord3 ClosestEmptyColumn(Camera cam, TerrainMap terrainMap, ColumnMap columnMap) {
         if (TestColumnIndex < TestColumnCoords.size()) {
             return TestColumnCoords.get(TestColumnIndex++);
