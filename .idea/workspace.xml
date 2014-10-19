@@ -2,29 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2e872303-ea44-4607-a6e7-17cb61097a83" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/voxel/landscape/debug/DebugGeometry.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/voxel/landscape/tests/TestHashSetCoord3.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/voxel/landscape/WorldGenerator.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/floodfill/chunkseeds/ChunkFloodFillSeed.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/floodfill/chunkseeds/ChunkFloodFillSeedBlob3D.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/AsyncGenerateColumnData.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/AsyncGenerateColumnData.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/AsyncGenerateColumnDataChunkWise.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/AsyncGenerateColumnDataChunkWise.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/AsyncGenerateColumnDataInfinite.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/AsyncGenerateColumnDataInfinite.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/BlockFaceFinder.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/BlockFaceFinder.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/coord/Box.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/coord/Box.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/collection/chunkface/ChunkBlockFaceMap.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/collection/chunkface/ChunkBlockFaceMap.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBrain.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkBrain.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkFinder.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/ChunkFinder.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/floodfill/chunkseeds/ChunkFloodFillSeedSet.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/floodfill/chunkseeds/ChunkFloodFillSeedSet.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/coord/ChunkLocalCoord.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/coord/ChunkLocalCoord.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/floodfill/chunkslice/ChunkSliceBag.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/floodfill/chunkslice/ChunkSliceBag.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/floodfill/chunkslice/ChunkSliceBlockSet.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/floodfill/chunkslice/ChunkSliceBlockSet.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/coord/Coord3.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/coord/Coord3.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/floodfill/FloodFill.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/floodfill/FloodFill.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/floodfill/FloodFill4D.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/chunkbuild/blockfacefind/floodfill/FloodFill4D.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/noise/TerrainDataProvider.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/noise/TerrainDataProvider.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/map/TerrainMap.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/map/TerrainMap.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/VoxelLandscape.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/voxel/landscape/jmonrenderutil/WireProcessor.java" afterPath="$PROJECT_DIR$/src/voxel/landscape/jmonrenderutil/WireProcessor.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="voxels.iws" />
@@ -171,8 +148,8 @@
       <file leaf-file-name="TerrainMap.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/voxel/landscape/map/TerrainMap.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.31578946" vertical-offset="4482" max-vertical-offset="9210">
-              <caret line="352" column="45" selection-start-line="352" selection-start-column="45" selection-end-line="352" selection-end-column="45" />
+            <state vertical-scroll-proportion="0.6897507" vertical-offset="4482" max-vertical-offset="9210">
+              <caret line="370" column="82" selection-start-line="370" selection-start-column="82" selection-end-line="370" selection-end-column="82" />
               <folding>
                 <element signature="e#2118#2126#0" expanded="true" />
               </folding>
@@ -1300,7 +1277,11 @@
       <created>1413356475175</created>
       <updated>1413356475175</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="added column siding still mid - to end&#10;flood fill ('4D')">
+      <created>1413677032085</created>
+      <updated>1413677032085</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -1385,7 +1366,8 @@
     <MESSAGE value="voxel flood fill. mid-implementation. Test landscape noise is on." />
     <MESSAGE value="mid implementation of flood fill ('4D')" />
     <MESSAGE value="added column siding still mid &#10;flood fill ('4D')" />
-    <option name="LAST_COMMIT_MESSAGE" value="added column siding still mid &#10;flood fill ('4D')" />
+    <MESSAGE value="added column siding still mid - to end&#10;flood fill ('4D')" />
+    <option name="LAST_COMMIT_MESSAGE" value="added column siding still mid - to end&#10;flood fill ('4D')" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1825,8 +1807,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/voxel/landscape/map/TerrainMap.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.31578946" vertical-offset="4482" max-vertical-offset="9210">
-          <caret line="352" column="45" selection-start-line="352" selection-start-column="45" selection-end-line="352" selection-end-column="45" />
+        <state vertical-scroll-proportion="0.6897507" vertical-offset="4482" max-vertical-offset="9210">
+          <caret line="370" column="82" selection-start-line="370" selection-start-column="82" selection-end-line="370" selection-end-column="82" />
           <folding>
             <element signature="e#2118#2126#0" expanded="true" />
           </folding>
