@@ -1,6 +1,7 @@
 package voxel.landscape;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Node;
 import voxel.landscape.chunkbuild.*;
@@ -11,8 +12,9 @@ import voxel.landscape.collection.ColumnMap;
 import voxel.landscape.collection.coordmap.managepages.FurthestCoord3PseudoDelegate;
 import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
+import voxel.landscape.debug.DebugGeometry;
 import voxel.landscape.map.TerrainMap;
-import voxel.landscape.player.B;
+import voxel.landscape.util.Asserter;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -65,18 +67,14 @@ public class WorldGenerator {
     }
 
     private void initThreadPools() {
-
-
         initColumnDataThreadExecutorService();
         blockFaceFinder.floodFind(); //TODO: ORDER OF THESE TWO MATTERS RIGHT NOW—AND SHOULDN'T
-//        initColumnDataThreadExecutorServiceCHUNKWISE();
         initChunkMeshBuildThreadExecutorService();
-
     }
 
     public void update(float tpf) {
         addToColumnPriorityQueue();
-        if(!VoxelLandscape.DONT_BUILD_CHUNK_MESHES && buildANearbyChunkCHUNKWISE()) {}
+        if(!VoxelLandscape.DONT_BUILD_CHUNK_MESHES && buildANearbyChunk()) {}
         checkAsyncCompletedChunkMeshes();
         cullAnExcessColumn(tpf);
     }
@@ -134,7 +132,7 @@ public class WorldGenerator {
         }
     }
 
-    private boolean buildANearbyChunkCHUNKWISE() {
+    private boolean buildANearbyChunk() {
 //        Coord3 chcoord = chunkCoordsToBeMeshFromChunkWise.poll();
         Coord3 chcoord = null;
         chcoord = blockFaceFinder.floodFilledChunkCoords.poll();
@@ -143,10 +141,12 @@ public class WorldGenerator {
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
 //        }
-        if (chcoord == null) return false;
+        if (chcoord == null){
+            return false;
+        }
 
         if (map.GetChunk(chcoord) == null) {
-            B.bugln(" build nearby chunk chunkWiSE null Chunk at " + chcoord.toString());
+            Asserter.assertFalseAndDie(" build nearby chunk chunkWiSE null Chunk at " + chcoord.toString());
         }
 
         buildThisChunk(map.GetChunk(chcoord));
@@ -165,6 +165,7 @@ public class WorldGenerator {
             ch.getChunkBrain().wakeUp();
             attachMeshToScene(ch); //note: no mesh geom yet
         } else {
+            DebugGeometry.AddDebugChunk(ch.position, ColorRGBA.Orange);
             ch.getChunkBrain().setMeshEmpty();
         }
     }
@@ -175,7 +176,11 @@ public class WorldGenerator {
             ChunkMeshBuildingSet chunkMeshBuildingSet = completedChunkMeshSets.poll();
             if (chunkMeshBuildingSet == null) return;
             Chunk chunk = map.GetChunk(chunkMeshBuildingSet.chunkPosition);
-            if (chunk == null) return;
+            if (chunk == null) {
+                DebugGeometry.AddDebugChunk(chunkMeshBuildingSet.chunkPosition, ColorRGBA.Blue);
+                Asserter.assertFalseAndDie("null chunk in check async...");
+                return;
+            }
             chunk.getChunkBrain().applyMeshBuildingSet(chunkMeshBuildingSet);
         }
     }

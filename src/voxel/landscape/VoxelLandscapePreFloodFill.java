@@ -116,7 +116,7 @@ public class VoxelLandscapePreFloodFill // extends SimpleApplication
 //		if (!DEBUG_INFO_ON) return;
 //		Array2DViewer.getInstance().saveToPNG("_debugPicture.png");
 //		showImageOnScreen(Array2DViewer.getInstance().getImage());
-//		addDebugGeometry();
+//		AddDebugGeometry();
 //	}
 //
 //    private void addToColumnPriorityQueue() {
@@ -221,7 +221,7 @@ public class VoxelLandscapePreFloodFill // extends SimpleApplication
 //    }
 //
 //	/* ***************************
-//	 * *** Main update loop ******
+//	 * *** Main Update loop ******
 //	   ****************************/
 //    @Override
 //    public void simpleUpdate(float tpf) {
@@ -388,7 +388,7 @@ public class VoxelLandscapePreFloodFill // extends SimpleApplication
 ///*
 //     * Debug and helper methods
 //     */
-//	private void addDebugGeometry()
+//	private void AddDebugGeometry()
 //	{
 //		Coord3 min = Coord3.Zero;
 //		Coord3 max = Coord3.One;

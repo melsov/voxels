@@ -12,7 +12,7 @@ public class ModuleCombinerSettings {
     ModuleCombiner.CombinerType combinerType = ModuleCombiner.CombinerType.MULT;
 
     public ModuleCombinerSettings(FractalSettings _fractalSettingsA, FractalSettings _fractalSettingsB) {
-
+        this(_fractalSettingsA, _fractalSettingsB, ModuleCombiner.CombinerType.MULT);
     }
     public ModuleCombinerSettings(FractalSettings _fractalSettingsA, FractalSettings _fractalSettingsB, ModuleCombiner.CombinerType _combinerType) {
         fractalSettingsA = _fractalSettingsA;

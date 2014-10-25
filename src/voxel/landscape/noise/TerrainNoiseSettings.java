@@ -83,9 +83,8 @@ public class TerrainNoiseSettings {
     public Module makeTerrainModule(Module groundGradient) {
         // land_shape_fractal
         Module landShape = fractalSettings.makeFractalModule();
-        // land_autocorrect
-        ModuleAutoCorrect landShapeAutoCorrect =
-                new ModuleAutoCorrect(autoCorrectLow, autoCorrectHigh);
+
+        ModuleAutoCorrect landShapeAutoCorrect = new ModuleAutoCorrect(autoCorrectLow, autoCorrectHigh);
         landShapeAutoCorrect.setSource(landShape);
         landShapeAutoCorrect.calculate();
 
@@ -93,7 +92,7 @@ public class TerrainNoiseSettings {
         ModuleScaleOffset landScale = new ModuleScaleOffset();
         landScale.setScale(xzscale);
         landScale.setOffset(offset);
-        landScale.setSource(landShapeAutoCorrect);
+        landScale.setSource(landShape);
 
         // land_y_scale
         ModuleScaleDomain landYScale = new ModuleScaleDomain();

@@ -2,6 +2,7 @@ package com.sudoplay.joise.examples;
 
 import com.sudoplay.joise.module.*;
 import voxel.landscape.BlockType;
+import voxel.landscape.noise.CaveNoiseSettings;
 import voxel.landscape.noise.TerrainNoiseSettings;
 import voxel.landscape.player.B;
 
@@ -63,6 +64,21 @@ public class JoiseMultiPanelExample extends JPanel {
     }
 
     private void loadModules() {
+        /*
+         * Caves!
+         */
+        String caveKey = "caves";
+        CaveNoiseSettings caveSettings = CaveNoiseSettings.CaveSettingsForTerrain(seed);
+        caveSettings.caveSelect.highSource = new ScalarParameter(1);
+        caveSettings.caveSelect.lowSource = new ScalarParameter(0);
+        Module cave = caveSettings.makeModule();
+        TerrainNoiseSettings dummy = new TerrainNoiseSettings(seed);
+        addDemoPanelWithModule(cave,caveKey, dummy);
+        String cavePreKey = "cave pre select";
+        Module caveCombinedPreSelect = caveSettings.caveShapeABSettings.makeCombinerModule();
+        addDemoPanelWithModule(caveCombinedPreSelect, cavePreKey, dummy);
+
+
         /*
          * ground_gradient
          */

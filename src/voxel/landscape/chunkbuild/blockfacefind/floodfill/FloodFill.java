@@ -8,7 +8,6 @@ import voxel.landscape.coord.Box;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
 import voxel.landscape.map.TerrainMap;
-import voxel.landscape.player.B;
 import voxel.landscape.util.Asserter;
 
 import java.util.ArrayList;
@@ -89,6 +88,7 @@ public class FloodFill
 //            }
             yCoordIter++;
         }
+
         return didAddFacesSeed | didAddFacesNeg | didAddFacesPos;
     }
 
@@ -114,7 +114,6 @@ public class FloodFill
 //        ArrayList<Coord3> resul = new ArrayList<Coord3>(6 * 3);
         ArrayList<Coord3> seeds = new ArrayList<Coord3>(Chunk.XLENGTH * Chunk.YLENGTH * Chunk.ZLENGTH);
 
-        B.bugln("welcome to floodScanLines");
         Asserter.assertTrue(initialSeedGlobal != null, "initial seed null...not good");
 
         Chunk seedChunk = map.lookupOrCreateChunkAtPosition(Chunk.ToChunkPosition(initialSeedGlobal));
@@ -135,7 +134,7 @@ public class FloodFill
         getCurrentWasIsWithin(initialSeedGlobal, seedChunk, thisCoordWasIs, (byte) untouchedType);
         if (!BlockType.IsNonExistentOrPlaceHolderAir(thisCoordWasIs[0])) {
 //        if (!(thisCoordWasIs[0] != untouchedType || thisCoordWasIs[0] != BlockType.PLACEHOLDER_AIR.ordinal())) {
-            B.bugln("--- block type != unTouched type! at " + initialSeedGlobal.toString() + " Type was: " + BlockType.get(thisCoordWasIs[0]));
+//            B.bugln("--- block type != unTouched type! at " + initialSeedGlobal.toString() + " Type was: " + BlockType.get(thisCoordWasIs[0]));
             return false;
         }
         boolean didAddFaces = true; // presumptuous!

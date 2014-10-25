@@ -1,5 +1,6 @@
 package voxel.landscape.collection.chunkface;
 
+import com.jme3.math.ColorRGBA;
 import voxel.landscape.BlockMeshUtil;
 import voxel.landscape.BlockType;
 import voxel.landscape.Chunk;
@@ -8,6 +9,7 @@ import voxel.landscape.chunkbuild.blockfacefind.BlockFaceRecord;
 import voxel.landscape.chunkbuild.blockfacefind.ChunkBlockFaceCoord;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
+import voxel.landscape.debug.DebugGeometry;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.player.B;
 import voxel.landscape.util.Asserter;
@@ -134,6 +136,12 @@ public class ChunkBlockFaceMap {
         TerrainMap map = chunk.getTerrainMap();
         Coord3 worldCoord = chunk.originInBlockCoords();
         int triIndex = 0, waterTriIndex = 0;
+
+        //DBUG
+        if (chunk.chunkBlockFaceMap.empty()) {
+            DebugGeometry.AddDebugChunk(chunk.position, ColorRGBA.Red);
+        }
+        //#DBUG
 
         Iterator<Map.Entry<ChunkBlockFaceCoord, BlockFaceRecord>> iterator = chunk.chunkBlockFaceMap.iterator();
 //        Map<ChunkBlockFaceCoord, BlockFaceRecord> faces = chunk.chunkBlockFaceMap.getFaces();

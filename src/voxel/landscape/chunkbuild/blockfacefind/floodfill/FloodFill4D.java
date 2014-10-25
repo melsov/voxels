@@ -1,5 +1,6 @@
 package voxel.landscape.chunkbuild.blockfacefind.floodfill;
 
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import voxel.landscape.BlockType;
@@ -11,6 +12,7 @@ import voxel.landscape.coord.Box;
 import voxel.landscape.coord.BoxIterator;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
+import voxel.landscape.debug.DebugGeometry;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.player.B;
 import voxel.landscape.util.Asserter;
@@ -89,6 +91,9 @@ public class FloodFill4D implements Runnable
 
     private void flood(Coord3 initialSeed) {
         Coord3 initialChunkCoord = Chunk.ToChunkPosition(initialSeed);
+        //DBUG
+        DebugGeometry.AddDebugChunk(Chunk.ToWorldPosition(initialChunkCoord), ColorRGBA.Magenta);
+        //#DBUG
         /*
          * flood fill the initial chunk
          * and add its 'shell' to in-bounds bag
@@ -118,12 +123,13 @@ public class FloodFill4D implements Runnable
         depleteBag: while(inBoundsBag.size() > 0)
         {
             ChunkSlice chunkSlice = null;
-            findChunkSliceInBuiltColumn: do
-            {
-                ColumnMap columnMap = map.getApp().getColumnMap();
+            /*
+             * get a chunk slice
+             */
+            ColumnMap columnMap = map.getApp().getColumnMap();
+            findChunkSliceInBuiltColumn: do {
                 if (inBoundsBag.size() == 0) {
-                    B.bugln("....out of chunkslices. none with non zero size. breaking " +
-                            "\n initial seed: " + initialSeed.toString());
+                    B.bugln("....out of chunkslices. none with non zero size. breaking " + " initial seed: " + initialSeed.toString());
                     break depleteBag;
                 }
                 // find a slice whose column IS_BUILT
@@ -131,11 +137,8 @@ public class FloodFill4D implements Runnable
                 for(int i = 0; i < slices.size(); ++i) {
                     ChunkSlice slice = slices.get(i);
                     if (slice.size() == 0) {
-                        //TEST? NOT SURE?
-                        Asserter.assertFalseAndDie("happens?");
-                        continue;
+                        Asserter.assertFalseAndDie("happens?"); continue; //TEST? NOT SURE?
                     }
-
                     if (columnMap.IsBuilt(slice.getChunkCoord().x, slice.getChunkCoord().z)) {
                         chunkSlice = slices.remove(i);
                         break findChunkSliceInBuiltColumn;
@@ -173,6 +176,7 @@ public class FloodFill4D implements Runnable
                     }
                 }
             }
+
             // CONSIDER: IF SAME CHUNK COORD IN NEXT CHUNK SLICE, DON'T ADD CHUNK YET
             if (didAddFaces && map.GetChunk(chunkSlice.getChunkCoord()) != null) {
                 try {

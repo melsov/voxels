@@ -71,13 +71,23 @@ public class TerrainDataProvider {
     }
 
     public int getBlockDataAtPosition(int xin, int yin, int zin) {
-        return enclosuresBorder(xin, yin, zin);
+//        return enclosuresBorder(xin, yin, zin);
 //        return fakeTallCaveWithBoxAndAdjacentEnclosure(xin, yin, zin);
 //        return fakeCaveWithBox(xin, yin, zin);
 //        return testNoise(xin, yin, zin);
 
 //        if (fakeCave(xin, yin, zin)) return BlockType.LANTERN.ordinal();
-//
+
+        if (yin < 2) return BlockType.GRASS.ordinal();
+        if (yin > 60) return BlockType.AIR.ordinal();
+        double r = noiseModule.get(
+                xin / WORLD_TO_VERTICAL_NOISE_SCALE,
+                yin / WORLD_TO_VERTICAL_NOISE_SCALE,
+                zin / WORLD_TO_VERTICAL_NOISE_SCALE);
+        return r < 0.001 ? BlockType.AIR.ordinal() : (int) r;
+
+
+
 //        double r = noiseModule.get(
 //                xin / WORLD_TO_HORIZONTAL_NOISE_SCALE,
 //                (WORLD_TO_VERTICAL_NOISE_SCALE - yin) / WORLD_TO_VERTICAL_NOISE_SCALE,
@@ -261,6 +271,9 @@ public class TerrainDataProvider {
 //    }
 
     private void setupModule() {
+        noiseModule = CaveNoiseSettings.CaveSettingsForTerrain(seed).makeModule();
+    }
+    private void setupModuleREAL() {
         /*
          * ground_gradient
 	     */
@@ -271,8 +284,8 @@ public class TerrainDataProvider {
 //        Module highlands = TerrainNoiseSettings.HighLandTerrainNoiseSettings(seed).makeTerrainModule(groundGradient); // MakeTerrainNoise(groundGradient, TerrainNoiseSettings.HighLandTerrainNoiseSettings(seed));
         Module mountains = TerrainNoiseSettings.MountainTerrainNoiseSettings(seed, false).makeTerrainModule(groundGradient); // MakeTerrainNoise(groundGradient, TerrainNoiseSettings.MountainTerrainNoiseSettings(seed));
 
-
-        ModuleSelectSettings dirtAirSelect = ModuleSelectSettings.BlockTypeSelectSettingsManualThreshold(mountains, BlockType.AIR, BlockType.DIRT, .5d);
+        ModuleSelectSettings dirtAirSelect = ModuleSelectSettings.BlockTypeSelectSettingsManualThreshold(
+                mountains, BlockType.AIR, BlockType.DIRT, .5d);
 
         noiseModule = dirtAirSelect.makeSelectModule();
     }

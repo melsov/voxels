@@ -6,6 +6,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
+import voxel.landscape.Chunk;
 import voxel.landscape.chunkbuild.MaterialLibrarian;
 import voxel.landscape.coord.Coord3;
 
@@ -27,7 +28,7 @@ public class DebugGeometry
     private DebugGeometry() {
 
     }
-    private static int timesAddedToCoord(Coord3 co) {
+    private static int TimesAddedToCoord(Coord3 co) {
         Integer times = addedCoords.get(co);
         if (times == null) {
             times = new Integer(0);
@@ -36,21 +37,27 @@ public class DebugGeometry
         addedCoords.put(co, times);
         return times.intValue();
     }
-    public static void addDebugBlock(Coord3 position, ColorRGBA color) {
-        Box s = new Box(Vector3f.ZERO.clone(), Vector3f.UNIT_XYZ.clone());
+    public static void AddDebugChunk(Coord3 position, ColorRGBA color) {
+        AddDebugBlock(Chunk.ToWorldPosition(position), color, Chunk.XLENGTH);
+    }
+    public static void AddDebugBlock(Coord3 position, ColorRGBA color) {
+        AddDebugBlock(position, color, 1f);
+    }
+    public static void AddDebugBlock(Coord3 position, ColorRGBA color, float size) {
+        Box s = new Box(Vector3f.ZERO.clone(), Vector3f.UNIT_XYZ.clone().mult(size));
         Geometry g = new Geometry();
         g.setMesh(s);
-        addDebugGeometry(g, position, color);
+        AddDebugGeometry(g, position, color);
     }
-    public static void addDebugSphere(Coord3 position, ColorRGBA color, float radius) {
+    public static void AddDebugSphere(Coord3 position, ColorRGBA color, float radius) {
         Sphere s = new Sphere(24, 8, radius);
         Geometry g = new Geometry();
         g.setMesh(s);
-        addDebugGeometry(g, position, color);
+        AddDebugGeometry(g, position, color);
     }
     private static final Vector3f half = new Vector3f(.5f, .5f, .5f);
-    public static void addDebugGeometry(Geometry g, Coord3 position, ColorRGBA color) {
-        int times = timesAddedToCoord(position) - 1;
+    public static void AddDebugGeometry(Geometry g, Coord3 position, ColorRGBA color) {
+        int times = TimesAddedToCoord(position) - 1;
         g.setLocalTranslation(position.toVector3().subtract(half).add(Vector3f.UNIT_XYZ.mult(times/100f)));
         g.setMaterial(materialLibrarian.wireFrameMaterialWithColor(color));
         try {
@@ -59,7 +66,7 @@ public class DebugGeometry
             e.printStackTrace();
         }
     }
-    public static void update(float tpf) {
+    public static void Update(float tpf) {
         Geometry g = null;
         g = geometries.poll();
         if (g != null) {

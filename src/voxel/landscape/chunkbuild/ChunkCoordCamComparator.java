@@ -33,7 +33,7 @@ public class ChunkCoordCamComparator implements Comparator<ChunkMeshBuildingSet>
     }
 
     // CONSIDER: is this flawed since ordering won't
-    // update as the player moves?
+    // Update as the player moves?
     // CONSIDER: more sophisticated version of this: shift the measuring position to chunk geometric center
     // use the scalar product / (magnitudes) to get cos() for angle between distance vect and camera forward vec.
     // slightly favor values that are closer to 1 (still, this is kind of flawed as a a way of organizing chunks, but even so, might help)

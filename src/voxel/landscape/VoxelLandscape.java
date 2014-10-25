@@ -47,6 +47,7 @@ import java.awt.image.BufferedImage;
 // TODO: Separate world builder and game logic, everything else...
 public class VoxelLandscape extends SimpleApplication
 {
+    public static boolean FULL_SCREEN = true;
     //TEST a different commit & push
 	public static boolean USE_TEXTURE_MAP = false, DEBUG_INFO_ON = false, ADD_CHUNKS_DYNAMICALLY = true, COMPILE_CHUNK_DATA_ASYNC = false,
             CULLING_ON = false, BUILD_INITIAL_CHUNKS = true, DONT_BUILD_CHUNK_MESHES = true, SHOW_COLUMN_DEBUG_QUADS = false, FORCE_WIRE_FRAME = false;
@@ -103,7 +104,7 @@ public class VoxelLandscape extends SimpleApplication
 
 
 	/* ***************************
-	 * *** Main update loop ******
+	 * *** Main Update loop ******
 	   ****************************/
     @Override
     public void simpleUpdate(float tpf) {
@@ -113,7 +114,7 @@ public class VoxelLandscape extends SimpleApplication
         if (!COMPILE_CHUNK_DATA_ASYNC) return;
 
         worldGenerator.update(tpf);
-        DebugGeometry.update(tpf);
+        DebugGeometry.Update(tpf);
     }
 
     //<editor-fold desc="Simple Init and main">
@@ -178,7 +179,7 @@ public class VoxelLandscape extends SimpleApplication
     public static void main(String[] args)
     {
         VoxelLandscape app = new VoxelLandscape();
-        ScreenSettings(app, false); //<--- call new method here
+        ScreenSettings(app, FULL_SCREEN); //<--- call new method here
         app.start(); // start the game
     }
     private static void ScreenSettings(VoxelLandscape app, boolean fullScreen) {
