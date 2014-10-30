@@ -17,6 +17,7 @@ public class MaterialLibrarian
     private Material blockMaterialAnimated;
     private Material blockMaterialTranslucentAnimated;
     private HashMap<ColorRGBA, Material> wireFrameMaterials = new HashMap<ColorRGBA, Material>(12);
+    private HashMap<ColorRGBA, Material> solidMaterials = new HashMap<ColorRGBA, Material>(12);
     private Material vertexColorMaterial;
 
     private AssetManager assetManager;
@@ -71,6 +72,16 @@ public class MaterialLibrarian
         wireMaterial.getAdditionalRenderState().setWireframe(true);
         wireFrameMaterials.put(color, wireMaterial);
         return wireMaterial;
+    }
+    public Material solidMaterialWithColor(ColorRGBA color) {
+        Material solidMaterial = solidMaterials.get(color);
+        if (solidMaterial != null) {
+            return solidMaterial;
+        }
+        solidMaterial = new Material(assetManager, "/Common/MatDefs/Misc/Unshaded.j3md");
+        solidMaterial.setColor("Color", color);
+        solidMaterials.put(color, solidMaterial);
+        return solidMaterial;
     }
     private Material wireFrameMaterialVertexColor() {
         Material wireMaterial = new Material(assetManager, "/Common/MatDefs/Misc/Unshaded.j3md");

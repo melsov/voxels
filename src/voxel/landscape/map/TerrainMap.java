@@ -51,7 +51,6 @@ public class TerrainMap implements IBlockDataProvider
 
     public VoxelLandscape getApp() { return app; }
 
-
     /*
      * DYNAMIC MAP UPDATES
      */

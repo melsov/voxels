@@ -10,6 +10,7 @@ import voxel.landscape.Chunk;
 import voxel.landscape.coord.Box;
 import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
+import voxel.landscape.coord.Direction;
 import voxel.landscape.map.TerrainMap;
 
 import javax.imageio.ImageIO;
@@ -96,12 +97,21 @@ public class TerrainDataProvider {
     }
     public class BorderBox {
         public Box box;
+        public boolean[] openFaces = new boolean[6];
         public BorderBox(Box b) {
             box = b;
         }
         public boolean isOnBorder(Coord3 co) {
-            return box.contains(co) && (box.start.x == co.x || box.start.y == co.y || box.start.z == co.z ||
+            boolean onBorder = box.contains(co) && (box.start.x == co.x || box.start.y == co.y || box.start.z == co.z ||
                     box.extent().x - 1 == co.x || box.extent().y - 1 == co.y || box.extent().z - 1  == co.z);
+            if (onBorder)
+                for(int dir : Direction.Directions) {
+                    if (openFaces[dir]) {
+                        onBorder = co.componentForDirection(dir) != box.borderLocation(dir);
+                        if (!onBorder) break;
+                    }
+                }
+            return onBorder;
         }
     }
     private static BorderBox fakeCaveBorderBox;
@@ -118,6 +128,7 @@ public class TerrainDataProvider {
             int yDim = 10;
             for (int i = 0; i < ENCLOSURE_COUNT; ++i) {
                 BorderBox b = new BorderBox(new Box(new Coord3(startxz, 2, startxz), new Coord3(xzdim, yDim, xzdim)));
+                b.openFaces = new boolean[] { false, false, false, false, true, false};
                 startxz += incrxz;
                 yDim = Math.min(50, yDim + 6);
                 enclosures.add(b);
@@ -131,7 +142,6 @@ public class TerrainDataProvider {
         for (int i = 0 ; i < getEnclosures().size(); ++i) {
             BorderBox bb = getEnclosures().get(i);
             if (bb.box.contains(co)) {
-                BorderBox prevbb = null, nextbb = null;
                 if (!bb.isOnBorder(co))
                     return BlockType.AIR.ordinal();
                 if (co.y == bb.box.extent().y - 1)
@@ -146,11 +156,19 @@ public class TerrainDataProvider {
         return BlockType.AIR.ordinal();
     }
     public BorderBox getFakeCaveBorderBox() {
-        if (fakeCaveBorderBox == null) fakeCaveBorderBox = new BorderBox(new Box(new Coord3(0, 0, 12), new Coord3(6,6,22)));
+        if (fakeCaveBorderBox == null) {
+            fakeCaveBorderBox = new BorderBox(new Box(new Coord3(0, 0, 12), new Coord3(6,24,22)));
+            fakeCaveBorderBox.openFaces[Direction.XNEG] = true;
+        }
         return fakeCaveBorderBox;
     }
     public BorderBox getFakeTallCaveBorderBox() {
-        if (fakeTallCaveBorderBox == null) fakeTallCaveBorderBox = new BorderBox(new Box(new Coord3(2, 0, 2), new Coord3(6,22,6)));
+        if (fakeTallCaveBorderBox == null) {
+            fakeTallCaveBorderBox = new BorderBox(new Box(new Coord3(36, 0, 22), new Coord3(6,22,6)));
+            fakeTallCaveBorderBox.openFaces[Direction.XNEG] = true;
+            fakeTallCaveBorderBox.openFaces[Direction.ZNEG] = false;
+            fakeTallCaveBorderBox.openFaces[Direction.ZPOS] = false;
+        }
         return fakeTallCaveBorderBox;
     }
     public BorderBox getEnclosure() {
@@ -173,10 +191,10 @@ public class TerrainDataProvider {
     private int fakeCaveWithBox(int x, int y, int z) {
         if (y < 4) return BlockType.GRASS.ordinal();
         if (getFakeCaveBorderBox().isOnBorder(new Coord3(x,y,z))) {
-            if ((x == 0 && y > 0) || (x == 1 && y > 12)) {
-                return BlockType.AIR.ordinal();
-            }
             return BlockType.LANTERN.ordinal();
+        }
+        if (getFakeTallCaveBorderBox().isOnBorder(new Coord3(x,y,z))) {
+            return BlockType.STONE.ordinal();
         }
         return BlockType.AIR.ordinal();
     }
@@ -185,8 +203,8 @@ public class TerrainDataProvider {
         Box box = new Box (new Coord3(10, 40, 0), dims);
         Coord3 co = new Coord3(xin, yin, zin);
         return box.contains(co);
-
     }
+
     private int testNoise(int x, int y, int z) {
 //        if  ( (x & 15 + x & 7) + (z & 15 + z & 7) + y < 54) return 3;
 //        int sumxz = (x & 15) + (z & 15);

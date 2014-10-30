@@ -177,7 +177,7 @@ public class FloodFill
             spanXNEG = spanXPOS = false;
             /*
              * Walk in zpos direction.
-             * Add seeds and neighbor seeds where appropriate.
+             * Add seeds and neighbor seeds as needed.
              * if wasIs[0] for x/y neg/pos != NON EXISTENT, don't seed. it's already been covered
              * On the other hand, if we hit AIR (as opposed to NON E) on this block, it doesn't mean we've covered
              * this area already, so keep going.

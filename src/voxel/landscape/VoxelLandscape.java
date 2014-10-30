@@ -47,7 +47,7 @@ import java.awt.image.BufferedImage;
 // TODO: Separate world builder and game logic, everything else...
 public class VoxelLandscape extends SimpleApplication
 {
-    public static boolean FULL_SCREEN = true;
+    public static boolean FULL_SCREEN = false;
     //TEST a different commit & push
 	public static boolean USE_TEXTURE_MAP = false, DEBUG_INFO_ON = false, ADD_CHUNKS_DYNAMICALLY = true, COMPILE_CHUNK_DATA_ASYNC = false,
             CULLING_ON = false, BUILD_INITIAL_CHUNKS = true, DONT_BUILD_CHUNK_MESHES = true, SHOW_COLUMN_DEBUG_QUADS = false, FORCE_WIRE_FRAME = false;

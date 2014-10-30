@@ -1,6 +1,8 @@
 package voxel.landscape.coord;
 
 import com.jme3.math.Vector3f;
+import voxel.landscape.Axis;
+import voxel.landscape.util.Asserter;
 
 public class Coord3 implements ICoordXZ
 {
@@ -18,8 +20,7 @@ public class Coord3 implements ICoordXZ
 	public static final Coord3 up = ypos;
 	public static final Coord3 forward = zpos;
 
-	public Coord3(int _x, int _y, int _z)
-	{
+	public Coord3(int _x, int _y, int _z) {
 		x = _x; y = _y; z = _z;
 	}
 
@@ -113,32 +114,51 @@ public class Coord3 implements ICoordXZ
     public static Coord3 FlipZeroToOneMask(Coord3 c) {
         return new Coord3(c.x == 0 ? 1 : 0,c.y == 0 ? 1 : 0,c.z == 0 ? 1 : 0 );
     }
+    public int componentForDirection(int dir) {
+        int axis = Direction.AxisForDirection(dir);
+        if (axis == Axis.X) {
+            return x;
+        }
+        if (axis == Axis.Y) {
+            return y;
+        }
+        if (axis == Axis.Z) {
+            return z;
+        }
+        Asserter.assertFalseAndDie("we shouldn't get here");
+        return -1;
+    }
     
 	@Override
 	public String toString() { return String.format("Coord3 x: %d, y: %d, z: %d", x,y,z); }
 
     @Override
     public boolean equals(Object other) {
-        if ( !(other instanceof Coord3))  return false;
         if (other == this) return true;
+        if ( !(other instanceof Coord3))  return false;
         return this.equal((Coord3) other);
     }
     public boolean equal(Coord3 other) {
         return x==other.x && y==other.y && z==other.z;
     }
 
-    /* hashCode method that's tailored to collection classes in the voxel engine.
+    /*
+     * hashCode method that's tailored to collection classes in the voxel engine.
      * I.e. collections of blocks in a chunk (local coords) and collections of
      * chunks (chunk coords). DOES NOT work for collections of global block coords
-     * but non exist in this program.
+     * but none exist in this program!
      * chunk y ranges btwn -1 and 16, local block coords x,y,z are between -1 and 16. so y
      * never needs more than 18 (-1 through 16) values which we can cover with 5 bits (2^5 = 32)
      * so 'skimp' appropriately on y's bits... (only need first 5)
      */
     @Override
     public int hashCode() {
-        return (z & Integer.MIN_VALUE) | ((y & Integer.MIN_VALUE) >>> 1 ) | ((x & Integer.MIN_VALUE) >>> 2 ) |
-                ((z & 4095) << 17) | ((y & 31) << 12) | (x & 4095);
+        return (z & Integer.MIN_VALUE) |  // z negative ?
+               ((y & Integer.MIN_VALUE) >>> 1 ) | // y negative ?
+               ((x & Integer.MIN_VALUE) >>> 2 ) | // x negative ?
+               ((z & 4095) << 17) | // first 12 binary digits
+               ((y & 31) << 12) | // first 5 binary digits
+               (x & 4095); // first 12 binary digits
     }
 
     @Override

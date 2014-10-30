@@ -63,37 +63,44 @@ public class FloodFill4D implements Runnable
                 chunkCoord = map.chunkCoordsToBeFlooded.take();
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                Asserter.assertFalseAndDie("this doesn't happen...?");
                 break;
             }
             startFlood(chunkCoord);
         }
     }
+    private boolean fake() { return true; }
 
     public void startFlood(Coord3 chunkCoord) {
         Chunk chunk = map.GetChunk(chunkCoord);
 
+        // * SHORT CIRCUIT THE WHOLE FLOOD FILL (DON'T FLOOD FILL) *
+//        if (fake()) {
+//            try { floodFilledChunkCoords.put(chunkCoord);
+//            } catch (InterruptedException e) { e.printStackTrace(); }
+//            DebugGeometry.AddDebugChunkSolidSkinny(chunkCoord, ColorRGBA.LightGray);
+//            return;
+//        }
+
         // if no seeds (no overhangs). we're done.
         if (chunk.chunkFloodFillSeedSet.size() == 0) {
-            try {
-                floodFilledChunkCoords.put(chunkCoord);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            try { floodFilledChunkCoords.put(chunkCoord);
+            } catch (InterruptedException e) { e.printStackTrace(); }
+//            DebugGeometry.AddDebugChunkSolid(chunkCoord, ColorRGBA.Pink);
             return;
         }
 
-        Coord3 seed = null;
+        Coord3 seed;
         while(chunk.chunkFloodFillSeedSet.size() > 0) {
             seed = chunk.chunkFloodFillSeedSet.removeNext();
+            Asserter.assertTrue(Box.WorldCoordBoxForChunkCoord(chunk.position).contains(seed), "seed not inside of chunk?");
             flood(seed);
         }
     }
 
     private void flood(Coord3 initialSeed) {
         Coord3 initialChunkCoord = Chunk.ToChunkPosition(initialSeed);
-        //DBUG
-        DebugGeometry.AddDebugChunk(Chunk.ToWorldPosition(initialChunkCoord), ColorRGBA.Magenta);
-        //#DBUG
+
         /*
          * flood fill the initial chunk
          * and add its 'shell' to in-bounds bag
@@ -112,6 +119,9 @@ public class FloodFill4D implements Runnable
         /* prime the inBoundsBag from chunkShell after flood filling the initial seed */
         for(int i = 0; i <= Direction.ZPOS; ++i) {
             if (seedChunkShell[i].size() > 0) inBoundsBag.add(seedChunkShell[i]);
+            else { //DBUG?? or needed?
+//                DebugGeometry.AddDebugChunkSolid(seedChunkShell[i].getChunkCoord(), new ColorRGBA(0f, .1f, .7f, .5f));
+            }
         }
 
         // TODO: test flood lines ability to move down and across by chunks (it seems questionable)
@@ -133,19 +143,23 @@ public class FloodFill4D implements Runnable
                     break depleteBag;
                 }
                 // find a slice whose column IS_BUILT
-                List<ChunkSlice> slices = inBoundsBag.getSlices();
-                for(int i = 0; i < slices.size(); ++i) {
-                    ChunkSlice slice = slices.get(i);
-                    if (slice.size() == 0) {
-                        Asserter.assertFalseAndDie("happens?"); continue; //TEST? NOT SURE?
-                    }
+                List<ChunkSlice> iBBSlices = inBoundsBag.getSlices();
+                for(int i = 0; i < iBBSlices.size(); ++i) {
+                    ChunkSlice slice = iBBSlices.remove(i); // iBBSlices.get(i);
+                    if (slice.size() == 0) {  Asserter.assertFalseAndDie("happens?"); continue; } //TEST? NOT SURE?
+
                     if (columnMap.IsBuilt(slice.getChunkCoord().x, slice.getChunkCoord().z)) {
-                        chunkSlice = slices.remove(i);
+                        chunkSlice = slice;
                         break findChunkSliceInBuiltColumn;
+                    } else {
+                        DebugGeometry.AddDebugChunkSolidSkinny(slice.getChunkCoord(), ColorRGBA.Red);
+                        outOfBoundsBag.add(slice); //TODO: figure how to handle out of bounds becoming inbounds
+                        --i;
                     }
                 }
                 try {
-                    Thread.sleep(100); //TODO: consider a way around this? Is there anything else to do?
+                    B.bugln("sleeping. no inBounds slices");
+                    Thread.sleep(1); //TODO: consider a way around this? Is there anything else to do?
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -179,15 +193,16 @@ public class FloodFill4D implements Runnable
 
             // CONSIDER: IF SAME CHUNK COORD IN NEXT CHUNK SLICE, DON'T ADD CHUNK YET
             if (didAddFaces && map.GetChunk(chunkSlice.getChunkCoord()) != null) {
-                try {
-                    floodFilledChunkCoords.put(chunkSlice.getChunkCoord());
-                    Asserter.assertTrue(floodFilledChunkCoords.size() < 200, " hmmm..");
+                try {floodFilledChunkCoords.put(chunkSlice.getChunkCoord());
+                    Asserter.assertTrue(floodFilledChunkCoords.size() < 600, " hmmm..");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+            } else if (map.GetChunk(chunkSlice.getChunkCoord()) == null) {
+                DebugGeometry.AddDebugChunkSolidSkinny(chunkSlice.getChunkCoord(), ColorRGBA.Magenta);
+            } else if (!didAddFaces) {
+                DebugGeometry.AddDebugChunkSolidSkinny(chunkSlice.getChunkCoord(), ColorRGBA.Green);
             }
-
-
         }
     }
 

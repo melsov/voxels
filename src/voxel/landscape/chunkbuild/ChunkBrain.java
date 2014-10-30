@@ -157,6 +157,7 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
 
     private void buildMeshLiquid() { buildMesh(false, true); }
 
+
 	private void buildMesh(boolean onlyLight, boolean onlyLiquid)
 	{
         if (VoxelLandscape.DO_USE_TEST_GEOMETRY) return;

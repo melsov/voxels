@@ -39,6 +39,12 @@ public class Box {
         }
         return -1;
     }
+    public int borderLocation(int borderSide) {
+        if (Direction.IsNegDir(borderSide)) {
+            return start.componentForDirection(borderSide);
+        }
+        return extent().componentForDirection(borderSide) - 1;
+    }
 
     @Override
     public boolean equals(Object other) {
