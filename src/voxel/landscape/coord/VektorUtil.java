@@ -22,7 +22,7 @@ public class VektorUtil {
     }
 
     public static Vector3f OneIfPos(Vector3f v) {
-    	return new Vector3f(v.x > 0 ? 1 : 0, v.y > 0 ? 0 : 1, v.z > 0 ? 1 : 0);
+    	return new Vector3f(v.x > 0 ? 1 : 0, v.y > 0 ? 1 : 0, v.z > 0 ? 1 : 0);
     }
 
     public static boolean AGreaterThanB(Vector3f a, Vector3f b) { return a.x > b.x && a.y > b.y && a.z > b.z;  }
@@ -88,15 +88,26 @@ public class VektorUtil {
         return RelativeEscapeVector(cornerDistance, dir, 1f, null);
     }
     public static Vector3f RelativeEscapeVector(Vector3f cornerDistance, Vector3f dir, float fudgeFactor, final MutableInteger escapeThroughFaceDirection) {
-        if (HasAComponentThatIsVeryCloseToZero(cornerDistance)) return dir.mult(fudgeFactor);
+//        if (HasAComponentThatIsVeryCloseToZero(cornerDistance)) return dir.mult(fudgeFactor); // WANT?
         Vector3f lengths = VektorUtil.Abs(cornerDistance.divide(dir));
         float length;
-        if (lengths.x < lengths.y) {
-            length =lengths.x;
-            if (escapeThroughFaceDirection!= null) escapeThroughFaceDirection.integer = dir.x < 0 ? Direction.XNEG : Direction.XPOS;
-        } else {
+//        if (lengths.x < lengths.y) {
+//            length =lengths.x;
+//            if (escapeThroughFaceDirection!= null) escapeThroughFaceDirection.integer = dir.x < 0 ? Direction.XNEG : Direction.XPOS;
+//        } else {
+//            length = lengths.y;
+//            if (escapeThroughFaceDirection!= null) escapeThroughFaceDirection.integer = dir.y < 0 ? Direction.YNEG : Direction.YPOS;
+//            //DBUG
+//            if (escapeThroughFaceDirection!= null) {
+//
+//            }
+//        }
+        if (lengths.x > lengths.y) {
             length = lengths.y;
             if (escapeThroughFaceDirection!= null) escapeThroughFaceDirection.integer = dir.y < 0 ? Direction.YNEG : Direction.YPOS;
+        } else {
+            length =lengths.x;
+            if (escapeThroughFaceDirection!= null) escapeThroughFaceDirection.integer = dir.x < 0 ? Direction.XNEG : Direction.XPOS;
         }
         if (lengths.z < length) {
             length = lengths.z;
@@ -113,15 +124,11 @@ public class VektorUtil {
     }
 
     public static Vector3f DistanceToCorner(Vector3f pos, Vector3f dir) {
-//        Vector3f corner = EntryCorner(pos, dir);
-        return PointingToCorner(pos, dir).subtract(pos);
+        return CornerVector(pos, dir).subtract(pos);
     }
 
-    public static Vector3f PointingToCorner(Vector3f pos, Vector3f dir) {
+    public static Vector3f CornerVector(Vector3f pos, Vector3f dir) {
         Vector3f corner = SubtractOneFromNegativeComponents(OneIfPos(dir).add(pos));
         return Floor(corner);
     }
-
-
-
 }

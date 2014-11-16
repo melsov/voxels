@@ -46,6 +46,7 @@ public class MaterialLibrarian
     private Material makeTexMapMaterial() {
         Material mat = new Material(assetManager, "MatDefs/BlockTexNuevo.j3md");
         Texture blockTex = assetManager.loadTexture("Textures/dog_64d_.jpg");
+//        Texture blockTex = assetManager.loadTexture("Textures/dog_4096d.jpg");
         blockTex.setMagFilter(Texture.MagFilter.Nearest);
         blockTex.setWrap(Texture.WrapMode.Repeat);
         mat.setTexture("ColorMap", blockTex);

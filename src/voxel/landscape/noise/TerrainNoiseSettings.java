@@ -51,8 +51,8 @@ public class TerrainNoiseSettings {
         mountainSettings.fractalSettings.shouldCache = shouldCache;
         mountainSettings.autoCorrectLow = -1;
         mountainSettings.xzscale = .45f;
-        mountainSettings.offset = .15f;
-        mountainSettings.yScale = .1f;
+        mountainSettings.offset = -.45f;
+        mountainSettings.yScale = .8f;
         return mountainSettings;
     }
     public static TerrainNoiseSettings TerrainSettingsWithZeroOneModuleSelect(long _seed, Module _controlSource) {

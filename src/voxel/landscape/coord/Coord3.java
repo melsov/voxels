@@ -81,8 +81,9 @@ public class Coord3 implements ICoordXZ
 		return x < other.x && y < other.y && z < other.z;
 	}
 	public double distanceSquared() {
-		return x*x + y*y;
+		return x*x + y*y; // TODO: wha????? mising z??????? check if program breaks (or heals) when this is fixed.
 	}
+	public int magnitudeSquared() { return x*x + y*y + z*z; }
     public double distanceSquared(Coord3 other) {
         return this.minus(other).distanceSquared();
     }
@@ -93,8 +94,7 @@ public class Coord3 implements ICoordXZ
 	public static Coord3 Zero = new Coord3(0,0,0); 
 	public static Coord3 One = new Coord3(1,1,1); 
 	
-	public Vector3f toVector3()
-	{
+	public Vector3f toVector3() {
 		return new Vector3f(this.x, this.y, this.z);
 	}
 	public static Coord3 FromVector3f(Vector3f v) { return new Coord3(v.x, v.y, v.z); }

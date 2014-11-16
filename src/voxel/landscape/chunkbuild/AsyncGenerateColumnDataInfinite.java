@@ -1,10 +1,8 @@
 package voxel.landscape.chunkbuild;
 
-import com.jme3.math.ColorRGBA;
 import voxel.landscape.collection.ColumnMap;
 import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
-import voxel.landscape.debug.DebugGeometry;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.map.light.ChunkSunLightComputer;
 import voxel.landscape.map.water.ChunkWaterLevelComputer;
@@ -65,7 +63,6 @@ public class AsyncGenerateColumnDataInfinite implements Runnable // extends Resp
                 ChunkSunLightComputer.Scatter(terrainMap, columnMap, x, z);
                 ChunkWaterLevelComputer.Scatter(terrainMap, columnMap, x, z);
                 columnMap.SetBuilt(x, z);
-                DebugGeometry.AddDebugChunkSolid(new Coord3(x,5,z), ColorRGBA.Orange);
                 try {
                     sleep(10);
                 } catch (InterruptedException e) {

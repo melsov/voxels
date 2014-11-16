@@ -29,6 +29,7 @@ public class Player
     private VoxelLandscape app;
     private PlayerControl playerControl = new PlayerControl();
     private Geometry blockCursor;
+    Geometry[] blockStepCursorsDEBUG;
     private Node playerNode;
     private Node headNode;
 
@@ -49,7 +50,9 @@ public class Player
     private boolean grounded = false;
     private boolean jumping = false;
     private boolean headBump = false;
-    private byte blockInHandType = (byte) BlockType.WATER.ordinal();
+    private byte blockInHandType = (byte) BlockType.DIRT.ordinal();
+    public static final int REACHABLE_BLOCK_RADIUS = 12;
+    private static final int REACHABLE_BLOCK_RADIUS_SQUARED = REACHABLE_BLOCK_RADIUS * REACHABLE_BLOCK_RADIUS;
 
     private boolean debugPlaceCoord = false;
 
@@ -68,9 +71,10 @@ public class Player
                 debugPlaceCoord = !debugPlaceCoord;
             }
             else if (name.equals("Down") && !keyPressed) {
-                toggleBlockInHandType();
+                nextBlockInHandType();
             }
             else if (name.equals("Right") && !keyPressed) {
+                blockInHandType = (byte) BlockType.LANTERN.ordinal();
             }
             else if (name.equals("Left") && !keyPressed) {
                 toggleFlyMode();
@@ -104,9 +108,10 @@ public class Player
         }
 
     }
-    private void toggleBlockInHandType() {
+    private void nextBlockInHandType() {
         blockInHandType = BlockType.NextPlaceableBlockFrom(blockInHandType); //()byte)(blockInHandType == BlockType.SAND.ordinal() ? BlockType.LANTERN.ordinal() : BlockType.SAND.ordinal());
     }
+    //TOOD: create a toggle between first and third person camera (hide/reveal player geometry)
     private AnalogListener analogListener = new AnalogListener() {
         public void onAnalog(String name, float keyPressed, float tpf) {
 
@@ -286,6 +291,11 @@ public class Player
 
     	initBlockCursor();
         _overlayNode.attachChild(blockCursor);
+        /* DEBUG */
+        initDebugBlockStepCursors();
+        for(Geometry blockStepCursorDebug : blockStepCursorsDEBUG) {
+            _overlayNode.attachChild(blockStepCursorDebug);
+        }
     	initPlayerGeom(_camera, _terrainNode);
 
         if (_camera != null)
@@ -304,17 +314,15 @@ public class Player
     	pos = VektorUtil.Floor(pos);
         blockCursor.setLocalTranslation(pos);
     }
-    private void handleBreakBlock() 
-    {
+    private void handleBreakBlock() {
     	Vector3f vhit = stepThroughBlocksUntilHitSolid(false);
     	if (vhit == null) return;
-    	Coord3 hitV =Coord3.FromVector3f( vhit  ); 
-    	if (hitV == null) return;
+    	Coord3 hitC =Coord3.FromVector3f( vhit  );
+    	if (hitC == null) return;
         audio.playBreakCompleteSound();
-        terrainMap.SetBlockAndRecompute((byte) BlockType.AIR.ordinal(), hitV);
+        terrainMap.SetBlockAndRecompute((byte) BlockType.AIR.ordinal(), hitC);
     }
-    private void handlePlaceBlock()
-    {
+    private void handlePlaceBlock() {
     	Vector3f vhit = stepThroughBlocksUntilHitSolid(true);
     	if (vhit == null) return;
     	Coord3 placeCo = Coord3.FromVector3f( vhit);
@@ -323,28 +331,35 @@ public class Player
     	terrainMap.SetBlockAndRecompute(blockInHandType, placeCo);
     }
     private Vector3f stepThroughBlocksUntilHitSolid(boolean wantPlaceBlock) {
-        return stepThroughBlocksUntilHitSolid(playerControl.getLocation(), playerControl.getDirection(), wantPlaceBlock);
+        return stepThroughBlocksUntilHit(playerControl.getLocation(), playerControl.getDirection(), wantPlaceBlock);
     }
 	/*
 	 * updating JMonkey geometry bounds and checking collisions are computationally expensive...
 	 * So, instead, rely completely on block look-ups for placing/breaking/colliding
 	 */
-    private Vector3f stepThroughBlocksUntilHitSolid(Vector3f start, Vector3f direction, boolean wantPlaceBlock) {
+    private Vector3f stepThroughBlocksUntilHit(Vector3f start, Vector3f direction, boolean wantPlaceBlock) {
     	byte block;
-    	start = start.add(new Vector3f(.5f,.5f,.5f)); //BECAUSE VOXELS ARE ACTUALLY CENTERED AROUND WHOLE NUMBER COORDS...
-    	Coord3 hit;
-    	Vector3f hitV;
-        hitV = start.clone();
+        //WANT?!!
+    	start = start.add(new Vector3f(.5f,.5f,.5f)); //BECAUSE VOXELS ARE CENTERED AROUND WHOLE NUMBER COORDS...
+        Coord3 startCoord = Coord3.FromVector3f(start);
+    	Coord3 hit = null;
+    	Vector3f hitV = start.clone();
         MutableInteger hitFaceDirectionIn = wantPlaceBlock ? new MutableInteger() : null;
-        for(int count = 0; count < 40; ++count) {
+        //TODO: make a plane geom for cursor. it always rotates acc. to hitFaceDirectionIn (which is now never null, etc.)
+        int distanceFromPlayerSquared = 0;
+//        for(int count = 0; count < 100; ++count) {
+        while(distanceFromPlayerSquared < REACHABLE_BLOCK_RADIUS_SQUARED) {
             hitV = VektorUtil.EscapePositionOnUnitGrid(hitV, direction, hitFaceDirectionIn);
-            hit = Coord3.FromVector3f(hitV);
+            hit = Coord3.FromVector3f(VektorUtil.SubtractOneFromNegativeComponents(hitV));
+            distanceFromPlayerSquared = hit.minus(startCoord).magnitudeSquared();
+
             block = terrainMap.lookupBlock(hit);
+
             if (wantPlaceBlock && BlockType.AcceptsPlaceBlock(block)) {
                 Coord3 placeRelCoord = Direction.DirectionCoordForDirection(Direction.OppositeDirection(hitFaceDirectionIn.integer));
                 return Coord3.FromVector3fAdjustNegative(hitV.add(placeRelCoord.toVector3())).toVector3();
             } else if (BlockType.IsBreakAble(block)) {
-                return hitV;
+                return VektorUtil.SubtractOneFromNegativeComponents(hitV); // hitV;
             }
         }
     	return null;
@@ -354,6 +369,13 @@ public class Player
       blockCursor = new Geometry("block_cursor", box);
       Material mark_mat = app.wireFrameMaterialWithColor(ColorRGBA.Black); 
       blockCursor.setMaterial(mark_mat);
+    }
+    private void initDebugBlockStepCursors() {
+        blockStepCursorsDEBUG = new Geometry[20];
+        for(int i = 0; i < blockStepCursorsDEBUG.length; ++i) {
+            blockStepCursorsDEBUG[i] = new Geometry("block-step-cursor", new Box(.15f, .65f, .15f));
+            blockStepCursorsDEBUG[i].setMaterial(app.wireFrameMaterialWithColor(ColorRGBA.Red));
+        }
     }
     private Geometry makePlayerGeometry() {
         Box box = new Box(Vector3f.ZERO, new Vector3f(halfWidthXZ*2f,height,halfWidthXZ*2f));
@@ -415,7 +437,7 @@ public class Player
 
         private Node getNode() { return (Node) getSpatial(); }
         private Vector3f getLocation() { return getSpatial().getWorldTranslation().clone(); }
-        private Vector3f getDirection() { return getSpatial().getWorldRotation().clone().mult(Vector3f.UNIT_Z); }
+        private Vector3f getDirection() { return getSpatial().getWorldRotation().clone().mult(Vector3f.UNIT_Z).normalize(); }
 		@Override
 		protected void controlUpdate(float tpf) {
 			timeSinceUpdate += tpf;
@@ -432,36 +454,5 @@ public class Player
 		protected void controlRender(RenderManager arg0, ViewPort arg1) {
 		}
     }
-
-//
-//    /*
-//     * Mouse inputs
-//     */
-//    private void setupInputs() {
-//        inputManager.addMapping("Break", new KeyTrigger(KeyInput.KEY_T), new MouseButtonTrigger(MouseInput.BUTTON_LEFT) );
-//        inputManager.addMapping("Place", new KeyTrigger(KeyInput.KEY_G), new MouseButtonTrigger(MouseInput.BUTTON_RIGHT) );
-//        inputManager.addMapping("GoHome", new KeyTrigger(KeyInput.KEY_H));
-//        inputManager.addMapping("Up", new KeyTrigger(KeyInput.KEY_I));
-//        inputManager.addMapping("Down", new KeyTrigger(KeyInput.KEY_K));
-//        inputManager.addMapping("Right", new KeyTrigger(KeyInput.KEY_J));
-//        inputManager.addMapping("Left", new KeyTrigger(KeyInput.KEY_L));
-//        inputManager.addMapping("Inventory", new KeyTrigger(KeyInput.KEY_E));
-//        inputManager.addListener(this.getUserInputListener(), "Break", "Place", "GoHome", "Up", "Down", "Right", "Left", "Inventory");
-//    }
-//
-//    private void setupWASDInput() {
-//        inputManager.addMapping("moveForward", new KeyTrigger(keyInput.KEY_UP), new KeyTrigger(keyInput.KEY_W));
-//        inputManager.addMapping("moveBackward", new KeyTrigger(keyInput.KEY_DOWN), new KeyTrigger(keyInput.KEY_S));
-//        inputManager.addMapping("moveRight", new KeyTrigger(keyInput.KEY_RIGHT), new KeyTrigger(keyInput.KEY_D));
-//        inputManager.addMapping("moveLeft", new KeyTrigger(keyInput.KEY_LEFT), new KeyTrigger(keyInput.KEY_A));
-//        inputManager.addMapping("moveUp",  new KeyTrigger(keyInput.KEY_Q));
-//        inputManager.addMapping("moveDown",  new KeyTrigger(keyInput.KEY_Z));
-//        inputManager.addMapping("jump",  new KeyTrigger(keyInput.KEY_SPACE));
-//        inputManager.addMapping("lmb", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
-//        inputManager.addMapping("rmb", new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
-//        inputManager.addListener(this.getAnalogListener(),
-//                "moveForward", "moveBackward", "moveRight", "moveLeft", "moveDown", "moveUp", "jump",
-//                "lmb", "rmb");
-//    }
 
 }

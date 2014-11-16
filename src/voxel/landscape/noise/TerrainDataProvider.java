@@ -88,7 +88,6 @@ public class TerrainDataProvider {
         return r < 0.001 ? BlockType.AIR.ordinal() : (int) r;
 
 
-
 //        double r = noiseModule.get(
 //                xin / WORLD_TO_HORIZONTAL_NOISE_SCALE,
 //                (WORLD_TO_VERTICAL_NOISE_SCALE - yin) / WORLD_TO_VERTICAL_NOISE_SCALE,
@@ -157,14 +156,14 @@ public class TerrainDataProvider {
     }
     public BorderBox getFakeCaveBorderBox() {
         if (fakeCaveBorderBox == null) {
-            fakeCaveBorderBox = new BorderBox(new Box(new Coord3(0, 0, 12), new Coord3(6,24,22)));
+            fakeCaveBorderBox = new BorderBox(new Box(new Coord3(20, 0, 20), new Coord3(6,8,6)));
             fakeCaveBorderBox.openFaces[Direction.XNEG] = true;
         }
         return fakeCaveBorderBox;
     }
     public BorderBox getFakeTallCaveBorderBox() {
         if (fakeTallCaveBorderBox == null) {
-            fakeTallCaveBorderBox = new BorderBox(new Box(new Coord3(36, 0, 22), new Coord3(6,22,6)));
+            fakeTallCaveBorderBox = new BorderBox(new Box(new Coord3(18, 8, 18), new Coord3(9,12,9)));
             fakeTallCaveBorderBox.openFaces[Direction.XNEG] = true;
             fakeTallCaveBorderBox.openFaces[Direction.ZNEG] = false;
             fakeTallCaveBorderBox.openFaces[Direction.ZPOS] = false;
@@ -190,6 +189,8 @@ public class TerrainDataProvider {
     }
     private int fakeCaveWithBox(int x, int y, int z) {
         if (y < 4) return BlockType.GRASS.ordinal();
+        if (y == 36 && x > 1 && z > 1) return BlockType.STONE.ordinal();
+
         if (getFakeCaveBorderBox().isOnBorder(new Coord3(x,y,z))) {
             return BlockType.LANTERN.ordinal();
         }
@@ -288,10 +289,10 @@ public class TerrainDataProvider {
 //        return landTerrain;
 //    }
 
-    private void setupModule() {
+    private void setupModuleCAVE() {
         noiseModule = CaveNoiseSettings.CaveSettingsForTerrain(seed).makeModule();
     }
-    private void setupModuleREAL() {
+    private void setupModule() {
         /*
          * ground_gradient
 	     */
@@ -303,7 +304,7 @@ public class TerrainDataProvider {
         Module mountains = TerrainNoiseSettings.MountainTerrainNoiseSettings(seed, false).makeTerrainModule(groundGradient); // MakeTerrainNoise(groundGradient, TerrainNoiseSettings.MountainTerrainNoiseSettings(seed));
 
         ModuleSelectSettings dirtAirSelect = ModuleSelectSettings.BlockTypeSelectSettingsManualThreshold(
-                mountains, BlockType.AIR, BlockType.DIRT, .5d);
+                mountains,  BlockType.DIRT, BlockType.AIR, .5d);
 
         noiseModule = dirtAirSelect.makeSelectModule();
     }
