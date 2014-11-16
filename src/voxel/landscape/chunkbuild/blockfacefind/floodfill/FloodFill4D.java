@@ -78,7 +78,6 @@ public class FloodFill4D implements Runnable
 //        if (fake()) {
 //            try { floodFilledChunkCoords.put(chunkCoord);
 //            } catch (InterruptedException e) { e.printStackTrace(); }
-//            DebugGeometry.AddDebugChunkSolidSkinny(chunkCoord, ColorRGBA.LightGray);
 //            return;
 //        }
 
@@ -86,7 +85,6 @@ public class FloodFill4D implements Runnable
         if (chunk.chunkFloodFillSeedSet.size() == 0) {
             try { floodFilledChunkCoords.put(chunkCoord);
             } catch (InterruptedException e) { e.printStackTrace(); }
-//            DebugGeometry.AddDebugChunkSolid(chunkCoord, ColorRGBA.Pink);
             return;
         }
 

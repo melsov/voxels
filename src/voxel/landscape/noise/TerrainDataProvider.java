@@ -73,14 +73,15 @@ public class TerrainDataProvider {
 
     public int getBlockDataAtPosition(int xin, int yin, int zin) {
 //        return enclosuresBorder(xin, yin, zin);
+//        return flat(yin);
 //        return fakeTallCaveWithBoxAndAdjacentEnclosure(xin, yin, zin);
 //        return fakeCaveWithBox(xin, yin, zin);
 //        return testNoise(xin, yin, zin);
 
 //        if (fakeCave(xin, yin, zin)) return BlockType.LANTERN.ordinal();
 
-        if (yin < 2) return BlockType.GRASS.ordinal();
-        if (yin > 60) return BlockType.AIR.ordinal();
+        if (yin < 2) return BlockType.BEDROCK.ordinal();
+        if (yin > 63) return BlockType.AIR.ordinal();
         double r = noiseModule.get(
                 xin / WORLD_TO_VERTICAL_NOISE_SCALE,
                 yin / WORLD_TO_VERTICAL_NOISE_SCALE,
@@ -173,6 +174,10 @@ public class TerrainDataProvider {
     public BorderBox getEnclosure() {
         if (enclosure == null) enclosure = new BorderBox(new Box(new Coord3(2, 8, 7), new Coord3(6,14,22)));
         return enclosure;
+    }
+    private int flat(int y) {
+        if (y < 4) return BlockType.GRASS.ordinal();
+        return BlockType.AIR.ordinal();
     }
     private int fakeTallCaveWithBoxAndAdjacentEnclosure(int x, int y, int z) {
         if (y < 4) return BlockType.GRASS.ordinal();

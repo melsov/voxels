@@ -347,7 +347,7 @@ public class Player
         MutableInteger hitFaceDirectionIn = wantPlaceBlock ? new MutableInteger() : null;
         //TODO: make a plane geom for cursor. it always rotates acc. to hitFaceDirectionIn (which is now never null, etc.)
         int distanceFromPlayerSquared = 0;
-//        for(int count = 0; count < 100; ++count) {
+
         while(distanceFromPlayerSquared < REACHABLE_BLOCK_RADIUS_SQUARED) {
             hitV = VektorUtil.EscapePositionOnUnitGrid(hitV, direction, hitFaceDirectionIn);
             hit = Coord3.FromVector3f(VektorUtil.SubtractOneFromNegativeComponents(hitV));

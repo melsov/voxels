@@ -20,7 +20,8 @@ public class SunLightComputer {
 
 	public static void ComputeRayAtPosition(TerrainMap map, int x, int z, boolean forceLookup) {
 		int maxY = map.GetMaxY(x, z, forceLookup);
-		map.GetSunLightmap().SetSunHeight(maxY+1, x, z);
+//		map.GetSunLightmap().SetSunHeight(maxY+1, x, z);//want
+		map.GetSunLightmap().SetSunHeight(maxY, x, z); //TEST
 	}
 	
 	private static void Scatter(TerrainMap map, ArrayList<Coord3> list) { 
