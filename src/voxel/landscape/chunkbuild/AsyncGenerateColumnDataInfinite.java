@@ -51,8 +51,7 @@ public class AsyncGenerateColumnDataInfinite implements Runnable // extends Resp
                 terrainMap.generateNoiseForChunkColumn(x, z, dataProvider, touchedChunkCoords);
                 terrainMap.populateFloodFillSeedsUpdateFaceMapsInChunkColumn(x, z, dataProvider, touchedChunkCoords); // ORDER OF THIS LINE AND THE SUN/WATER COMPUTER LINES MATTERS! TODO: FIX
 
-                ChunkSunLightComputer.ComputeRays(terrainMap, x, z);
-
+//                ChunkSunLightComputer.ComputeRays(terrainMap, x, z); // no need. terrain map does this while generating
                 if (!keepGoing.get()) break; //PREVENT FREEZE AT END OF RUN??
 
                 ChunkSunLightComputer.Scatter(terrainMap, columnMap, x, z); //WANT
