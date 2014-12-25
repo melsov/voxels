@@ -86,6 +86,7 @@ public class DebugGeometry
         AddDebugGeometry(g, localTrans, color, solidMat);
     }
     public static void AddDebugGeometry(Geometry g, Vector3f localTrans, ColorRGBA color, boolean solidMat) {
+        localTrans = localTrans.clone().add(.5f, .5f, .5f);
         g.setLocalTranslation(localTrans);
         if (solidMat)
             g.setMaterial(materialLibrarian.solidMaterialWithColor(color));

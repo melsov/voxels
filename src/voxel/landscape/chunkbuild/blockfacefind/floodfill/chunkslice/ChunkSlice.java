@@ -25,29 +25,29 @@ public class ChunkSlice
         chunkCoord = _chunkCoord; direction = _direction;
     }
 
-    public void addCoord(Coord3 co){
+    public void addCoord(Coord3 global){
         ChunkSliceBlockSet addedToSliceBlockSet = null;
         for (int i = 0; i < blockSets.size(); ++i) {
             ChunkSliceBlockSet chunkSliceBlockSet = blockSets.get(i);
             if (addedToSliceBlockSet == null) {
-                if (chunkSliceBlockSet.addCoord(co)) {
+                if (chunkSliceBlockSet.addCoord(global)) {
                     addedToSliceBlockSet = chunkSliceBlockSet;
                 }
             } else {
-                if (chunkSliceBlockSet.isCoordAdjacent(co)) {
+                if (chunkSliceBlockSet.isCoordAdjacent(global)) {
                     addedToSliceBlockSet.addMembersOfSet(chunkSliceBlockSet);
                     blockSets.remove(i--);
                 }
             }
         }
         if (addedToSliceBlockSet == null) {
-            blockSets.add(new ChunkSliceBlockSet(co, Direction.AxisForDirection(direction)));
+            blockSets.add(new ChunkSliceBlockSet(global, Direction.AxisForDirection(direction)));
         }
     }
 
     public Coord3 removeNext() {
         if (blockSets.size() == 0) return null;
-        return blockSets.remove(0).getSeed();
+        return blockSets.remove(0).getSeedGlobal();
     }
     public int size() {
         return blockSets.size();

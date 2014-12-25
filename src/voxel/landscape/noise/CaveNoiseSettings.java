@@ -60,7 +60,7 @@ public class CaveNoiseSettings
         caveNoiseSettings.caveSelect = new ModuleSelectSettings(caveNoiseSettings.getPerturbModule());
         caveNoiseSettings.caveSelect.threshold = new ScalarParameter(.5);
         caveNoiseSettings.caveSelect.highSource = new ScalarParameter(1);
-        caveNoiseSettings.caveSelect.lowSource = new ScalarParameter(2);
+        caveNoiseSettings.caveSelect.lowSource = new ScalarParameter(0);
         //TODO: tweak cave select settings
         return caveNoiseSettings;
     }

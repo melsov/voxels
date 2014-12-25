@@ -8,6 +8,8 @@ public class Direction {
 
     public static final int[] Directions = new int[] {XNEG, XPOS, YNEG, YPOS, ZNEG, ZPOS};
 
+    public static final int[] PositiveDirections = new int[] { XPOS, YPOS, ZPOS};
+
     /* Index-able order array */
     public static Coord3[] DirectionCoords = new Coord3[]{
             new Coord3(-1, 0, 0),

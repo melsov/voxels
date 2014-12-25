@@ -48,7 +48,7 @@ public class FractalSettings {
         FractalSettings fbmSettings = new FractalSettings(_seed);
         fbmSettings.fractalType = ModuleFractal.FractalType.FBM;
         fbmSettings.octaves = 4;
-        fbmSettings.frequency = 2f;
+        fbmSettings.frequency = 1d;
         fbmSettings.shouldCache = false;
         return fbmSettings;
     }

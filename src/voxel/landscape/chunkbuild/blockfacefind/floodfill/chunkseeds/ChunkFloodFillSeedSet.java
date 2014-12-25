@@ -29,6 +29,7 @@ public class ChunkFloodFillSeedSet {
             if (adjacentFloodFillSeed == null && floodFillSeed.addCoord(local)) {
                 adjacentFloodFillSeed = floodFillSeed;
             } else {
+                // else: if we did find an adjacent blob already, is the current one also adjacent? if so, combine.
                 if (floodFillSeed.isCoordAdjacent(global)) {
                     adjacentFloodFillSeed.addMembersOfSet(floodFillSeed);
                     seeds.remove(i--);

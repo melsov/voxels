@@ -20,6 +20,10 @@ public class Box {
     public boolean contains(Coord3 co) {
         return co.greaterThanOrEqual(start) && dimensions.greaterThan(co.minus(start));
     }
+    public boolean isOnBorder(Coord3 co) {
+        return contains(co) && (start.x == co.x || start.y == co.y || start.z == co.z ||
+                extent().x - 1 == co.x || extent().y - 1 == co.y || extent().z - 1  == co.z);
+    }
     public int outsideOfInDirection(Coord3 co) {
         Coord3 dif = co.minus(start);
         if (dif.x < 0) {
@@ -64,7 +68,7 @@ public class Box {
         return sb.toString();
     }
 
-    public static Box WorldCoordBoxForChunkAtWorldCoord(Chunk chunk) {
+    public static Box WorldCoordBoxForChunk(Chunk chunk) {
         return Box.WorldCoordBoxForChunkCoord(chunk.position.clone());
     }
     public static Box WorldCoordBoxForChunkCoord(Coord3 chunkStart) {

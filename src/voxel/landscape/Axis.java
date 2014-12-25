@@ -1,6 +1,7 @@
 package voxel.landscape;
 
 import voxel.landscape.coord.Coord3;
+import voxel.landscape.util.Asserter;
 
 public class Axis
 {
@@ -30,6 +31,14 @@ public class Axis
 			 return new Coord3(0,1,0);
 		 return new Coord3(0,0,1); 
 	 }
+	public static boolean IsAnAxis(int axis) { return axis == X || axis == Y || axis == Z; }
+
+	public static int OtherAxis(int notA, int notB) {
+		Asserter.assertTrue(IsAnAxis(notA) && IsAnAxis(notB));
+		if (X != notA && X != notB) return X;
+		if (Y != notA && Y != notB) return Y;
+		return Z;
+	}
 
 	 
 }

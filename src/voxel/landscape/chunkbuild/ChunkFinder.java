@@ -48,7 +48,7 @@ public class ChunkFinder {
         SetupDiagonalCoordLook3D();
         SetupTestColumnCoords();
     }
-    private static final int TestColumnsXZDim = 4;
+    private static final int TestColumnsXZDim = 8;
     private static void SetupTestColumnCoords() {
         for(int x = 0; x < TestColumnsXZDim; ++x) {
             for(int z=0; z < TestColumnsXZDim; ++z) {
@@ -256,12 +256,12 @@ public class ChunkFinder {
     private static int TestColumnIndex = 0;
 
     public static Coord3 ClosestEmptyColumn(Camera cam, TerrainMap terrainMap, ColumnMap columnMap) {
-//        if (TestColumnIndex < TestColumnCoords.size()) {
-//            return TestColumnCoords.get(TestColumnIndex++);
-//        }
-//        return new Coord3(0);
+        if (TestColumnIndex < TestColumnCoords.size()) {
+            return TestColumnCoords.get(TestColumnIndex++);
+        }
+        return new Coord3(0);
         // TODO: ensure we're not providing chunks that will be culled because they're far away.
-        return ClosestColumn(cam, terrainMap, columnMap); // ***** WANT
+//        return ClosestColumn(cam, terrainMap, columnMap); // ***** WANT
     }
 
     private static Coord3 SignCoordXZ(Vector3f direction) {

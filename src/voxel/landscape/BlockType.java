@@ -182,5 +182,8 @@ public enum BlockType {
 
 	private int integer;
     private double prevalence;
-	
+
+    public static boolean IsAir(int block) {
+        return BlockType.AIR.ordinal() == block;
+    }
 }

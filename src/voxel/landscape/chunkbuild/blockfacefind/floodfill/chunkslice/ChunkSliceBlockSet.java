@@ -10,15 +10,15 @@ import java.util.HashSet;
 public class ChunkSliceBlockSet
 {
 
-    private Coord3 seed;
-    public Coord3 getSeed() { return  seed; }
+    private Coord3 seedGlobal;
+    public Coord3 getSeedGlobal() { return seedGlobal; }
     private int axis;
     public int getAxis(){ return axis; }
     public final HashSet<ChunkLocalCoord> coords = new HashSet<ChunkLocalCoord>(128);
 
     public ChunkSliceBlockSet(Coord3 _seed, int _axis) {
-        seed = _seed; axis = _axis;
-        coords.add(new ChunkLocalCoord(seed));
+        seedGlobal = _seed; axis = _axis;
+        coords.add(new ChunkLocalCoord(seedGlobal));
     }
 
     public boolean addCoord(Coord3 global) {

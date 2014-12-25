@@ -8,7 +8,8 @@ public enum BuildStatus
 {
     HAS_NOT_BEEN_TOUCHED (0),
     BUILDING_DATA (1),
-    BUILT_DATA(2);
+    BUILT_SURFACE_DATA(2),
+    BUILT_DATA(3);
 
     private int integer;
 

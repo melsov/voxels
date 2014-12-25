@@ -7,18 +7,15 @@ import com.sudoplay.joise.module.ModuleCombiner.CombinerType;
 import com.sudoplay.joise.module.ModuleFractal.FractalType;
 import voxel.landscape.BlockType;
 import voxel.landscape.Chunk;
-import voxel.landscape.coord.Box;
 import voxel.landscape.coord.Coord2;
-import voxel.landscape.coord.Coord3;
-import voxel.landscape.coord.Direction;
 import voxel.landscape.map.TerrainMap;
+import voxel.landscape.noise.fake.BorderBox;
+import voxel.landscape.noise.fake.BorderBoxMaker;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 //import com.sudoplay.joise.examples.Canvas;
 
@@ -52,6 +49,7 @@ public class TerrainDataProvider {
 
     private static final int ARGB_POS_MAX = (256 * 256 * 256);
     private static final int ARGB_POS_ONE_CHANNEL_MAX = 256;
+    private BorderBoxMaker borderBoxMaker = new BorderBoxMaker();
 
     public TerrainDataProvider() {
         this(Mode.NoiseModule);
@@ -71,15 +69,22 @@ public class TerrainDataProvider {
         }
     }
 
+    private static boolean USE_TEST_NOISE = true;
+
     public int getBlockDataAtPosition(int xin, int yin, int zin) {
+
+        if (USE_TEST_NOISE) {
 //        return enclosuresBorder(xin, yin, zin);
 //        return flat(yin);
-//        return fakeTallCaveWithBoxAndAdjacentEnclosure(xin, yin, zin);
+//            return borderBoxMaker.coneCave(xin, yin, zin);
+//            return borderBoxMaker.columns(xin, yin, zin);
+            return borderBoxMaker.conescape(xin, yin, zin);
+//            return borderBoxMaker.fakeTallCaveWithBoxAndAdjacentEnclosure(xin, yin, zin);
 //        return fakeCaveWithBox(xin, yin, zin);
 //        return testNoise(xin, yin, zin);
 
 //        if (fakeCave(xin, yin, zin)) return BlockType.LANTERN.ordinal();
-
+        }
         if (yin < 2) return BlockType.BEDROCK.ordinal();
         if (yin > 63) return BlockType.AIR.ordinal();
         double r = noiseModule.get(
@@ -87,144 +92,13 @@ public class TerrainDataProvider {
                 yin / WORLD_TO_VERTICAL_NOISE_SCALE,
                 zin / WORLD_TO_VERTICAL_NOISE_SCALE);
         return r < 0.001 ? BlockType.AIR.ordinal() : (int) r;
-
-
-//        double r = noiseModule.get(
-//                xin / WORLD_TO_HORIZONTAL_NOISE_SCALE,
-//                (WORLD_TO_VERTICAL_NOISE_SCALE - yin) / WORLD_TO_VERTICAL_NOISE_SCALE,
-//                zin / WORLD_TO_HORIZONTAL_NOISE_SCALE);
-//        return r < 0.001 ? BlockType.AIR.ordinal() : (int) r;
     }
-    public class BorderBox {
-        public Box box;
-        public boolean[] openFaces = new boolean[6];
-        public BorderBox(Box b) {
-            box = b;
-        }
-        public boolean isOnBorder(Coord3 co) {
-            boolean onBorder = box.contains(co) && (box.start.x == co.x || box.start.y == co.y || box.start.z == co.z ||
-                    box.extent().x - 1 == co.x || box.extent().y - 1 == co.y || box.extent().z - 1  == co.z);
-            if (onBorder)
-                for(int dir : Direction.Directions) {
-                    if (openFaces[dir]) {
-                        onBorder = co.componentForDirection(dir) != box.borderLocation(dir);
-                        if (!onBorder) break;
-                    }
-                }
-            return onBorder;
-        }
-    }
+
     private static BorderBox fakeCaveBorderBox;
     private static BorderBox fakeTallCaveBorderBox;
     private static BorderBox enclosure;
-    private static List<BorderBox> enclosures;
-    private static final int ENCLOSURE_COUNT = 8;
-    private List<BorderBox> getEnclosures() {
-        if (enclosures == null) {
-            enclosures = new ArrayList<>(ENCLOSURE_COUNT);
-            int xzdim = 8;
-            int startxz = 2;
-            int incrxz = (int) (xzdim * .75);
-            int yDim = 10;
-            for (int i = 0; i < ENCLOSURE_COUNT; ++i) {
-                BorderBox b = new BorderBox(new Box(new Coord3(startxz, 2, startxz), new Coord3(xzdim, yDim, xzdim)));
-                b.openFaces = new boolean[] { false, false, false, false, true, false};
-                startxz += incrxz;
-                yDim = Math.min(50, yDim + 6);
-                enclosures.add(b);
-            }
-        }
-        return enclosures;
-    }
-    private int enclosuresBorder(int x, int y, int z) {
-        if (y < 4) return BlockType.GRASS.ordinal();
-        Coord3 co = new Coord3(x,y,z);
-        for (int i = 0 ; i < getEnclosures().size(); ++i) {
-            BorderBox bb = getEnclosures().get(i);
-            if (bb.box.contains(co)) {
-                if (!bb.isOnBorder(co))
-                    return BlockType.AIR.ordinal();
-                if (co.y == bb.box.extent().y - 1)
-                    return BlockType.GRASS.ordinal();
-                if (i < getEnclosures().size() - 1 && getEnclosures().get(i + 1).box.contains(co))
-                    return BlockType.AIR.ordinal();
-                if (i > 0 && getEnclosures().get(i - 1).box.contains(co))
-                    return BlockType.AIR.ordinal();
-                return (i & 1) == 1 ? BlockType.SAND.ordinal() : BlockType.STONE.ordinal();
-            }
-        }
-        return BlockType.AIR.ordinal();
-    }
-    public BorderBox getFakeCaveBorderBox() {
-        if (fakeCaveBorderBox == null) {
-            fakeCaveBorderBox = new BorderBox(new Box(new Coord3(20, 0, 20), new Coord3(6,8,6)));
-            fakeCaveBorderBox.openFaces[Direction.XNEG] = true;
-        }
-        return fakeCaveBorderBox;
-    }
-    public BorderBox getFakeTallCaveBorderBox() {
-        if (fakeTallCaveBorderBox == null) {
-            fakeTallCaveBorderBox = new BorderBox(new Box(new Coord3(18, 8, 18), new Coord3(9,12,9)));
-            fakeTallCaveBorderBox.openFaces[Direction.XNEG] = true;
-            fakeTallCaveBorderBox.openFaces[Direction.ZNEG] = false;
-            fakeTallCaveBorderBox.openFaces[Direction.ZPOS] = false;
-        }
-        return fakeTallCaveBorderBox;
-    }
-    public BorderBox getEnclosure() {
-        if (enclosure == null) enclosure = new BorderBox(new Box(new Coord3(2, 8, 7), new Coord3(6,14,22)));
-        return enclosure;
-    }
-    private int flat(int y) {
-        if (y < 4) return BlockType.GRASS.ordinal();
-        return BlockType.AIR.ordinal();
-    }
-    private int fakeTallCaveWithBoxAndAdjacentEnclosure(int x, int y, int z) {
-        if (y < 4) return BlockType.GRASS.ordinal();
-        if (getFakeTallCaveBorderBox().isOnBorder(new Coord3(x,y,z))) {
-            if ((x == 2 && y < 21 && y > 16)) {
-                return BlockType.AIR.ordinal();
-            }
-            return BlockType.LANTERN.ordinal();
-        }
-        if (getEnclosure().isOnBorder(new Coord3(x,y,z))) {
-            return BlockType.SAND.ordinal();
-        }
-        return BlockType.AIR.ordinal();
-    }
-    private int fakeCaveWithBox(int x, int y, int z) {
-        if (y < 4) return BlockType.GRASS.ordinal();
-        if (y == 36 && x > 1 && z > 1) return BlockType.STONE.ordinal();
 
-        if (getFakeCaveBorderBox().isOnBorder(new Coord3(x,y,z))) {
-            return BlockType.LANTERN.ordinal();
-        }
-        if (getFakeTallCaveBorderBox().isOnBorder(new Coord3(x,y,z))) {
-            return BlockType.STONE.ordinal();
-        }
-        return BlockType.AIR.ordinal();
-    }
-    private boolean fakeCave(int xin, int yin, int zin) {
-        Coord3 dims = new Coord3(12, 8, 32);
-        Box box = new Box (new Coord3(10, 40, 0), dims);
-        Coord3 co = new Coord3(xin, yin, zin);
-        return box.contains(co);
-    }
 
-    private int testNoise(int x, int y, int z) {
-//        if  ( (x & 15 + x & 7) + (z & 15 + z & 7) + y < 54) return 3;
-//        int sumxz = (x & 15) + (z & 15);
-//        if ( y < 17 || (y != 20 && y != 19 && ((sumxz + 8) & 31) < 16 && y < 22)) return 3;
-        int across = z;
-        if ((y == 14) && ((across & 3) == 1)) {
-            if ((z & 1) == 1) return 8;
-            else return 5;
-        }
-        if (y == 10 && (across & 15) == 5) return 7;
-        if (y == 12 && (across & 3) == 2) return 4;
-//        if (y < 8) return 3;
-        return 1;
-    }
 
     private BufferedImage getBufferedImage(String src) {
         File imFile = new File(src);
@@ -297,7 +171,7 @@ public class TerrainDataProvider {
     private void setupModuleCAVE() {
         noiseModule = CaveNoiseSettings.CaveSettingsForTerrain(seed).makeModule();
     }
-    private void setupModule() {
+    private void setupModuleREALONE() {
         /*
          * ground_gradient
 	     */
@@ -308,10 +182,86 @@ public class TerrainDataProvider {
 //        Module highlands = TerrainNoiseSettings.HighLandTerrainNoiseSettings(seed).makeTerrainModule(groundGradient); // MakeTerrainNoise(groundGradient, TerrainNoiseSettings.HighLandTerrainNoiseSettings(seed));
         Module mountains = TerrainNoiseSettings.MountainTerrainNoiseSettings(seed, false).makeTerrainModule(groundGradient); // MakeTerrainNoise(groundGradient, TerrainNoiseSettings.MountainTerrainNoiseSettings(seed));
 
-        ModuleSelectSettings dirtAirSelect = ModuleSelectSettings.BlockTypeSelectSettingsManualThreshold(
-                mountains,  BlockType.DIRT, BlockType.AIR, .5d);
+        Module caves = CaveNoiseSettings.CaveSettingsForTerrain(seed).makeModule();
 
+        ModuleCombiner mountainsCaves = new ModuleCombiner(CombinerType.MULT);
+        mountainsCaves.setSource(0, mountains);
+        mountainsCaves.setSource(1, caves);
+
+        ModuleSelectSettings dirtAirSelect = ModuleSelectSettings.BlockTypeSelectSettingsManualThreshold(
+                mountainsCaves,  BlockType.DIRT, BlockType.AIR, .5d);
         noiseModule = dirtAirSelect.makeSelectModule();
+    }
+    private void setupModule() {
+        /*
+         * ground_gradient: the parameters of setGradient are (xlow, xhigh, ylow, yhigh, zlow, zhigh)
+         * x/z low/high are all zero so they don't matter. return values will vary from 0 to 1
+         * as y goes from 0 to 1 (they'll equal y actually)
+	     */
+        ModuleGradient groundGradient = new ModuleGradient();
+        groundGradient.setGradient(0, 0, 0, 1, 0, 0);
+        /*
+         * mountain: values vary to produce 'cloud-like' clumps
+         */
+        // mountain_shape_fractal
+        ModuleFractal mountainShapeFractal = new ModuleFractal(FractalType.FBM, BasisType.GRADIENT, InterpolationType.QUINTIC);
+        mountainShapeFractal.setNumOctaves(8);
+        mountainShapeFractal.setFrequency(1);
+        mountainShapeFractal.setSeed(seed);
+
+        /*
+         * this is a weird one: it turns out that Fractal modules (like the one above) don't reliably give output
+         * that stay within a given bound. When calculate is called, this module polls its source module (mountainShapeFractal in this case)
+         * and establishes a high and a low value. It then scales the values from its source between the specified min and max (-1 and 1)
+         */
+        // mountain_autocorrect
+        ModuleAutoCorrect mountainAutoCorrect = new ModuleAutoCorrect(-1, 1);
+        mountainAutoCorrect.setSource(mountainShapeFractal);
+        mountainAutoCorrect.calculate();
+
+        /*
+         * Notice how each of these modules takes the last as its source. This module is pretty simple
+         * It takes the value given by its source (mountainAutoCorrect), adds 0.15 to it and multiplies by 0.45
+         */
+        // mountain_scale
+        ModuleScaleOffset mountainScale = new ModuleScaleOffset();
+        mountainScale.setScale(0.75);
+        mountainScale.setOffset(0.15);
+        mountainScale.setSource(mountainAutoCorrect);
+
+        /*
+         * This module looks similar to ModuleScaleOffset but its doing something totally different.
+         * It is scaling the y value of the INPUT that it gets. See the blog's noise posts for an explanation
+         * of why this is a good thing.
+         */
+        // mountain_y_scale
+        ModuleScaleDomain mountainYScale = new ModuleScaleDomain();
+        mountainYScale.setScaleY(0.6);
+        mountainYScale.setSource(mountainScale);
+
+        /*
+         * If you understand this module, you'll understand our key trick for generating terrain.
+         * If it weren't for this technique, we'd be better off using a height map. We are
+         * 'perturbing the domain' here. Meaning before our x, y and z "get to" the groundGradient
+         * the y will be nudged up or down, either a little or a lot, by the value of mountainYScale.
+         * See the blog for more details on this.
+         */
+        // mountain_terrain
+        ModuleTranslateDomain mountainTerrain = new ModuleTranslateDomain();
+        mountainTerrain.setAxisYSource(mountainYScale);
+        mountainTerrain.setSource(groundGradient);
+
+        /*
+         * If the value from the above module is greater than .5, return AIR; if less, return GRASS
+         */
+        // ground_select
+        ModuleSelect groundSelect = new ModuleSelect();
+        groundSelect.setHighSource(BlockType.AIR.ordinal());
+        groundSelect.setLowSource(BlockType.GRASS.ordinal());
+        groundSelect.setThreshold(0.5);
+        groundSelect.setControlSource(mountainTerrain);
+
+        noiseModule = groundSelect;
     }
 
     //Simplified version (seems faster also...)
@@ -365,8 +315,8 @@ public class TerrainDataProvider {
 
         // ground_select
         ModuleSelect groundSelect = new ModuleSelect();
-        groundSelect.setLowSource(0);
-        groundSelect.setHighSource(1);
+        groundSelect.setLowSource(BlockType.AIR.ordinal());
+        groundSelect.setHighSource(BlockType.GRASS.ordinal());
         groundSelect.setThreshold(0.5);
         groundSelect.setControlSource(mountainTerrain);
 

@@ -7,10 +7,12 @@ import voxel.landscape.chunkbuild.blockfacefind.floodfill.chunkslice.ChunkSlice;
 import voxel.landscape.coord.Box;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
+import voxel.landscape.debug.DebugGeometry;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.util.Asserter;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -19,10 +21,12 @@ import java.util.List;
 public class FloodFill
 {
     private final TerrainMap map;
+    public final HashSet<Coord3> dirtyChunks = new HashSet<>(24);
+
 //    private final Camera camera;
-    private final List<Coord3> seeds = new ArrayList<Coord3>(30);
-    private int steps;
-    private static final int MAX_STEPS = 500;
+//    private final List<Coord3> seeds = new ArrayList<Coord3>(30);
+//    private int steps;
+//    private static final int MAX_STEPS = 500;
 //    BlockingQueue<Coord3> floodFilledChunkCoords;
 
     private static List<Coord3> fakeChunkList = new ArrayList<Coord3>();
@@ -44,28 +48,30 @@ public class FloodFill
     private boolean FAKERETURNER() { return false; }
     private int testSafteyIterCount = 0;
     /* Will replace the parameter-less version below */
-    public boolean flood(ChunkSlice[] chunkSliceShell, Coord3 seed) {
-        boolean didAddFacesSeed = false, didAddFacesNeg = false, didAddFacesPos = false;
-        ChunkSlice yPosChunkSlice = new ChunkSlice(Chunk.ToChunkPosition(seed), Direction.YPOS);
-        ChunkSlice yNegChunkSlice = new ChunkSlice(Chunk.ToChunkPosition(seed), Direction.YNEG);
+    public void flood(ChunkSlice[] chunkSliceShell, Coord3 seedGlobal) { //TODO: make method void again
+        dirtyChunks.clear(); // dirty chunks keeps track of edited chunks
+        dirtyChunks.add(Chunk.ToChunkPosition(seedGlobal));
 
-        didAddFacesSeed = floodScanLines(chunkSliceShell,yPosChunkSlice, yNegChunkSlice, seed, FloodFill4D.UntouchedType); // first time both y dirs
+        ChunkSlice yPosChunkSlice = new ChunkSlice(Chunk.ToChunkPosition(seedGlobal), Direction.YPOS);
+        ChunkSlice yNegChunkSlice = new ChunkSlice(Chunk.ToChunkPosition(seedGlobal), Direction.YNEG);
 
-//        if (FAKERETURNER()) return; // *************
+        //CONSIDER (TODO): DON'T WE NEED YNEG AND POS EVERY TIME? E.G. TO CATCH THE HIGH CEILINGS OF CAVES?
+//        didAddFacesSeed =
+                floodScanLines(chunkSliceShell,yPosChunkSlice, yNegChunkSlice, seedGlobal, FloodFill4D.UntouchedType); // first time both y dirs
 
         List<ChunkSlice> slices = new ArrayList<ChunkSlice>(5);
         slices.add(yNegChunkSlice);
         //GO Y NEG within Chunk
         ChunkSlice slice = yNegChunkSlice; // slices.remove(0);
-        int seed_Y = Chunk.toChunkLocalCoord(seed).y;
+        int seed_Y = Chunk.toChunkLocalCoord(seedGlobal).y;
         int yCoordIter = seed_Y;
         while (yCoordIter >= 0) {
-            ChunkSlice yNegChunkSliceNext = new ChunkSlice(Chunk.ToChunkPosition(seed), Direction.YNEG);
+            ChunkSlice yNegChunkSliceNext = new ChunkSlice(Chunk.ToChunkPosition(seedGlobal), Direction.YNEG);
             // exhaust the seed regions of this chunk slice
             while (slice.size() > 0) {
                 Coord3 nextSeed = slice.removeNext();
-                didAddFacesNeg = floodScanLines(chunkSliceShell, null, yNegChunkSliceNext, nextSeed, FloodFill4D.UntouchedType);
-
+//                didAddFacesNeg =
+                        floodScanLines(chunkSliceShell, null, yNegChunkSliceNext, nextSeed, FloodFill4D.UntouchedType);
             }
 //            if (yNegChunkSliceNext.size() == 0) break;
             slice = yNegChunkSliceNext;
@@ -77,9 +83,10 @@ public class FloodFill
         yCoordIter = seed_Y;
         slice = yPosChunkSlice;
         while (yCoordIter < Chunk.YLENGTH) {
-            ChunkSlice yPosChunkSliceNext = new ChunkSlice(Chunk.ToChunkPosition(seed), Direction.YPOS);
+            ChunkSlice yPosChunkSliceNext = new ChunkSlice(Chunk.ToChunkPosition(seedGlobal), Direction.YPOS);
             while(slice.size() > 0){
-                didAddFacesPos = floodScanLines(chunkSliceShell, yPosChunkSliceNext, null, slice.removeNext(), FloodFill4D.UntouchedType);
+//                didAddFacesPos =
+                        floodScanLines(chunkSliceShell, yPosChunkSliceNext, null, slice.removeNext(), FloodFill4D.UntouchedType);
             }
             if (yPosChunkSliceNext.size() == 0) break;
             slice = yPosChunkSliceNext;
@@ -89,7 +96,7 @@ public class FloodFill
             yCoordIter++;
         }
 
-        return didAddFacesSeed | didAddFacesNeg | didAddFacesPos;
+//        return didAddFacesSeed | didAddFacesNeg | didAddFacesPos;
     }
 
     private static void addSeed(ArrayList<Coord3> seeds, Coord3 seed) {
@@ -117,10 +124,10 @@ public class FloodFill
         Asserter.assertTrue(initialSeedGlobal != null, "initial seed null...not good");
 
         Chunk seedChunk = map.lookupOrCreateChunkAtPosition(Chunk.ToChunkPosition(initialSeedGlobal));
-        Box chunkBox = Box.WorldCoordBoxForChunkAtWorldCoord(seedChunk);
+        Box chunkBox = Box.WorldCoordBoxForChunk(seedChunk);
 
         /* wasIs arrays used to check whether blocks were unset before lookup:
-         * we (mostly) want to continue flooding only over air blocks that were of type "non_existant"
+         * we (mostly?) want to continue flooding only over air blocks that were of type "non_existant"
          * before we looked them up. *wasIs[0] stores the type before lookup.
          * *wasIs[1] stores the type after lookup */
         byte[] thisCoordWasIs = new byte[2];
@@ -132,9 +139,7 @@ public class FloodFill
         byte[] yPOSWasIs = new byte[2];
 
         getCurrentWasIsWithin(initialSeedGlobal, seedChunk, thisCoordWasIs, (byte) untouchedType);
-        if (!BlockType.IsNonExistentOrPlaceHolderAir(thisCoordWasIs[0])) {
-//        if (!(thisCoordWasIs[0] != untouchedType || thisCoordWasIs[0] != BlockType.PLACEHOLDER_AIR.ordinal())) {
-//            B.bugln("--- block type != unTouched type! at " + initialSeedGlobal.toString() + " Type was: " + BlockType.get(thisCoordWasIs[0]));
+        if (!BlockType.IsNonExistentOrPlaceHolderAir(thisCoordWasIs[0])) { // TODO: also check here if above surface?
             return false;
         }
         boolean didAddFaces = true; // presumptuous!
@@ -155,12 +160,18 @@ public class FloodFill
                  * ZNEG
                  */
                 lessZNEGCoord = new Coord3(seed.x, seed.y, z1);
+
                 int blockType = map.lookupOrCreateBlock(lessZNEGCoord);
                 if (BlockType.IsSolid(blockType)) {
                     addFace(seedChunk, chunkBox, lessZNEGCoord, Direction.ZPOS);
                     z1++;
                     break;
-                } else if (z1 == zAreaStart) {
+                }
+                else if (map.isAboveSurface(lessZNEGCoord)) { // WANT? SHOT IN THE DARK
+                    z1++;
+                    break;
+                }
+                else if (z1 == zAreaStart) {
                     Coord3 zNegNeighbor = new Coord3(seed.x, seed.y, z1 - 1);
                     map.setIsGetWasIsUnsetIfAir(zNegNeighbor, (byte) untouchedType, zNEGWasIs);
 
@@ -179,28 +190,17 @@ public class FloodFill
              * Walk in zpos direction.
              * Add seeds and neighbor seeds as needed.
              * if wasIs[0] for x/y neg/pos != NON EXISTENT, don't seed. it's already been covered
-             * On the other hand, if we hit AIR (as opposed to NON E) on this block, it doesn't mean we've covered
+             * On the other hand, if we hit AIR (as opposed to NON E) on THE CURRENT block, it doesn't mean we've covered
              * this area already, so keep going.
-             * Set blocks back to NON E when inspecting blocks beyond this chunk
+             * Set blocks back to NON EXISTENT when inspecting blocks beyond this chunk
              */
             while(true) {
-                //TEST
-                if (testSafteyIterCount++ > 8000) {
-                    Asserter.assertFalseAndDie("death by iteration: z1 : " + z1 + "chunk box: " + chunkBox.toString());
-                    return didAddFaces; // *****!!TEST!!
-                }
-
-                //#TEST
+                if (testSafteyIterCount++ > 8000) { Asserter.assertFalseAndDie("death by iteration: z1 : " + z1 + "chunk box: " + chunkBox.toString()); return didAddFaces; }
 
                 /*
                  * Look up the current block. And possibly set it in the map as a side effect.
                  */
                 getCurrentWasIsWithin(new Coord3(seed.x, seed.y, z1), seedChunk, thisCoordWasIs, (byte) untouchedType);
-                // Place holder air is no longer needed (or wanted)
-                if (thisCoordWasIs[1] == BlockType.PLACEHOLDER_AIR.ordinal()) {
-                    map.setBlockAtWorldCoord((byte) BlockType.AIR.ordinal(),new Coord3(seed.x, seed.y, z1) );
-                }
-
                 /*
                  * ZPOS: hit a wall?
                  * */
@@ -229,6 +229,7 @@ public class FloodFill
                             spanXNEG = true;
                         }
                     }
+
                     if (BlockType.IsSolid(xNEGWasIs[1])) {
                         addFace(seedChunk, chunkBox, xNegNeighbor, Direction.XPOS);
                         spanXNEG = false;
@@ -247,13 +248,23 @@ public class FloodFill
                     } else {
                         map.setIsGetWasIsUnsetIfAir(xPosNeighbor, (byte) untouchedType, xPOSWasIs);
                     }
+                    //TODO: study the weirdness
                     if (ShouldSeedBlock(xPOSWasIs, localXNeighbor)) {
                         if (seed.x == xAreaEnd - 1) {
                             chunkSliceFromShell(chunkSliceShell, Direction.XPOS).addCoord(xPosNeighbor);
                         } else if (!spanXPOS) {
                             addSeed(seeds, xPosNeighbor);
                             spanXPOS = true;
+                            //DBG
+                            if (seed.y < 5)
+                                DebugGeometry.AddDebugSphere(new Coord3(seed.x + 1, seed.y, z1), ColorRGBA.Cyan, .4f);
                         }
+                        //DBG
+                        if (seed.y < 5)
+                            DebugGeometry.AddDebugSphere(new Coord3(seed.x + 1, seed.y, z1), ColorRGBA.Yellow, .4f);
+                    }
+                    else {
+
                     }
 
                     if (BlockType.IsSolid(xPOSWasIs[1])) {
@@ -265,6 +276,7 @@ public class FloodFill
                 /*
                  * YNEG
                  */
+                //TODO: check whether we're seeding y pos and neg when we should be
                 Coord3 yNegNeighbor = new Coord3(seed.x, seed.y - 1, z1);
                 map.setIsGetWasIsUnsetIfAir(yNegNeighbor, (byte) untouchedType, yNEGWasIs);
                 if (searchYNeg) {
@@ -277,6 +289,8 @@ public class FloodFill
                     }
                 }
                 if (BlockType.IsSolid(yNEGWasIs[1])) {
+                    if (seed.y < 5)
+                        DebugGeometry.AddDebugSphere(new Coord3(seed.x, seed.y, z1), ColorRGBA.Red, .2f);
                     addFace(seedChunk, chunkBox, yNegNeighbor, Direction.YPOS);
                 }
 
@@ -301,9 +315,15 @@ public class FloodFill
                 /*
                  * ZPOS
                  */
+                if (map.isAboveSurface(new Coord3(seed.x, seed.y, z1 ))) { //WANT??? SHOULD WANT RIGHT?
+                    break;
+                }
+//                else if (!map.isAboveSurface(new Coord3(seed.x, seed.y, z1 )) && seed.y < 7) DebugGeometry.AddDebugSphere(new Coord3(seed.x, seed.y, z1), ColorRGBA.Blue, .4f);
+                else
                 if (z1 == zAreaEnd - 1) {
                     Coord3 zPosNeighbor = new Coord3(seed.x, seed.y, z1 + 1);
                     map.setIsGetWasIsUnsetIfAir(zPosNeighbor, (byte) untouchedType, zPOSWasIs);
+
                     if (ShouldSeedBlock(zPOSWasIs)) {
                         chunkSliceFromShell(chunkSliceShell, Direction.ZPOS).addCoord(zPosNeighbor);
                     }
@@ -333,8 +353,10 @@ public class FloodFill
     private void addFace(Chunk seedChunk, Box chunkBounds, Coord3 globalBlockLocation, int direction) {
         if (chunkBounds.contains(globalBlockLocation)) {
             seedChunk.chunkBlockFaceMap.addFace(Chunk.toChunkLocalCoord(globalBlockLocation), direction);
+            dirtyChunks.add(seedChunk.position);
             return;
         }
+        dirtyChunks.add(Chunk.ToChunkPosition(globalBlockLocation));
         map.setBlockFace(globalBlockLocation, direction, true);
     }
     private void getCurrentWasIsWithin(Coord3 global, Chunk chunk, byte[] wasIs, byte untouchedType) {

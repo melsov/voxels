@@ -4,8 +4,6 @@ import voxel.landscape.collection.ColumnMap;
 import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;
-import voxel.landscape.map.light.ChunkSunLightComputer;
-import voxel.landscape.map.water.ChunkWaterLevelComputer;
 import voxel.landscape.noise.TerrainDataProvider;
 
 import java.util.HashSet;
@@ -51,15 +49,21 @@ public class AsyncGenerateColumnDataInfinite implements Runnable // extends Resp
                 terrainMap.generateNoiseForChunkColumn(x, z, dataProvider, touchedChunkCoords);
                 terrainMap.populateFloodFillSeedsUpdateFaceMapsInChunkColumn(x, z, dataProvider, touchedChunkCoords); // ORDER OF THIS LINE AND THE SUN/WATER COMPUTER LINES MATTERS! TODO: FIX
 
+                columnMap.SetBuiltSurface(x, z);
 //                ChunkSunLightComputer.ComputeRays(terrainMap, x, z); // no need. terrain map does this while generating
                 if (!keepGoing.get()) break; //PREVENT FREEZE AT END OF RUN??
 
-                ChunkSunLightComputer.Scatter(terrainMap, columnMap, x, z); //WANT
-                ChunkWaterLevelComputer.Scatter(terrainMap, columnMap, x, z);
-                columnMap.SetBuilt(x, z);
+//                ChunkSunLightComputer.Scatter(terrainMap, columnMap, x, z); //WANT
+//                ChunkWaterLevelComputer.Scatter(terrainMap, columnMap, x, z); //WANT
+//                columnMap.SetBuilt(x, z); // MOVED
 
                 try { sleep(10); } catch (InterruptedException e) { e.printStackTrace(); }
 
+                /*
+                 * AWKWARD BUT: IF THERE WERE NO TOUCHED-CHUNK-COORDS AT ALL,
+                 * ADD A 'DUMMY' CHUNK COORD, SO THAT FLOOD FILL 4D WILL BE PROMPTED
+                 * TO PUT ANY CHUNK SLICES IN THE CHUNK COLUMN IN QUESTION INTO ITS 'IN BOUNDS BAG'
+                 */
                 terrainMap.updateChunksToBeFlooded(touchedChunkCoords);
             }
         }

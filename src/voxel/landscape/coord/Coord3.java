@@ -111,23 +111,30 @@ public class Coord3 implements ICoordXZ
     	}
     	return res;
     }
+	public int smallestComponent() {
+		int result = x < y ? x : y;
+		return z < result ? z : result;
+	}
     public static Coord3 FlipZeroToOneMask(Coord3 c) {
         return new Coord3(c.x == 0 ? 1 : 0,c.y == 0 ? 1 : 0,c.z == 0 ? 1 : 0 );
     }
     public int componentForDirection(int dir) {
         int axis = Direction.AxisForDirection(dir);
-        if (axis == Axis.X) {
-            return x;
-        }
-        if (axis == Axis.Y) {
-            return y;
-        }
-        if (axis == Axis.Z) {
-            return z;
-        }
-        Asserter.assertFalseAndDie("we shouldn't get here");
-        return -1;
+        return componentForAxis(axis);
     }
+	public int componentForAxis(int axis) {
+		if (axis == Axis.X) {
+			return x;
+		}
+		if (axis == Axis.Y) {
+			return y;
+		}
+		if (axis == Axis.Z) {
+			return z;
+		}
+		Asserter.assertFalseAndDie("we shouldn't get here");
+		return -1;
+	}
     
 	@Override
 	public String toString() { return String.format("Coord3 x: %d, y: %d, z: %d", x,y,z); }

@@ -112,7 +112,8 @@ public class BlockMeshUtil
         mset.uvs.addAll(Arrays.asList(
                 offsetStart ,
                 new Vector2f(offsetStart.x, offsetStart.y +.25f),
-                new Vector2f(offsetStart.x + .25f, offsetStart.y + .25f),new Vector2f(offsetStart.x + .25f, offsetStart.y)
+                new Vector2f(offsetStart.x + .25f, offsetStart.y + .25f),
+				new Vector2f(offsetStart.x + .25f, offsetStart.y)
         ));
 //        mset.uvs.addAll(Arrays.asList(new Vector2f(0,0),new Vector2f(0,.25f),new Vector2f(.25f,.25f),new Vector2f(.25f,0)));
 	}

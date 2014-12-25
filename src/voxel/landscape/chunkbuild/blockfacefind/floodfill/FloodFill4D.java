@@ -1,6 +1,5 @@
 package voxel.landscape.chunkbuild.blockfacefind.floodfill;
 
-import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import voxel.landscape.BlockType;
@@ -12,7 +11,6 @@ import voxel.landscape.coord.Box;
 import voxel.landscape.coord.BoxIterator;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
-import voxel.landscape.debug.DebugGeometry;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.player.B;
 import voxel.landscape.util.Asserter;
@@ -60,6 +58,7 @@ public class FloodFill4D implements Runnable
             Coord3 chunkCoord = null;
             //IN
             try {
+                //TODO: check with debug geom
                 chunkCoord = map.chunkCoordsToBeFlooded.take();
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -72,27 +71,53 @@ public class FloodFill4D implements Runnable
     private boolean fake() { return true; }
 
     public void startFlood(Coord3 chunkCoord) {
-        Chunk chunk = map.GetChunk(chunkCoord);
-
-        // * SHORT CIRCUIT THE WHOLE FLOOD FILL (DON'T FLOOD FILL) *
+        // * SHORT CIRCUIT THE WHOLE FLOOD FILL (DON'T FLOOD FILL--for testing) *
 //        if (fake()) {
 //            try { floodFilledChunkCoords.put(chunkCoord);
 //            } catch (InterruptedException e) { e.printStackTrace(); }
 //            return;
 //        }
 
-        // if no seeds (no overhangs). we're done.
-        if (chunk.chunkFloodFillSeedSet.size() == 0) {
+        Chunk chunk = map.GetChunk(chunkCoord);
+        boolean originalChunkCoordWasNeverAdded = chunk.chunkFloodFillSeedSet.size() == 0;
+
+        while(chunk.chunkFloodFillSeedSet.size() > 0) {
+            flood(chunk.chunkFloodFillSeedSet.removeNext());
+        }
+
+        /*
+         * CHECK THE COLUMN OF THIS CHUNK CO
+         * SEE IF THERE ARE ANY SLICES IN THE OUTOFBOUNDS-BAG IN THIS COLUMN
+         * IF SO, REMOVE THEM AND FLOOD FILL WITH THEM
+         */
+        List<ChunkSlice> outOfBoundsBagSlices = outOfBoundsBag.getSlices();
+        for(int i=0; i<outOfBoundsBagSlices.size(); ++i) {
+            ChunkSlice obbSlice = outOfBoundsBagSlices.get(i);
+            if (obbSlice.getChunkCoord().x == chunkCoord.x && obbSlice.getChunkCoord().z == chunkCoord.z) {
+                while(obbSlice.size() > 0) {
+                    Coord3 sliceCoGlobal = obbSlice.removeNext(); // SEED IS GLOBAL!!
+                    flood(sliceCoGlobal);
+                    // AT THIS POINT: IF WE'RE WORKING ON THE ORIG CHUNK COORD. IT NECESSARILY (? REAllY TODO: resolve)
+                    // WILL HAVE BEEN ADDED TO floodFilledCCoords
+                    // SET ORIGINALNEVERADDED TO FALSE.
+                }
+                outOfBoundsBagSlices.remove(i--);
+            }
+        }
+
+        // if there were no seeds (no overhangs). we're done.
+        if (originalChunkCoordWasNeverAdded) { // BAD: TODO: MAKE A SET OF CHUNKCOORDS THAT WERE ADDED TO WITH FLOOD FILL + THIS ORIG COORD (ADD ALL TO FF'DCHCOS)
             try { floodFilledChunkCoords.put(chunkCoord);
             } catch (InterruptedException e) { e.printStackTrace(); }
             return;
         }
-
-        Coord3 seed;
-        while(chunk.chunkFloodFillSeedSet.size() > 0) {
-            seed = chunk.chunkFloodFillSeedSet.removeNext();
-            Asserter.assertTrue(Box.WorldCoordBoxForChunkCoord(chunk.position).contains(seed), "seed not inside of chunk?");
-            flood(seed);
+    }
+    private void putDirtyChunks() {
+        if (floodFill.dirtyChunks.size() == 0) return;
+        Coord3[] dirtyChunks = new Coord3[floodFill.dirtyChunks.size()];
+        dirtyChunks = floodFill.dirtyChunks.toArray(dirtyChunks);
+        for(Coord3 dirty : dirtyChunks) {
+            try { floodFilledChunkCoords.put(dirty); } catch (InterruptedException e) { e.printStackTrace(); }
         }
     }
 
@@ -108,17 +133,13 @@ public class FloodFill4D implements Runnable
 
         inBoundsBag.setBounds(boundsFromChunkCoord(initialChunkCoord));
         floodFill.flood(seedChunkShell, initialSeed);
-
-
-        try { floodFilledChunkCoords.put(initialChunkCoord);
-        } catch (InterruptedException e) { e.printStackTrace(); }
-
+        putDirtyChunks();
 
         /* prime the inBoundsBag from chunkShell after flood filling the initial seed */
         for(int i = 0; i <= Direction.ZPOS; ++i) {
-            if (seedChunkShell[i].size() > 0) inBoundsBag.add(seedChunkShell[i]);
-            else { //DBUG?? or needed?
-//                DebugGeometry.AddDebugChunkSolid(seedChunkShell[i].getChunkCoord(), new ColorRGBA(0f, .1f, .7f, .5f));
+            if (seedChunkShell[i].size() > 0)  {
+                boolean acceptedAsInBounds = inBoundsBag.add(seedChunkShell[i]);
+//                Asserter.assertTrue( acceptedAsInBounds  , " what?! the seed shell's slices not accepted by in bounds bag??");
             }
         }
 
@@ -135,7 +156,7 @@ public class FloodFill4D implements Runnable
              * get a chunk slice
              */
             ColumnMap columnMap = map.getApp().getColumnMap();
-            findChunkSliceInBuiltColumn: do {
+            while (chunkSlice == null) {
                 if (inBoundsBag.size() == 0) {
                     B.bugln("....out of chunkslices. none with non zero size. breaking " + " initial seed: " + initialSeed.toString());
                     break depleteBag;
@@ -146,22 +167,16 @@ public class FloodFill4D implements Runnable
                     ChunkSlice slice = iBBSlices.remove(i); // iBBSlices.get(i);
                     if (slice.size() == 0) {  Asserter.assertFalseAndDie("happens?"); continue; } //TEST? NOT SURE?
 
-                    if (columnMap.IsBuilt(slice.getChunkCoord().x, slice.getChunkCoord().z)) {
+                    if (columnMap.HasAtLeastBuiltSurface(slice.getChunkCoord().x, slice.getChunkCoord().z)) {
                         chunkSlice = slice;
-                        break findChunkSliceInBuiltColumn;
+                        break;
                     } else {
-                        DebugGeometry.AddDebugChunkSolidSkinny(slice.getChunkCoord(), ColorRGBA.Red);
+                        B.bugln("this dos't happen: oBBag" + slice.toString());
                         outOfBoundsBag.add(slice); //TODO: figure how to handle out of bounds becoming inbounds
                         --i;
                     }
                 }
-                try {
-                    B.bugln("sleeping. no inBounds slices");
-                    Thread.sleep(1); //TODO: consider a way around this? Is there anything else to do?
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            } while (chunkSlice == null);
+            }
 
             /* ***** WANT *****
             if (!boundsFromGlobal(camera.getLocation()).contains(chunkSlice.getChunkCoord())){
@@ -170,37 +185,22 @@ public class FloodFill4D implements Runnable
             }
             */
 
-            boolean didAddFaces = false;
-            while(chunkSlice.size() > 0) {
-                Coord3 seed =  chunkSlice.removeNext();
+            while(chunkSlice != null && chunkSlice.size() > 0) {
+                Coord3 seed = chunkSlice.removeNext();
                 ChunkSlice[] chunkShell = new ChunkSlice[6];
                 initializeChunkShell(chunkShell, seed);
 
-                didAddFaces = floodFill.flood(chunkShell, seed) ? true : didAddFaces;
+                floodFill.flood(chunkShell, seed); // ? true : didAddFaces;
                 // inBoundsBag.setBounds(boundsFromGlobal(camera.getLocation())); // WANT!!!
                 for (int i = 0; i <= Direction.ZPOS; ++i) {
-                    ChunkSlice chunkShellSlice = chunkShell[i];
-                    if (chunkShellSlice.size() == 0) {
-                        continue;
-                    }
-                    if (!inBoundsBag.add(chunkShellSlice)) {
-                        outOfBoundsBag.add(chunkShellSlice);
+                    if (chunkShell[i].size() == 0) { continue; }
+                    if (!inBoundsBag.add(chunkShell[i])) {
+                        outOfBoundsBag.add(chunkShell[i]);
                     }
                 }
             }
 
-            // CONSIDER: IF SAME CHUNK COORD IN NEXT CHUNK SLICE, DON'T ADD CHUNK YET
-            if (didAddFaces && map.GetChunk(chunkSlice.getChunkCoord()) != null) {
-                try {floodFilledChunkCoords.put(chunkSlice.getChunkCoord());
-                    Asserter.assertTrue(floodFilledChunkCoords.size() < 600, " hmmm..");
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            } else if (map.GetChunk(chunkSlice.getChunkCoord()) == null) {
-                DebugGeometry.AddDebugChunkSolidSkinny(chunkSlice.getChunkCoord(), ColorRGBA.Magenta);
-            } else if (!didAddFaces) {
-                DebugGeometry.AddDebugChunkSolidSkinny(chunkSlice.getChunkCoord(), ColorRGBA.Green);
-            }
+            putDirtyChunks();
         }
     }
 

@@ -13,6 +13,7 @@ import voxel.landscape.collection.coordmap.managepages.FurthestCoord3PseudoDeleg
 import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.debug.DebugGeometry;
+import voxel.landscape.map.AsyncScatter;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.util.Asserter;
 
@@ -28,6 +29,7 @@ public class WorldGenerator {
     Camera camera;
 
     private BlockingQueue<Coord2> columnsToBeBuilt;
+    private BlockingQueue<Coord2> columnsToBeScattered;
     private BlockingQueue<ChunkMeshBuildingSet> chunksToBeMeshed;
     private BlockingQueue<ChunkMeshBuildingSet> completedChunkMeshSets;
     private AtomicBoolean asyncChunkMeshThreadsShouldKeepGoing = new AtomicBoolean(true);
@@ -37,6 +39,7 @@ public class WorldGenerator {
 
     private ExecutorService colDataPool;
     private ExecutorService chunkMeshBuildPool;
+    private ExecutorService scatterBuildPool;
 
     private final int COLUMN_DATA_BUILDER_THREAD_COUNT_CHUNKWISE = 1;
     private final BlockingQueue<Coord3> chunkCoordsToBeMeshFromChunkWise = new ArrayBlockingQueue<Coord3>(256);
@@ -62,12 +65,12 @@ public class WorldGenerator {
         blockFaceFinder = new BlockFaceFinder(map, camera);
         materialLibrarian = new MaterialLibrarian(_assetManager);
 
-
         initThreadPools();
     }
 
     private void initThreadPools() {
         initColumnDataThreadExecutorService();
+        initLightAndWaterScatterService();
         blockFaceFinder.floodFind(); //TODO: ORDER OF THESE TWO MATTERS RIGHT NOW—AND SHOULDN'T
         initChunkMeshBuildThreadExecutorService();
     }
@@ -131,6 +134,22 @@ public class WorldGenerator {
             chunkMeshBuildPool.execute(asyncMeshBuilder);
         }
     }
+    //TODO: YA ASYNC CLASS/SERVICE: SCATTER LIGHT AND WATER... CONSUMES FROM FLOODFILLDCHUNKCOORDS. PRODUCES SCATTEREDCHUNKS
+    //TODO: CHUNK BUILD TIMER TEST CLASS
+    // OR>>> ADD AFTER? (AND THEN DO A LIGHT UPDATE????)
+    private void initLightAndWaterScatterService() {
+        columnsToBeScattered = new LinkedBlockingQueue<Coord2>(50);
+        scatterBuildPool = Executors.newFixedThreadPool(COLUMN_DATA_BUILDER_THREAD_COUNT);
+        for(int i = 0; i < COLUMN_DATA_BUILDER_THREAD_COUNT; ++i) {
+            AsyncScatter asyncScatter = new AsyncScatter(
+                    map,
+                    columnMap,
+                    columnsToBeScattered,
+                    columnBuildingThreadsShouldKeepGoing);
+            scatterBuildPool.execute(asyncScatter);
+        }
+    }
+
 
     private boolean buildANearbyChunk() {
 //        Coord3 chcoord = chunkCoordsToBeMeshFromChunkWise.poll();

@@ -38,6 +38,7 @@ import voxel.landscape.debugutil.GUIInfo;
 import voxel.landscape.jmonrenderutil.WireProcessor;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.player.Audio;
+import voxel.landscape.player.B;
 import voxel.landscape.player.Player;
 
 import java.awt.*;
@@ -262,6 +263,7 @@ public class VoxelLandscape extends SimpleApplication
     }
 
     private void attachCoordinateAxes(Vector3f pos){
+        B.bugln("X AXIS = RED. Z AXIS = BLUE");
         Arrow arrow = new Arrow(Vector3f.UNIT_X.clone().mult(16f));
         arrow.setLineWidth(4); // make arrow thicker
         putShape(arrow, ColorRGBA.Red).setLocalTranslation(pos);

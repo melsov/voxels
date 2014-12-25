@@ -19,6 +19,9 @@ public class ColumnMap {
     public void SetBuildingData(int x, int z) {
         GetColumnChunk(x, z).buildStatus.set(BuildStatus.BUILDING_DATA.ordinal());
     }
+	public void SetBuiltSurface(int x, int z) {
+		GetColumnChunk(x, z).buildStatus.set(BuildStatus.BUILT_SURFACE_DATA.ordinal());
+	}
 
     public void Destroy(int x, int z) { columns.Remove(x,z); }
 	
@@ -32,6 +35,9 @@ public class ColumnMap {
     public boolean IsBuiltOrIsBuilding(int x, int z) {
         return GetColumnChunk(x, z).buildStatus.get() > BuildStatus.HAS_NOT_BEEN_TOUCHED.ordinal();
     }
+	public boolean HasAtLeastBuiltSurface(int x, int z) {
+		return GetColumnChunk(x, z).buildStatus.get() >= BuildStatus.BUILT_SURFACE_DATA.ordinal();
+	}
     public synchronized boolean SetIsBuildingOrReturnFalseIfStartedAlready(int x, int z) {
         if (HasNotBeenStarted(x,z)) {
             SetBuildingData(x,z);

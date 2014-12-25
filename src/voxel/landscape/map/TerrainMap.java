@@ -122,23 +122,15 @@ public class TerrainMap implements IBlockDataProvider
      */
     public void setIsGetWasIs(Coord3 global, byte untouchedType, byte[] wasIs) {
         Chunk chunk = lookupOrCreateChunkAtPosition(Chunk.ToChunkPosition(global));
-        if (chunk == null) {
-            Asserter.assertTrue(global.y < 0 || global.y >= getMaxChunkCoordY() * Chunk.YLENGTH, "wha null chunk at global co: " + global.toString());
-            wasIs[0] = untouchedType; wasIs[1] = untouchedType;
-            return;
-        }
         Coord3 local = Chunk.toChunkLocalCoord(global);
         wasIs[0] = chunk.blockAt(local);
-        int nowIsType = lookupOrCreateBlock(global);
-        wasIs[1] = (byte) nowIsType;
-        Asserter.assertTrue(wasIs[1] != untouchedType, "block value shouldn't be unTouched now! was value: " + untouchedType + "\n at global: " + global.toString());
+        wasIs[1] = (byte) lookupOrCreateBlock(global);
     }
-    // TODO: CONSIDER: SYNCHRONIZE THESE TWO METHODS?
+
     public void setIsGetWasIsUnsetIfAir(Coord3 woco, byte untouchedType, byte[] wasIs) {
         setIsGetWasIs(woco, untouchedType, wasIs);
         if (wasIs[0] == untouchedType && wasIs[1] == BlockType.AIR.ordinal()) {
             setBlockAtWorldCoord(untouchedType, woco);
-//            setBlockAtWorldCoord((byte) BlockType.PLACEHOLDER_AIR.ordinal(), woco);
         }
     }
 
@@ -239,6 +231,7 @@ public class TerrainMap implements IBlockDataProvider
 
                     if (possibleChunk == null) continue; // must be at world limit?
 
+                    //THIS ADD OPERATION IS ONLY MEANINGFUL ONCE PER CHUNK BUT OH WELL
                     if (i > -1 && j > -1 && i < Chunk.ZLENGTH && j < Chunk.ZLENGTH)
                         touchedChunkCoords.add(nextChunkPos);
 
@@ -291,9 +284,7 @@ public class TerrainMap implements IBlockDataProvider
 
         Coord3 surfacePos;
         /*
-         * ONLY LOOK FOR COLUMNS THAT ARE HIGHER THAN 'US'
-         * IN THE DIRECTION IN WHICH WE ARE LOOKING
-         * GO THROUGH COLUMNS IN X/Z POS/NEG DIRECTIONS
+         * FIND OVERHANGS: SOLID COLUMNS WITH AIR UNDERNEATH THEM. AND THE AIR IS NOT COVERED BY THEIR NEIGHBOR COLUMNS
          */
         // X and Z pos
         for (int i = -1; i < Chunk.XLENGTH; ++i) {
@@ -328,6 +319,7 @@ public class TerrainMap implements IBlockDataProvider
         // TODO: add chunk coord to needs flood fill--here?
     }
 
+    public boolean isAboveSurface(Coord3 coord3) { return getSurfaceHeight(coord3) < coord3.y;  }
     public int getSurfaceHeight(Coord3 coord3) { return getSurfaceHeight(coord3.x,coord3.z); }
     public int getSurfaceHeight(int x, int z) { return sunLightmap.GetSunHeight(x,z) - 1; }
 
@@ -337,28 +329,15 @@ public class TerrainMap implements IBlockDataProvider
         if (height >= neighborHeight) {
             return;
         }
-//        Chunk chunk_ = GetChunk(Chunk.ToChunkPosition(neighbor));
-        Chunk chunk_ = lookupOrCreateChunkAtPosition(Chunk.ToChunkPosition(neighbor));
-        if (chunk_ == null) {
-            Asserter.assertFalseAndDie("null chunk in terrain map column round up??!! (1)");
-            return;
-        }
 
         for(neighbor.y = height + 1; neighbor.y <= neighborHeight; ++neighbor.y ) {
-//            Chunk chunk = GetChunk(Chunk.ToChunkPosition(neighbor));
             Coord3 chunkCoord = Chunk.ToChunkPosition(neighbor);
             Chunk chunk = lookupOrCreateChunkAtPosition(chunkCoord);
 
-            if (chunk == null) {
-                Asserter.assertFalseAndDie("null chunk in terrain map column round up??!! (2)");
-                continue;
-            }
             int was = chunk.blockAt(Chunk.toChunkLocalCoord(neighbor));
-            int is;
+            int is = was;
             if (was == BlockType.NON_EXISTENT.ordinal()) {
                 is = lookupOrCreateBlock(neighbor, _terrainDataProvider);
-            } else {
-                is = was;
             }
 
             if (was == BlockType.NON_EXISTENT.ordinal() && BlockType.IsTranslucent(is)) {
@@ -366,7 +345,6 @@ public class TerrainMap implements IBlockDataProvider
                 chunk.chunkFloodFillSeedSet.addCoord(neighbor);
                 // INEFFICIENT BUT NECESSARY UNTIL WE HAVE 'PLACEHOLDER_AIR.' UNSET THE BLOCK!
                 chunk.setBlockAt((byte) BlockType.NON_EXISTENT.ordinal(), Chunk.toChunkLocalCoord(neighbor));
-
             } //else
             if (BlockType.IsSolid(is)) {
                 touchedChunkCoords.add(chunkCoord);
