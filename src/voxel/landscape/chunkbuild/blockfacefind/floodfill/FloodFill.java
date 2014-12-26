@@ -7,7 +7,6 @@ import voxel.landscape.chunkbuild.blockfacefind.floodfill.chunkslice.ChunkSlice;
 import voxel.landscape.coord.Box;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
-import voxel.landscape.debug.DebugGeometry;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.util.Asserter;
 
@@ -47,57 +46,36 @@ public class FloodFill
 
     private boolean FAKERETURNER() { return false; }
     private int testSafteyIterCount = 0;
-    /* Will replace the parameter-less version below */
-    public void flood(ChunkSlice[] chunkSliceShell, Coord3 seedGlobal) { //TODO: make method void again
+
+    public void flood(ChunkSlice[] chunkSliceShell, Coord3 seedGlobal) {
         dirtyChunks.clear(); // dirty chunks keeps track of edited chunks
         dirtyChunks.add(Chunk.ToChunkPosition(seedGlobal));
 
         ChunkSlice yPosChunkSlice = new ChunkSlice(Chunk.ToChunkPosition(seedGlobal), Direction.YPOS);
         ChunkSlice yNegChunkSlice = new ChunkSlice(Chunk.ToChunkPosition(seedGlobal), Direction.YNEG);
-
-        //CONSIDER (TODO): DON'T WE NEED YNEG AND POS EVERY TIME? E.G. TO CATCH THE HIGH CEILINGS OF CAVES?
-//        didAddFacesSeed =
-                floodScanLines(chunkSliceShell,yPosChunkSlice, yNegChunkSlice, seedGlobal, FloodFill4D.UntouchedType); // first time both y dirs
-
-        List<ChunkSlice> slices = new ArrayList<ChunkSlice>(5);
+        floodScanLines(chunkSliceShell,yPosChunkSlice, yNegChunkSlice, seedGlobal, FloodFill4D.UntouchedType);
+        List<ChunkSlice> slices = new ArrayList<ChunkSlice>(25);
         slices.add(yNegChunkSlice);
-        //GO Y NEG within Chunk
-        ChunkSlice slice = yNegChunkSlice; // slices.remove(0);
-        int seed_Y = Chunk.toChunkLocalCoord(seedGlobal).y;
-        int yCoordIter = seed_Y;
-        while (yCoordIter >= 0) {
-            ChunkSlice yNegChunkSliceNext = new ChunkSlice(Chunk.ToChunkPosition(seedGlobal), Direction.YNEG);
-            // exhaust the seed regions of this chunk slice
-            while (slice.size() > 0) {
-                Coord3 nextSeed = slice.removeNext();
-//                didAddFacesNeg =
-                        floodScanLines(chunkSliceShell, null, yNegChunkSliceNext, nextSeed, FloodFill4D.UntouchedType);
-            }
-//            if (yNegChunkSliceNext.size() == 0) break;
-            slice = yNegChunkSliceNext;
-//            if (yCoordIter == 0) {
-//                chunkSliceShell[Direction.YNEG] = yNegChunkSliceNext;
-//            }
-            yCoordIter--;
-        }
-        yCoordIter = seed_Y;
-        slice = yPosChunkSlice;
-        while (yCoordIter < Chunk.YLENGTH) {
-            ChunkSlice yPosChunkSliceNext = new ChunkSlice(Chunk.ToChunkPosition(seedGlobal), Direction.YPOS);
-            while(slice.size() > 0){
-//                didAddFacesPos =
-                        floodScanLines(chunkSliceShell, yPosChunkSliceNext, null, slice.removeNext(), FloodFill4D.UntouchedType);
-            }
-            if (yPosChunkSliceNext.size() == 0) break;
-            slice = yPosChunkSliceNext;
-//            if (yCoordIter == Chunk.YLENGTH - 1) {
-//                chunkSliceShell[Direction.YPOS] = yPosChunkSliceNext;
-//            }
-            yCoordIter++;
-        }
+        slices.add(yPosChunkSlice);
 
-//        return didAddFacesSeed | didAddFacesNeg | didAddFacesPos;
+        while(slices.size() > 0) {
+            ChunkSlice nextSlice = slices.remove(0);
+
+            ChunkSlice yPosChunkSliceNext = new ChunkSlice(Chunk.ToChunkPosition(seedGlobal), Direction.YPOS);
+            ChunkSlice yNegChunkSliceNext = new ChunkSlice(Chunk.ToChunkPosition(seedGlobal), Direction.YNEG);
+            while(nextSlice.size() > 0) {
+                Coord3 nextSeed = nextSlice.removeNext();
+                floodScanLines(chunkSliceShell, yPosChunkSliceNext, yNegChunkSliceNext, nextSeed, FloodFill4D.UntouchedType );
+            }
+            if (yPosChunkSliceNext.size() > 0) {
+                slices.add(yPosChunkSliceNext);
+            }
+            if (yNegChunkSliceNext.size() > 0) {
+                slices.add(yNegChunkSliceNext);
+            }
+        }
     }
+
 
     private static void addSeed(ArrayList<Coord3> seeds, Coord3 seed) {
         seeds.add(seed);
@@ -111,14 +89,19 @@ public class FloodFill
         return color.clone().add(new ColorRGBA(i/64f,i/64f,i/64f, 1f));
     }
 
+    /*
+     * Finds transparent blocks (mostly air) below the surface in a given chunk, starting at a given seed coord
+     * @param initialSeedGlobal
+     * Uses the scan lines algorithm.
+     * New seeds one block above and one block below (in Y) are store in the yPos/Neg "chunk slices"
+     * New seeds found outside the chunk are also stored in chunkSlices (the ones in @param chunkSliceShell )
+     */
     public boolean floodScanLines(ChunkSlice[] chunkSliceShell, ChunkSlice yPosChunkSlice, ChunkSlice yNegChunkSlice, Coord3 initialSeedGlobal, int untouchedType) {
         testSafteyIterCount = 0;
         boolean searchYPos = yPosChunkSlice != null;
         boolean searchYNeg = yNegChunkSlice != null;
-        // like scan lines method below, except use chunk slices, not the array lists for
-        // y direction searches — and outside-of-chunk searches
         // TODO: deal with water!
-//        ArrayList<Coord3> resul = new ArrayList<Coord3>(6 * 3);
+
         ArrayList<Coord3> seeds = new ArrayList<Coord3>(Chunk.XLENGTH * Chunk.YLENGTH * Chunk.ZLENGTH);
 
         Asserter.assertTrue(initialSeedGlobal != null, "initial seed null...not good");
@@ -139,7 +122,7 @@ public class FloodFill
         byte[] yPOSWasIs = new byte[2];
 
         getCurrentWasIsWithinChunk(initialSeedGlobal, seedChunk, thisCoordWasIs, (byte) untouchedType);
-        if (!BlockType.IsNonExistentOrPlaceHolderAir(thisCoordWasIs[0])) { // TODO: also check here if above surface?
+        if (!BlockType.IsNonExistentOrPlaceHolderAir(thisCoordWasIs[0])) {
             return false;
         }
         boolean didAddFaces = true; // presumptuous!
@@ -155,10 +138,6 @@ public class FloodFill
             Coord3 seed = seeds.remove(0);
             z1 = seed.z;
             Coord3 lessZNEGCoord;
-
-            Coord3 TEST_BLOCK = new Coord3(28, 4, 20);
-            if (seed.y < 5 && seed.x > 20)
-                DebugGeometry.AddDebugSphere(new Coord3(seed.x + 1, seed.y, z1), ColorRGBA.Magenta, .56f);
 
             while (true) {
                 /*
@@ -205,7 +184,6 @@ public class FloodFill
                 /*
                  * Look up the current block. And possibly set it in the map as a side effect.
                  */
-
                 getCurrentWasIsWithinChunk(new Coord3(seed.x, seed.y, z1), seedChunk, thisCoordWasIs, (byte) untouchedType);
 
                 /*
@@ -235,11 +213,12 @@ public class FloodFill
                             addSeed(seeds, xNegNeighbor);
                             spanXNEG = true;
                         }
+                    } else {
+                        spanXNEG = false;
                     }
 
                     if (BlockType.IsSolid(xNEGWasIs[1])) {
                         addFace(seedChunk, chunkBox, xNegNeighbor, Direction.XPOS);
-                        spanXNEG = false;
                     }
                 }
 
@@ -257,33 +236,20 @@ public class FloodFill
                     }
                     //TODO: study the weirdness
                     if (ShouldSeedBlock(xPOSWasIs, localXNeighbor)) {
-                        //DBG
-                        if (seed.y < 5)
-                            DebugGeometry.AddDebugSphere(new Coord3(seed.x + 1, seed.y, z1), spanXPOS ? ColorRGBA.Black : ColorRGBA.Yellow, .5f);
-
                         if (seed.x == xAreaEnd - 1) {
                             chunkSliceFromShell(chunkSliceShell, Direction.XPOS).addCoord(xPosNeighbor);
                         } else if (!spanXPOS) {
                             addSeed(seeds, xPosNeighbor);
                             spanXPOS = true;
-                            //DBG
-                            if (seed.y < 5)
-                                DebugGeometry.AddDebugSphere(new Coord3(seed.x + 1, seed.y, z1), ColorRGBA.Brown, .1f);
                         }
                     }
                     else {
-                        spanXPOS = false; // THIS SHOULD BE RIGHT!
+                        spanXPOS = false;
                     }
 
                     if (BlockType.IsSolid(xPOSWasIs[1])) {
                         addFace(seedChunk, chunkBox, xPosNeighbor, Direction.XNEG);
-//                        spanXPOS = false;
                     }
-//                    //LIKE THIS???
-//                    else if (map.isAboveSurface(new Coord3(seed.x + 1, seed.y, z1))) {
-////                        spanXPOS = false??
-//                    }
-                    Asserter.assertTrue(!(BlockType.IsSolid(xPOSWasIs[1]) && map.isAboveSurface(new Coord3(seed.x + 1, seed.y, z1)) ));
                 }
 
                 /*
@@ -323,15 +289,13 @@ public class FloodFill
                     addFace(seedChunk, chunkBox, yPosNeighbor, Direction.YNEG);
                 }
 
+
                 if (map.isAboveSurface(new Coord3(seed.x, seed.y, z1 ))) { //WANT??? SHOULD WANT RIGHT?
-                    if (seed.y < 5)
-                        DebugGeometry.AddDebugSphere(new Coord3(seed.x, seed.y, z1), ColorRGBA.Blue, .3f);
                     break;
                 }
                 /*
                  * ZPOS
                  */
-//                else if (!map.isAboveSurface(new Coord3(seed.x, seed.y, z1 )) && seed.y < 7) DebugGeometry.AddDebugSphere(new Coord3(seed.x, seed.y, z1), ColorRGBA.Blue, .4f);
                 else
                 if (z1 == zAreaEnd - 1) {
                     Coord3 zPosNeighbor = new Coord3(seed.x, seed.y, z1 + 1);
@@ -374,7 +338,7 @@ public class FloodFill
     }
     private void getCurrentWasIsWithinChunk(Coord3 global, Chunk chunk, byte[] wasIs, byte untouchedType) {
         wasIs[0] = chunk.blockAt(Chunk.toChunkLocalCoord(global));
-        if (wasIs[0] != untouchedType) {
+        if (wasIs[0] != FloodFill4D.UntouchedType) {
             wasIs[1] = wasIs[0];
             return;
         }
