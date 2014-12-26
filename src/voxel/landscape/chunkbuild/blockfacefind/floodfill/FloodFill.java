@@ -138,7 +138,7 @@ public class FloodFill
         byte[] yNEGWasIs = new byte[2];
         byte[] yPOSWasIs = new byte[2];
 
-        getCurrentWasIsWithin(initialSeedGlobal, seedChunk, thisCoordWasIs, (byte) untouchedType);
+        getCurrentWasIsWithinChunk(initialSeedGlobal, seedChunk, thisCoordWasIs, (byte) untouchedType);
         if (!BlockType.IsNonExistentOrPlaceHolderAir(thisCoordWasIs[0])) { // TODO: also check here if above surface?
             return false;
         }
@@ -155,6 +155,11 @@ public class FloodFill
             Coord3 seed = seeds.remove(0);
             z1 = seed.z;
             Coord3 lessZNEGCoord;
+
+            Coord3 TEST_BLOCK = new Coord3(28, 4, 20);
+            if (seed.y < 5 && seed.x > 20)
+                DebugGeometry.AddDebugSphere(new Coord3(seed.x + 1, seed.y, z1), ColorRGBA.Magenta, .56f);
+
             while (true) {
                 /*
                  * ZNEG
@@ -186,21 +191,23 @@ public class FloodFill
                 z1--;
             }
             spanXNEG = spanXPOS = false;
-            /*
-             * Walk in zpos direction.
+            /************
+             * Walk in ZPOS direction.
              * Add seeds and neighbor seeds as needed.
              * if wasIs[0] for x/y neg/pos != NON EXISTENT, don't seed. it's already been covered
              * On the other hand, if we hit AIR (as opposed to NON E) on THE CURRENT block, it doesn't mean we've covered
              * this area already, so keep going.
              * Set blocks back to NON EXISTENT when inspecting blocks beyond this chunk
-             */
+             ************/
             while(true) {
                 if (testSafteyIterCount++ > 8000) { Asserter.assertFalseAndDie("death by iteration: z1 : " + z1 + "chunk box: " + chunkBox.toString()); return didAddFaces; }
 
                 /*
                  * Look up the current block. And possibly set it in the map as a side effect.
                  */
-                getCurrentWasIsWithin(new Coord3(seed.x, seed.y, z1), seedChunk, thisCoordWasIs, (byte) untouchedType);
+
+                getCurrentWasIsWithinChunk(new Coord3(seed.x, seed.y, z1), seedChunk, thisCoordWasIs, (byte) untouchedType);
+
                 /*
                  * ZPOS: hit a wall?
                  * */
@@ -216,7 +223,7 @@ public class FloodFill
                     Coord3 xNegNeighbor = new Coord3(seed.x - 1, seed.y, z1);
                     boolean localXNeighbor = false;
                     if (seed.x > xAreaStart) {
-                        getCurrentWasIsWithin(xNegNeighbor, seedChunk, xNEGWasIs, (byte) untouchedType);
+                        getCurrentWasIsWithinChunk(xNegNeighbor, seedChunk, xNEGWasIs, (byte) untouchedType);
                         localXNeighbor = true;
                     } else {
                         map.setIsGetWasIsUnsetIfAir(xNegNeighbor, (byte) untouchedType, xNEGWasIs);
@@ -243,13 +250,17 @@ public class FloodFill
                     Coord3 xPosNeighbor = new Coord3(seed.x + 1, seed.y, z1);
                     boolean localXNeighbor = false;
                     if (seed.x < xAreaEnd - 1) {
-                        getCurrentWasIsWithin(xPosNeighbor, seedChunk, xPOSWasIs, (byte) untouchedType);
+                        getCurrentWasIsWithinChunk(xPosNeighbor, seedChunk, xPOSWasIs, (byte) untouchedType);
                         localXNeighbor = true;
                     } else {
                         map.setIsGetWasIsUnsetIfAir(xPosNeighbor, (byte) untouchedType, xPOSWasIs);
                     }
                     //TODO: study the weirdness
                     if (ShouldSeedBlock(xPOSWasIs, localXNeighbor)) {
+                        //DBG
+                        if (seed.y < 5)
+                            DebugGeometry.AddDebugSphere(new Coord3(seed.x + 1, seed.y, z1), spanXPOS ? ColorRGBA.Black : ColorRGBA.Yellow, .5f);
+
                         if (seed.x == xAreaEnd - 1) {
                             chunkSliceFromShell(chunkSliceShell, Direction.XPOS).addCoord(xPosNeighbor);
                         } else if (!spanXPOS) {
@@ -257,20 +268,22 @@ public class FloodFill
                             spanXPOS = true;
                             //DBG
                             if (seed.y < 5)
-                                DebugGeometry.AddDebugSphere(new Coord3(seed.x + 1, seed.y, z1), ColorRGBA.Cyan, .4f);
+                                DebugGeometry.AddDebugSphere(new Coord3(seed.x + 1, seed.y, z1), ColorRGBA.Brown, .1f);
                         }
-                        //DBG
-                        if (seed.y < 5)
-                            DebugGeometry.AddDebugSphere(new Coord3(seed.x + 1, seed.y, z1), ColorRGBA.Yellow, .4f);
                     }
                     else {
-
+                        spanXPOS = false; // THIS SHOULD BE RIGHT!
                     }
 
                     if (BlockType.IsSolid(xPOSWasIs[1])) {
                         addFace(seedChunk, chunkBox, xPosNeighbor, Direction.XNEG);
-                        spanXPOS = false;
+//                        spanXPOS = false;
                     }
+//                    //LIKE THIS???
+//                    else if (map.isAboveSurface(new Coord3(seed.x + 1, seed.y, z1))) {
+////                        spanXPOS = false??
+//                    }
+                    Asserter.assertTrue(!(BlockType.IsSolid(xPOSWasIs[1]) && map.isAboveSurface(new Coord3(seed.x + 1, seed.y, z1)) ));
                 }
 
                 /*
@@ -289,8 +302,6 @@ public class FloodFill
                     }
                 }
                 if (BlockType.IsSolid(yNEGWasIs[1])) {
-                    if (seed.y < 5)
-                        DebugGeometry.AddDebugSphere(new Coord3(seed.x, seed.y, z1), ColorRGBA.Red, .2f);
                     addFace(seedChunk, chunkBox, yNegNeighbor, Direction.YPOS);
                 }
 
@@ -312,12 +323,14 @@ public class FloodFill
                     addFace(seedChunk, chunkBox, yPosNeighbor, Direction.YNEG);
                 }
 
+                if (map.isAboveSurface(new Coord3(seed.x, seed.y, z1 ))) { //WANT??? SHOULD WANT RIGHT?
+                    if (seed.y < 5)
+                        DebugGeometry.AddDebugSphere(new Coord3(seed.x, seed.y, z1), ColorRGBA.Blue, .3f);
+                    break;
+                }
                 /*
                  * ZPOS
                  */
-                if (map.isAboveSurface(new Coord3(seed.x, seed.y, z1 ))) { //WANT??? SHOULD WANT RIGHT?
-                    break;
-                }
 //                else if (!map.isAboveSurface(new Coord3(seed.x, seed.y, z1 )) && seed.y < 7) DebugGeometry.AddDebugSphere(new Coord3(seed.x, seed.y, z1), ColorRGBA.Blue, .4f);
                 else
                 if (z1 == zAreaEnd - 1) {
@@ -359,7 +372,7 @@ public class FloodFill
         dirtyChunks.add(Chunk.ToChunkPosition(globalBlockLocation));
         map.setBlockFace(globalBlockLocation, direction, true);
     }
-    private void getCurrentWasIsWithin(Coord3 global, Chunk chunk, byte[] wasIs, byte untouchedType) {
+    private void getCurrentWasIsWithinChunk(Coord3 global, Chunk chunk, byte[] wasIs, byte untouchedType) {
         wasIs[0] = chunk.blockAt(Chunk.toChunkLocalCoord(global));
         if (wasIs[0] != untouchedType) {
             wasIs[1] = wasIs[0];
