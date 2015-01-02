@@ -53,6 +53,9 @@ public class Coord2 implements ICoordXZ
 	}
 	public boolean equals(Coord2 other) { return x == other.x && y == other.y; }
     public boolean greaterThan(Coord2 other) { return x > other.x && y > other.y; }
+	public boolean greaterThanOrEqual(Coord2 co) {
+		return x >= co.x && y >= co.y;
+	}
     public boolean lessThan(Coord2 other) { return x < other.x && y < other.y; }
 
     @Override
@@ -85,4 +88,6 @@ public class Coord2 implements ICoordXZ
     public int getZ() {
         return y;
     }
+
+
 }

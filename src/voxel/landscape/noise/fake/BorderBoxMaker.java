@@ -1,7 +1,11 @@
 package voxel.landscape.noise.fake;
 
+import voxel.landscape.Axis;
 import voxel.landscape.BlockType;
+import voxel.landscape.Chunk;
+import voxel.landscape.chunkbuild.ChunkFinder;
 import voxel.landscape.coord.Box;
+import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
 
@@ -38,24 +42,103 @@ public class BorderBoxMaker {
         }
         return columns;
     }
+
+    private static List<AbstractTestShape> shapeMix = new ArrayList<>(48);
+    static {
+//        setupShapeMixPyramid();
+        setupToothyBoxes();
+    }
+
+    private static void setupToothyBoxes() {
+        Coord2 start2 = ChunkFinder.GetTestColumns().start;
+        Coord3 start = Chunk.ToWorldPosition(new Coord3(start2.x, 0, start2.getZ() ));
+        int height = 7;
+        int dim = 16;
+        int xoffset = 5, zoffset = 5;
+
+
+        Box box = new Box(new Coord3(start.x + xoffset , height, start.getZ() + zoffset ), new Coord3(dim));
+//        ToothyBox toothyBox = new ToothyBox(box);
+        BorderBox toothyBox = new BorderBox(box);
+        toothyBox.openFaces = new boolean[] {false, false, false, false, true, false };
+        shapeMix.add(toothyBox);
+    }
+
+    private static void setupShapeMixPyramid() {
+        //set up shape mix list //open pyramid configuration
+        // todo: try a set up with only two toothy boxes
+        int xzdim = 16;
+        int ydim = 16;
+        int baseSize = 5;
+        Coord2 start = ChunkFinder.GetTestColumns().start;
+        for(int k = baseSize; k >= baseSize/2; --k) {
+            int level = baseSize - k;
+            for (int i = level; i < k; i += k - 1) {
+                for (int j = level; j < k; ++j) {
+                    boolean[] openfaces = new boolean[]{true, false, false, true, true, false};
+                    Box cbox = new Box(
+                            new Coord3(
+                                start.x + (xzdim * i * .35) + 2 + i + j*3,
+                                (level * ydim * .5) + 7,
+                                start.getZ() + (xzdim * j) + 2),
+                            new Coord3(
+                                xzdim + 2,
+                                ydim,
+                                xzdim + 2));
+//                    ToothyCone bcone = new ToothyCone(cbox, Axis.Z);
+                    ToothyBox tbox = new ToothyBox(cbox);
+                    shapeMix.add(tbox);
+                }
+            }
+            if (level == k) break;
+        }
+
+    }
+
+    public int shapeMix(int x, int y, int z) {
+//        x = x % (ChunkFinder.GetTestColumns().dimensions.getX() * Chunk.XLENGTH);
+//        x = Math.abs(x);
+//        z = z % (ChunkFinder.GetTestColumns().dimensions.getZ() * Chunk.ZLENGTH);
+//        z = Math.abs(z);
+        if (y < 4) return BlockType.GRASS.ordinal();
+        Coord3 co = new Coord3(x,y,z);
+        for (int i = 0 ; i < shapeMix.size(); ++i) {
+            if (shapeMix.get(i).isOnBorder(co)) {
+                return BlockType.SAND.ordinal();
+            }
+        }
+        return BlockType.AIR.ordinal();
+    }
     private List<Cone> getCones() {
         if (cones == null) {
             cones  = new ArrayList<>(4);
-            cones.add(new ToothyCone(new Box(new Coord3(1, 8, 15), new Coord3(12,18,12))));
+
+            ToothyCone toothyOne = new ToothyCone(new Box(new Coord3(1, 8, 15), new Coord3(12,18,12)), Axis.Y);
+            toothyOne.taperDirection = Direction.YPOS;
+            cones.add(toothyOne);
+
+            Cone toothyTwo = new Cone(new Box(new Coord3(1, 18, 15), new Coord3(12,18,12)));
+//            ToothyCone toothyTwo = new ToothyCone(new Box(new Coord3(1, 18, 15), new Coord3(12,18,12)), Axis.Z);
+            toothyTwo.taperDirection = Direction.YPOS;
+            cones.add(toothyTwo);
+
             cones.add(new ToothyCone(new Box(new Coord3(15, 8, 15), new Coord3(18,18,18))));
+
 //            cones.add(new ToothyCone(new Box(new Coord3(31, 8, 15), new Coord3(18,18,18))));
 //            cones.add(new ToothyCone(new Box(new Coord3(-1, 8, 31), new Coord3(18,18,18))));
 //            TODO: study the cases presented here.
         }
         return cones;
     }
+
+
     public int conescape(int x, int y, int z) {
         if (y < 4) return BlockType.GRASS.ordinal();
         Coord3 co = new Coord3(x,y,z);
         for (int i = 0 ; i < getCones().size(); ++i) {
             Cone cone = cones.get(i);
             if (cone.isOnBorder(co)) {
-                return BlockType.STONE.ordinal();
+                return BlockType.SAND.ordinal();
             }
         }
         return BlockType.AIR.ordinal();

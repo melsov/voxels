@@ -78,5 +78,9 @@ public class Box {
         Coord3 start = Chunk.ToWorldPosition(chunkStart);
         return new Box(start, Chunk.ToWorldPosition(chunkEnd).minus(start));
     }
+    @Override
+    public Box clone() {
+        return new Box(start.clone(), dimensions.clone());
+    }
 
 }

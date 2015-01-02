@@ -135,6 +135,21 @@ public class Coord3 implements ICoordXZ
 		Asserter.assertFalseAndDie("we shouldn't get here");
 		return -1;
 	}
+	public void setComponentInDirection(int dir, int value) {
+		setComponentInAxis(Direction.AxisForDirection(dir), value);
+	}
+	public void setComponentInAxis(int axis, int value) {
+		if (axis == Axis.X) {
+			x = value; return;
+		}
+		if (axis == Axis.Y) {
+			y = value; return;
+		}
+		if (axis == Axis.Z) {
+			z = value; return;
+		}
+		Asserter.assertFalseAndDie("we shouldn't get here");
+	}
     
 	@Override
 	public String toString() { return String.format("Coord3 x: %d, y: %d, z: %d", x,y,z); }

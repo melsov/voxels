@@ -7,7 +7,9 @@ import com.jme3.renderer.Camera;
 import voxel.landscape.Chunk;
 import voxel.landscape.VoxelLandscape;
 import voxel.landscape.collection.ColumnMap;
+import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
+import voxel.landscape.coord.Square;
 import voxel.landscape.coord.VektorUtil;
 import voxel.landscape.map.TerrainMap;
 
@@ -48,10 +50,20 @@ public class ChunkFinder {
         SetupDiagonalCoordLook3D();
         SetupTestColumnCoords();
     }
-    private static final int TestColumnsXZDim = 8;
+    private static final int TestColumnsXDim = 8;
+    private static final int TestColumnsXStart = -8;
+    private static final int TestColumnsZDim = 8;
+    private static final int TestColumnsZStart = 0;
+    private static Square testColumns; // = new Square(new Coord2(-7, 3), new Coord2(4, 4));
+    public static Square GetTestColumns() {
+        if (testColumns == null) {
+            testColumns = new Square(new Coord2(TestColumnsXStart, TestColumnsZStart), new Coord2(TestColumnsXDim, TestColumnsZDim));
+        }
+        return testColumns;
+    }
     private static void SetupTestColumnCoords() {
-        for(int x = 0; x < TestColumnsXZDim; ++x) {
-            for(int z=0; z < TestColumnsXZDim; ++z) {
+        for(int x = GetTestColumns().start.x; x < GetTestColumns().extent().x; ++x) {
+            for(int z = GetTestColumns().start.getZ(); z < GetTestColumns().extent().getZ(); ++z) {
                 TestColumnCoords.add(new Coord3(x, 0, z));
             }
         }
@@ -253,15 +265,18 @@ public class ChunkFinder {
         return ClosestChunk(cam, terrainMap, columnMap);
     }
 
+    private static boolean UseTestColumns = false;
     private static int TestColumnIndex = 0;
 
     public static Coord3 ClosestEmptyColumn(Camera cam, TerrainMap terrainMap, ColumnMap columnMap) {
-        if (TestColumnIndex < TestColumnCoords.size()) {
-            return TestColumnCoords.get(TestColumnIndex++);
+        if (UseTestColumns) {
+            if (TestColumnIndex < TestColumnCoords.size()) {
+                return TestColumnCoords.get(TestColumnIndex++);
+            }
+            return new Coord3(0);
         }
-        return new Coord3(0);
         // TODO: ensure we're not providing chunks that will be culled because they're far away.
-//        return ClosestColumn(cam, terrainMap, columnMap); // ***** WANT
+        return ClosestColumn(cam, terrainMap, columnMap); // ***** WANT
     }
 
     private static Coord3 SignCoordXZ(Vector3f direction) {

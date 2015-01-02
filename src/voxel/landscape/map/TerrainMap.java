@@ -164,7 +164,7 @@ public class TerrainMap implements IBlockDataProvider
     public boolean ChunkCoordWithinWorldBounds(Coord3 chunkCoord) {
         return chunkCoord.y >= MIN_CHUNK_DIM_VERTICAL && chunkCoord.y < MAX_CHUNK_DIM_VERTICAL;
     }
-    public boolean isGlobalCoordWithingWorldBounds(Coord3 global) {
+    public boolean isGlobalCoordWithinWorldBounds(Coord3 global) {
         return global.y >= MIN_CHUNK_DIM_VERTICAL * Chunk.YLENGTH && global.y < MAX_CHUNK_DIM_VERTICAL * Chunk.YLENGTH;
     }
 
@@ -236,7 +236,6 @@ public class TerrainMap implements IBlockDataProvider
                         touchedChunkCoords.add(nextChunkPos);
 
                     byte block;
-
                     block = (byte) lookupOrCreateBlock(absPos, _dataProvider);
 
 					/*
@@ -443,6 +442,8 @@ public class TerrainMap implements IBlockDataProvider
 	 * Credit: Mr. Wishmaster methods (YouTube)
 	 */
 	public void SetBlockAndRecompute(byte block, Coord3 pos) {
+        if (!isGlobalCoordWithinWorldBounds(pos)) return;
+
 		Coord3 chunkPos = Chunk.ToChunkPosition(pos);
 		Coord3 localPos = Chunk.toChunkLocalCoord(pos);
 

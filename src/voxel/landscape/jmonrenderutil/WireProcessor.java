@@ -14,6 +14,7 @@ public class WireProcessor implements SceneProcessor
 
     RenderManager renderManager;
     Material wireMaterial;
+    public boolean isWireFrameOn = false;
 
     public WireProcessor(AssetManager manager) {
     	wireMaterial = new Material(manager, "/Common/MatDefs/Misc/Unshaded.j3md");
@@ -36,14 +37,20 @@ public class WireProcessor implements SceneProcessor
     }
 
     public void postQueue(RenderQueue rq) {
-        renderManager.setForcedMaterial(wireMaterial);
+        if (isWireFrameOn) {
+            renderManager.setForcedMaterial(wireMaterial);
+        }
     }
 
     public void postFrame(FrameBuffer out) {
-        renderManager.setForcedMaterial(null);
+        if (isWireFrameOn) {
+        }
+            renderManager.setForcedMaterial(null); // what does this do anyway??
     }
 
     public void cleanup() {
-        renderManager.setForcedMaterial(null);
+        if (isWireFrameOn) {
+        }
+            renderManager.setForcedMaterial(null); // what does this do anyway??
     }
 }

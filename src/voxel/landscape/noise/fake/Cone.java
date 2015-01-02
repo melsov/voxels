@@ -8,20 +8,22 @@ import voxel.landscape.coord.Direction;
 /**
  * Created by didyouloseyourdog on 12/23/14.
  */
-public class Cone {
+public class Cone extends AbstractTestShape {
     public Box box;
     public int taperDirection = Direction.ZPOS;
+    public boolean sureFloor = false;
     public boolean fatSideIsOpen = true;
 
     public Cone(Box _box) {
         box = _box;
     }
 
+    @Override
     public boolean isOnBorder(Coord3 co) {
         if (!box.contains(co)) {
             return false;
         }
-        if (box.start.y == co.y) return true; //sure floor
+        if (sureFloor && box.start.y == co.y) return true;
         boolean onBorder = false;
         int oppTaperDirection = Direction.OppositeDirection(taperDirection);
         int fatBorderLocation = box.borderLocation(oppTaperDirection);

@@ -13,7 +13,7 @@ import java.util.Set;
 /**
  * Created by didyouloseyourdog on 7/29/14.
  */
-public class FurthestCoord3PseudoDelegate // extends AbstractControl
+public class FurthestCoord3PseudoDelegate
 {
     public Coord3 getFurthest2D(Camera cam, Set<Coord2> coords) { return getFurthest2D(cam, coords.toArray()); }
 
@@ -39,12 +39,4 @@ public class FurthestCoord3PseudoDelegate // extends AbstractControl
 
         return new Coord3(furthestXZ.getX(),0,furthestXZ.getZ());
     }
-
-//    @Override
-//    protected void controlUpdate(float v) {
-//    }
-//
-//    @Override
-//    protected void controlRender(RenderManager renderManager, ViewPort viewPort) {
-//    }
 }

@@ -11,8 +11,9 @@ import voxel.landscape.coord.Coord3;
 public class TestBox extends TestCase {
     @Test
     public void testBoxContains() {
-        Box b = new Box(Coord3.Zero.clone(), new Coord3(4));
+        Box b = new Box(new Coord3(-5), new Coord3(200));
         Coord3 negative = new Coord3(-1,2,2);
-        assertTrue("doesn't contain negative coord", !b.contains(negative));
+        assertTrue("does contain negative coord", b.contains(negative));
+
     }
 }

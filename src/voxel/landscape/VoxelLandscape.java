@@ -4,6 +4,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
+import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.material.Material;
@@ -69,6 +70,7 @@ public class VoxelLandscape extends SimpleApplication
 
     private static float GameTime = 0f;
 	private static Coord2 screenDims;
+    private WireProcessor wireProcessor;
 
     private static void setupTestStateVariables()
     {
@@ -95,7 +97,7 @@ public class VoxelLandscape extends SimpleApplication
             DONT_BUILD_CHUNK_MESHES = false;
             SHOW_COLUMN_DEBUG_QUADS = false;
             TEST_BLOCK_FACE_MESH_BUILDING = true;
-            FORCE_WIRE_FRAME = false;
+            FORCE_WIRE_FRAME = true;
         }
     }
 
@@ -132,9 +134,10 @@ public class VoxelLandscape extends SimpleApplication
         BufferUtils.setTrackDirectMemoryEnabled(true);
         setupTestStateVariables();
         if (FORCE_WIRE_FRAME) {
-            viewPort.addProcessor(new WireProcessor(assetManager));
-//    	viewPort.removeProcessor(...); // KEEP FOR REFERENCE: COULD PERHAPS USE THIS TO TOGGLE WIRE FRAMES
+            wireProcessor = new WireProcessor(assetManager);
+            viewPort.addProcessor(wireProcessor);
         }
+
         rootNode.attachChild(worldNode);
 
         worldGenerator = new WorldGenerator(worldNode, cam, terrainMap, columnMap, assetManager);
@@ -159,6 +162,7 @@ public class VoxelLandscape extends SimpleApplication
 
         setupInputs();
         setupWASDInput();
+        setupDebugInputs();
 
     	initCrossHairs();
 
@@ -218,16 +222,36 @@ public class VoxelLandscape extends SimpleApplication
         inputManager.addMapping("Down", new KeyTrigger(KeyInput.KEY_K));
         inputManager.addMapping("Right", new KeyTrigger(KeyInput.KEY_J));
         inputManager.addMapping("Left", new KeyTrigger(KeyInput.KEY_L));
+        inputManager.addMapping("UpArrow", new KeyTrigger(keyInput.KEY_UP));
+        inputManager.addMapping("DownArrow", new KeyTrigger(keyInput.KEY_DOWN));
+        inputManager.addMapping("RightArrow", new KeyTrigger(keyInput.KEY_RIGHT));
+        inputManager.addMapping("LeftArrow", new KeyTrigger(keyInput.KEY_LEFT));
         inputManager.addMapping("Inventory", new KeyTrigger(KeyInput.KEY_E));
         inputManager.addMapping("DebugBlock", new KeyTrigger(KeyInput.KEY_B));
-        inputManager.addListener(player.getUserInputListener(), "Break", "Place", "GoHome", "Up", "Down", "Right", "Left", "Inventory", "DebugBlock");
+        inputManager.addListener(player.getUserInputListener(), "Break", "Place", "GoHome", "Up", "Down", "Right", "Left",
+                "UpArrow", "DownArrow", "RightArrow", "LeftArrow", "Inventory", "DebugBlock");
+    }
+
+    private ActionListener utilityInputListener = new ActionListener() {
+        public void onAction(String name, boolean keyPressed, float tpf) {
+            if (name.equals("WireFrame") && !keyPressed) {
+                if (wireProcessor != null) {
+                    wireProcessor.isWireFrameOn = !wireProcessor.isWireFrameOn;
+                }
+            }
+        }
+    };
+
+    private void setupDebugInputs() {
+        inputManager.addMapping("WireFrame", new KeyTrigger(KeyInput.KEY_V) );
+        inputManager.addListener(utilityInputListener, "WireFrame");
     }
 
     private void setupWASDInput() {
-        inputManager.addMapping("moveForward", new KeyTrigger(keyInput.KEY_UP), new KeyTrigger(keyInput.KEY_W));
-        inputManager.addMapping("moveBackward", new KeyTrigger(keyInput.KEY_DOWN), new KeyTrigger(keyInput.KEY_S));
-        inputManager.addMapping("moveRight", new KeyTrigger(keyInput.KEY_RIGHT), new KeyTrigger(keyInput.KEY_D));
-        inputManager.addMapping("moveLeft", new KeyTrigger(keyInput.KEY_LEFT), new KeyTrigger(keyInput.KEY_A));
+        inputManager.addMapping("moveForward",  new KeyTrigger(keyInput.KEY_W));
+        inputManager.addMapping("moveBackward",  new KeyTrigger(keyInput.KEY_S));
+        inputManager.addMapping("moveRight",  new KeyTrigger(keyInput.KEY_D));
+        inputManager.addMapping("moveLeft",  new KeyTrigger(keyInput.KEY_A));
         inputManager.addMapping("moveUp",  new KeyTrigger(keyInput.KEY_Q));
         inputManager.addMapping("moveDown",  new KeyTrigger(keyInput.KEY_Z));
         inputManager.addMapping("jump",  new KeyTrigger(keyInput.KEY_SPACE));

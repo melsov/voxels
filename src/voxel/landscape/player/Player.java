@@ -15,6 +15,7 @@ import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.CameraControl;
 import com.jme3.scene.shape.Box;
 import voxel.landscape.BlockType;
+import voxel.landscape.Chunk;
 import voxel.landscape.VoxelLandscape;
 import voxel.landscape.coord.*;
 import voxel.landscape.map.TerrainMap;
@@ -32,6 +33,8 @@ public class Player
     Geometry[] blockStepCursorsDEBUG;
     private Node playerNode;
     private Node headNode;
+
+    public final Coord3 spawn = new Coord3(-64,0,64);
 
     private static float height = 1.0f;
     private static float halfWidthXZ = .40f;
@@ -79,6 +82,18 @@ public class Player
             else if (name.equals("Left") && !keyPressed) {
                 toggleFlyMode();
             }
+            else if (name.equals("UpArrow") && !keyPressed) {
+                moveNextChunk(Direction.ZPOS);
+            }
+            else if (name.equals("DownArrow") && !keyPressed) {
+                moveNextChunk(Direction.ZNEG);
+            }
+            else if (name.equals("RightArrow") && !keyPressed) {
+                moveNextChunk(Direction.XNEG);
+            }
+            else if (name.equals("LeftArrow") && !keyPressed) {
+                moveNextChunk(Direction.XPOS);
+            }
             else if (name.equals("Inventory") && !keyPressed) {
             }
             else if (name.equals("DebugBlock") && !keyPressed) {
@@ -90,9 +105,16 @@ public class Player
         Coord3 global = Coord3.FromVector3f(blockCursor.getLocalTranslation());
         B.bugln(terrainMap.getBlockInfoString(global));
     }
+    private void moveNextChunk(int dir) {
+        Coord3 unit = Direction.DirectionCoordForDirection(dir);
+        Coord3 loc = Coord3.FromVector3f(playerNode.getLocalTranslation());
+        teleportTo(Chunk.ToWorldPosition(Chunk.ToChunkPosition(loc).add(unit)));
+    }
+    public void teleportTo(Coord3 global) {
+        playerNode.setLocalTranslation(global.toVector3());
+    }
     private void teleportHome() {
-        Coord3 home = new Coord3(1,0,1);
-        playerNode.setLocalTranslation(new Vector3f(home.x,terrainMap.GetMaxY(home.x,home.z, false) + 4,home.z));
+        playerNode.setLocalTranslation(new Vector3f(spawn.x,terrainMap.GetMaxY(spawn.x, spawn.z, false) + 4, spawn.z));
     }
     private void toggleFlyMode() {
         FLY_MODE = FLY_MODE == 1 ? 0 : 1;
@@ -202,6 +224,7 @@ public class Player
         }
     }
 
+
     private Vector3f checkCollisions(final Vector3f curLoc, final Vector3f proposedMove) {
         Vector3f proposedLoc = curLoc.add(proposedMove).add(playerBodyOffset);
 
@@ -300,6 +323,8 @@ public class Player
 
         if (_camera != null)
             adjustCamera(_camera);
+
+        teleportHome();
     }
 
     public Node getPlayerNode() { return playerNode; }

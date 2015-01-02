@@ -6,6 +6,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.scene.Node;
 import voxel.landscape.chunkbuild.*;
 import voxel.landscape.chunkbuild.blockfacefind.BlockFaceFinder;
+import voxel.landscape.chunkbuild.bounds.XZBounds;
 import voxel.landscape.chunkbuild.meshbuildasync.AsyncMeshBuilder;
 import voxel.landscape.chunkbuild.meshbuildasync.ChunkMeshBuildingSet;
 import voxel.landscape.collection.ColumnMap;
@@ -26,7 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class WorldGenerator {
 
-    Camera camera;
+    private Camera camera;
 
     private BlockingQueue<Coord2> columnsToBeBuilt;
     private BlockingQueue<Coord2> columnsToBeScattered;
@@ -56,13 +57,15 @@ public class WorldGenerator {
     public final MaterialLibrarian materialLibrarian;
 
     public final BlockFaceFinder blockFaceFinder;
+    public final XZBounds xzBounds;
 
     public WorldGenerator(Node _worldNode, Camera _camera, TerrainMap _map, final ColumnMap _columnMap, AssetManager _assetManager) {
         worldNode = _worldNode;
         camera = _camera;
         map = _map;
         columnMap = _columnMap;
-        blockFaceFinder = new BlockFaceFinder(map, camera);
+        xzBounds = new XZBounds(camera, VoxelLandscape.ADD_COLUMN_RADIUS );
+        blockFaceFinder = new BlockFaceFinder(map, camera, xzBounds);
         materialLibrarian = new MaterialLibrarian(_assetManager);
 
         initThreadPools();
@@ -85,7 +88,6 @@ public class WorldGenerator {
     private void addToColumnPriorityQueue() {
         if (columnsToBeBuilt == null) return;
         BlockingQueue<Coord2> queue = columnsToBeBuilt;
-//        PriorityBlockingQueue<Coord2> queue = (PriorityBlockingQueue<Coord2>) columnsToBeBuilt;
         if (queue.size() > 10) return;
         Coord3 emptyCol = ChunkFinder.ClosestEmptyColumn(camera, map, columnMap);
         if (emptyCol == null) {
@@ -95,8 +97,7 @@ public class WorldGenerator {
     }
 
     private void initColumnDataThreadExecutorService() {
-//        ColumnCamComparator columnCamComparator = new ColumnCamComparator(camera);
-        columnsToBeBuilt = new ArrayBlockingQueue<Coord2>(100); // new PriorityBlockingQueue<Coord2>(100, columnCamComparator);
+        columnsToBeBuilt = new ArrayBlockingQueue<Coord2>(100);
         colDataPool = Executors.newFixedThreadPool(COLUMN_DATA_BUILDER_THREAD_COUNT);
         for (int i = 0; i < COLUMN_DATA_BUILDER_THREAD_COUNT; ++i) {
             AsyncGenerateColumnDataInfinite infinColDataThread = new AsyncGenerateColumnDataInfinite(

@@ -1,6 +1,6 @@
 package voxel.landscape.chunkbuild.blockfacefind.floodfill.chunkslice;
 
-import voxel.landscape.coord.Box;
+import voxel.landscape.chunkbuild.bounds.XZBounds;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.player.B;
 
@@ -12,18 +12,27 @@ import java.util.List;
  */
 public class ChunkSliceBag {
     private List<ChunkSlice> slices = new ArrayList<ChunkSlice>(128);
-    private Box bounds;
-    public Box getBounds() { return bounds; }
-    public void setBounds(Box _bounds) {
-        //CONSIDER: for each out of bounds slice remove?? maybe not nec. we can sort out while iterating...
-        bounds = _bounds;
+    public final XZBounds xzBounds;
+//    private Box bounds;
+//    public Box getBounds() { return bounds; }
+//    public void setBounds(Box _bounds) {
+//        //CONSIDER: for each out of bounds slice remove?? maybe not nec. we can sort out while iterating...
+//        bounds = _bounds;
+//    }
+    private ChunkSliceBag() {
+        this(null);
     }
-    private ChunkSliceBag() {}
-    public static ChunkSliceBag ChunkSliceBagWithBounds(Box _bounds) {
-        ChunkSliceBag chunkSliceBag = new ChunkSliceBag();
-        chunkSliceBag.bounds = _bounds;
-        return chunkSliceBag;
+    public ChunkSliceBag(XZBounds _xzBounds) {
+        xzBounds = _xzBounds;
     }
+    public static ChunkSliceBag ChunkSliceBagWithBounds(XZBounds _xzBounds) {
+        return new ChunkSliceBag(_xzBounds);
+    }
+//    public static ChunkSliceBag ChunkSliceBagWithBounds(Box _bounds) {
+//        ChunkSliceBag chunkSliceBag = new ChunkSliceBag();
+//        chunkSliceBag.bounds = _bounds;
+//        return chunkSliceBag;
+//    }
     public static ChunkSliceBag UnboundedChunkSliceBag() {
         return new ChunkSliceBag();
     }
@@ -35,8 +44,9 @@ public class ChunkSliceBag {
         return false;
     }
     private boolean contains(Coord3 co) {
-        if (bounds == null) return true;
-        return bounds.contains(co);
+        if (xzBounds == null) return true;
+        return xzBounds.contains(co);
+//        return bounds.contains(co);
     }
     public ChunkSlice removeNext() {
         if (slices.size() == 0) return null;

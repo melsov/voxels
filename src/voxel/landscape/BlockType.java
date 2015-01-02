@@ -27,6 +27,7 @@ public enum BlockType {
 	private static final Map lookup = new HashMap();
     private static EnumSet<BlockType> existentBlockTypes;
     private static EnumSet<BlockType> generatedSolidTypes;
+    public static final BlockType[] SolidTypes = new BlockType[] { DIRT, GRASS, SAND, STONE, CAVESTONE, LANTERN, BEDROCK };
     private static double TotalPrevalence;
 
 	// Populate the lookup table on loading time

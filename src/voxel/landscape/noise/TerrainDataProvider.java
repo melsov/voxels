@@ -8,6 +8,7 @@ import com.sudoplay.joise.module.ModuleFractal.FractalType;
 import voxel.landscape.BlockType;
 import voxel.landscape.Chunk;
 import voxel.landscape.coord.Coord2;
+import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.noise.fake.BorderBox;
 import voxel.landscape.noise.fake.BorderBoxMaker;
@@ -70,6 +71,7 @@ public class TerrainDataProvider {
     }
 
     private static boolean USE_TEST_NOISE = false;
+    private static boolean SOLID_BLOCKTYPE_PER_CHUNK = true;
 
     public int getBlockDataAtPosition(int xin, int yin, int zin) {
 
@@ -78,12 +80,17 @@ public class TerrainDataProvider {
 //        return flat(yin);
 //            return borderBoxMaker.coneCave(xin, yin, zin);
 //            return borderBoxMaker.columns(xin, yin, zin);
-            return borderBoxMaker.conescape(xin, yin, zin);
+//            return borderBoxMaker.conescape(xin, yin, zin);
 //            return borderBoxMaker.fakeTallCaveWithBoxAndAdjacentEnclosure(xin, yin, zin);
 //        return fakeCaveWithBox(xin, yin, zin);
 //        return testNoise(xin, yin, zin);
-
 //        if (fakeCave(xin, yin, zin)) return BlockType.LANTERN.ordinal();
+
+            int b = borderBoxMaker.shapeMix(xin, yin, zin);
+            if (SOLID_BLOCKTYPE_PER_CHUNK) {
+                return b==BlockType.AIR.ordinal() ? BlockType.AIR.ordinal() : blockTypePerChunk(xin, yin, zin);
+            }
+            return b;
         }
         if (yin < 2) return BlockType.BEDROCK.ordinal();
         if (yin > 63) return BlockType.AIR.ordinal();
@@ -91,7 +98,16 @@ public class TerrainDataProvider {
                 xin / WORLD_TO_VERTICAL_NOISE_SCALE,
                 yin / WORLD_TO_VERTICAL_NOISE_SCALE,
                 zin / WORLD_TO_VERTICAL_NOISE_SCALE);
+        if (SOLID_BLOCKTYPE_PER_CHUNK) {
+            return r < 1.001 ? BlockType.AIR.ordinal() : blockTypePerChunk(xin, yin, zin);
+        }
         return r < 0.001 ? BlockType.AIR.ordinal() : (int) r;
+    }
+
+
+    private int blockTypePerChunk(int x, int y, int z) {
+        Coord3 chco = Chunk.ToChunkPosition(x & 511,y & 255,z & 511);
+        return BlockType.SolidTypes[(chco.x + chco.y + chco.z) % BlockType.SolidTypes.length].ordinal();
     }
 
     private static BorderBox fakeCaveBorderBox;
