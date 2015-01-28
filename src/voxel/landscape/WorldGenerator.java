@@ -151,24 +151,10 @@ public class WorldGenerator {
         }
     }
 
-
     private boolean buildANearbyChunk() {
-//        Coord3 chcoord = chunkCoordsToBeMeshFromChunkWise.poll();
-        Coord3 chcoord = null;
-        chcoord = blockFaceFinder.floodFilledChunkCoords.poll();
-//        try {
-//            chcoord = blockFaceFinder.floodFilledChunkCoords.take(); //FREEZE!
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-        if (chcoord == null){
-            return false;
-        }
-
-        if (map.GetChunk(chcoord) == null) {
-            Asserter.assertFalseAndDie(" build nearby chunk chunkWiSE null Chunk at " + chcoord.toString());
-        }
-
+        Coord3 chcoord = blockFaceFinder.floodFilledChunkCoords.poll();
+        if (chcoord == null){ return false; }
+        Asserter.assertTrue(map.GetChunk(chcoord) != null, "chunk not in map! at chunk coord: " + chcoord.toString());
         buildThisChunk(map.GetChunk(chcoord));
         return true;
     }
@@ -178,7 +164,6 @@ public class WorldGenerator {
     }
 
     private void buildThisChunk(Chunk ch) {
-//        if (ch == null) return;
         ch.setHasEverStartedBuildingToTrue();
         if (!ch.getIsAllAir()) {
             ch.getChunkBrain().SetDirty();

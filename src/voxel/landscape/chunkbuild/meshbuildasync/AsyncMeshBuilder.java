@@ -48,12 +48,9 @@ public class AsyncMeshBuilder implements Runnable
             chunkMeshBuildingSet.meshSet = mset;
             chunkMeshBuildingSet.liquidMeshSet = waterMSet;
 
-            // STILL WANT TO TEST
             if (!chunk.chunkBlockFaceMap.empty()) {
                 chunk.chunkBlockFaceMap.buildMeshFromMap(chunk, mset, waterMSet, chunkMeshBuildingSet.isOnlyLight, chunkMeshBuildingSet.isOnlyLiquid);
             }
-            //TEST! WANT \|/
-//            ChunkBuilder.buildMesh(chunk, mset, waterMSet, chunkMeshBuildingSet.isOnlyLight, chunkMeshBuildingSet.isOnlyLiquid);
 
             try {
                 completedChunkMeshSets.put(chunkMeshBuildingSet);

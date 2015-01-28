@@ -7,6 +7,7 @@ import voxel.landscape.coord.Box;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
 import voxel.landscape.map.TerrainMap;
+import voxel.landscape.map.light.LightComputerUtils;
 import voxel.landscape.util.Asserter;
 
 import java.util.ArrayList;
@@ -133,14 +134,22 @@ public class FloodFill
             Coord3 seed = seeds.remove(0);
             z1 = seed.z;
 
-            Coord3 lessZNEGCoord;
+
+            Coord3 lessZNEGCoord = null;
+            Coord3 previousZNEGForLight = null;
+            int blockType = BlockType.NON_EXISTENT.ordinal();
             while (true) {
                 /*
                  * ZNEG (march backwards until we shouldn't anymore)
                  */
+                int previousType = -1;
+                if (lessZNEGCoord != null) {
+                    previousZNEGForLight = lessZNEGCoord;
+                    previousType = blockType;
+                }
                 lessZNEGCoord = new Coord3(seed.x, seed.y, z1);
 
-                int blockType = map.lookupOrCreateBlock(lessZNEGCoord);
+                blockType = map.lookupOrCreateBlock(lessZNEGCoord);
                 if (BlockType.IsSolid(blockType)) {
                     addFace(seedChunk, chunkBox, lessZNEGCoord, Direction.ZPOS);
                     z1++;
@@ -160,7 +169,12 @@ public class FloodFill
                     if (BlockType.IsSolid(zNEGWasIs[1])) {
                         addFace(seedChunk, chunkBox, zNegNeighbor, Direction.ZPOS);
                     }
+                    offerLight(lessZNEGCoord, zNegNeighbor, (byte) blockType, zNEGWasIs[1]);
                     break;
+                }
+                /* light */
+                if (previousZNEGForLight != null) {
+                    offerLight(previousZNEGForLight, lessZNEGCoord, (byte) previousType, (byte) blockType);
                 }
                 z1--;
             }
@@ -173,21 +187,31 @@ public class FloodFill
              * this area already, so keep going.
              * Set blocks back to NON EXISTENT when inspecting blocks beyond this chunk
              ************/
+            Coord3 subject = null;
+            Coord3 previousSubjectForLight = null;
+            int previousSubjectBlockType = -1;
             while(true) {
                 if (testSafteyIterCount++ > 8000) { Asserter.assertFalseAndDie("death by iteration: z1 : " + z1 + "chunk box: " + chunkBox.toString()); return; }
 
-                Coord3 debugZ1Coord = new Coord3(seed.x, seed.y, z1);
+                if (subject != null) {
+                    previousSubjectForLight = subject;
+                    previousSubjectBlockType = thisCoordWasIs[1];
+                }
+                subject = new Coord3(seed.x, seed.y, z1);
                 /*
                  * Look up the current block. And possibly set it in the map as a side effect.
                  */
-                getCurrentWasIsWithinChunk(new Coord3(seed.x, seed.y, z1), seedChunk, thisCoordWasIs, (byte) untouchedType);
+                getCurrentWasIsWithinChunk(subject, seedChunk, thisCoordWasIs, (byte) untouchedType);
 
                 /*
                  * ZPOS: hit a wall?
                  * */
                 if (BlockType.IsSolid(thisCoordWasIs[1])) {
-                    addFace(seedChunk, chunkBox, new Coord3(seed.x, seed.y, z1), Direction.ZNEG);
+                    addFace(seedChunk, chunkBox, subject, Direction.ZNEG);
                     break;
+                }
+                if(previousSubjectForLight != null) {
+                    offerLight(previousSubjectForLight, subject, (byte) previousSubjectBlockType, thisCoordWasIs[1]);
                 }
 
                 /*
@@ -216,6 +240,7 @@ public class FloodFill
                     if (BlockType.IsSolid(xNEGWasIs[1])) {
                         addFace(seedChunk, chunkBox, xNegNeighbor, Direction.XPOS);
                     }
+                    offerLight(subject, xNegNeighbor, thisCoordWasIs[1], xNEGWasIs[1]);
                 }
 
                 /*
@@ -246,6 +271,7 @@ public class FloodFill
                     if (BlockType.IsSolid(xPOSWasIs[1])) {
                         addFace(seedChunk, chunkBox, xPosNeighbor, Direction.XNEG);
                     }
+                    offerLight(subject, xPosNeighbor, thisCoordWasIs[1], xPOSWasIs[1]);
                 }
 
                 /*
@@ -264,8 +290,8 @@ public class FloodFill
                 if (BlockType.IsSolid(yNEGWasIs[1])) {
                     addFace(seedChunk, chunkBox, yNegNeighbor, Direction.YPOS);
                 }
+                offerLight(subject, yNegNeighbor, thisCoordWasIs[1], yNEGWasIs[1]);
 
-                // TODO: try venetian blinds esque test shape(s)
                 /*
                  * YPOS
                  */
@@ -283,6 +309,7 @@ public class FloodFill
                 if (BlockType.IsSolid(yPOSWasIs[1])) {
                     addFace(seedChunk, chunkBox, yPosNeighbor, Direction.YNEG);
                 }
+                offerLight(subject, yPosNeighbor, thisCoordWasIs[1], yPOSWasIs[1]);
 
 
                 if (map.isAboveSurface(new Coord3(seed.x, seed.y, z1 ))) { //WANT??? SHOULD WANT RIGHT?
@@ -340,26 +367,13 @@ public class FloodFill
         wasIs[1] = (byte) map.lookupOrCreateBlock(global);
     }
 
-//    private void setIsGetWasIs(Coord3 global, byte untouchedType, byte[] wasIs) {
-//        Chunk chunk = map.lookupOrCreateChunkAtPosition(Chunk.ToChunkPosition(global));
-//        if (chunk == null) {
-//            Asserter.assertTrue(global.y < 0 || global.y >= map.getMaxChunkCoordY() * Chunk.YLENGTH, "wha null chunk at global co: " + global.toString());
-//            wasIs[0] = untouchedType; wasIs[1] = untouchedType;
-//            return;
-//        }
-//        Coord3 local = Chunk.toChunkLocalCoord(global);
-//        wasIs[0] = chunk.blockAt(local);
-//        int nowIsType = map.lookupOrCreateBlock(global);
-//        wasIs[1] = (byte) nowIsType;
-//        Asserter.assertTrue(wasIs[1] != untouchedType, "block value shouldn't be unTouched now! was value: " + untouchedType + "\n at global: " + global.toString());
-//    }
-//    private void setIsGetWasIsUnsetIfAir(Coord3 woco, byte untouchedType, byte[] wasIs) {
-//        setIsGetWasIs(woco, untouchedType, wasIs);
-//        if (wasIs[0] == untouchedType && wasIs[1] == BlockType.AIR.ordinal()) {
-//            map.setBlockAtWorldCoord(untouchedType, woco);
-////            map.setBlockAtWorldCoord((byte) BlockType.PLACEHOLDER_AIR.ordinal(), woco);
-//        }
-//    }
+    public static final boolean FLOOD_FILL_HANDLES_LIGHT = true;
+    private void offerLight(Coord3 from, Coord3 to, byte fromType, byte toType){
+        if (FLOOD_FILL_HANDLES_LIGHT) {
+            if (!BlockType.IsTranslucent(toType)) return;
+            map.GetSunLightmap().SetMaxLight((byte) (map.GetSunLightmap().GetLight(from) - LightComputerUtils.GetLightStep(fromType)), to);
+        }
+    }
 
     private void fakeFlood() {
         while(fakeChunkList.size() > 0) {

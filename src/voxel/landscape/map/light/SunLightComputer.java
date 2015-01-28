@@ -127,5 +127,14 @@ public class SunLightComputer {
         Scatter(map, lightPoints);
     }
 
+	public static byte OneStepDownFromLightLevel(int lightLevel, BlockType blockType) {
+		return (byte) (lightLevel - LightComputerUtils.GetLightStep((byte) blockType.ordinal()));
+	}
+
+	public static byte OneStepDownFromMaxLight(BlockType blockType) {
+		return OneStepDownFromLightLevel(MAX_LIGHT, blockType);
+	}
+
+
 }
 

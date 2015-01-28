@@ -245,7 +245,7 @@ public class ChunkFinder {
     }
 
     private static Quaternion CreateFromAxisAngle(double xx, double yy, double zz,  double a){
-        // Here we calculate the sin( theta / 2) once for optimization
+        // Here we calculate the sin( theta / 2 ) once for optimization
         float result = (float) Math.sin(a / 2.0);
 
         // Calculate the x, y and z of the quaternion
@@ -253,7 +253,7 @@ public class ChunkFinder {
         float y = (float) (yy * result);
         float z = (float) (zz * result);
 
-        // Calcualte the w value by cos( theta / 2 )
+        // Calculate the w value by cos( theta / 2 )
         float w = (float) Math.cos(a / 2.0);
 
         Quaternion q = new Quaternion();
@@ -265,7 +265,7 @@ public class ChunkFinder {
         return ClosestChunk(cam, terrainMap, columnMap);
     }
 
-    private static boolean UseTestColumns = false;
+    private static boolean UseTestColumns = true;
     private static int TestColumnIndex = 0;
 
     public static Coord3 ClosestEmptyColumn(Camera cam, TerrainMap terrainMap, ColumnMap columnMap) {

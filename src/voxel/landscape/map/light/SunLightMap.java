@@ -37,8 +37,7 @@ public class SunLightMap
 		if( IsSunLight(chunkPos, localPos, y) ) return false;
 
         ChunkNibble3D chunkLightMap = lights.GetChunkInstance(chunkPos);
-		byte oldLight = (byte) chunkLightMap.Get(localPos);
-		if(oldLight < light) {
+		if(chunkLightMap.Get(localPos) < light) {
 			chunkLightMap.Set(light, localPos);
 			return true;
 		}

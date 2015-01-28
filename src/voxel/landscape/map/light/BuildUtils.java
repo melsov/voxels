@@ -56,7 +56,7 @@ public class BuildUtils {
                 if (wb > 0) {
                     res.g = 0f;
                 } else {
-                    // re-use a,c,d to save memory
+                    // re-use a,c,d to save allocations
                     a = pos.add(new Coord3(dx, 0, 0));
                     c = pos.add(new Coord3(0, 0, dz));
                     d = pos.add(new Coord3(dx, 0, dz));

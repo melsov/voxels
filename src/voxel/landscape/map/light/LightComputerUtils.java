@@ -6,8 +6,7 @@ import voxel.landscape.BlockType;
 import voxel.landscape.chunkbuild.ChunkBrain;
 import voxel.landscape.map.TerrainMap;
 
-class LightComputerUtils {
-
+public class LightComputerUtils {
 	
 	public static void SetLightDirty(TerrainMap map, Coord3 pos) {
 		Coord3 chunkPos = Chunk.ToChunkPosition(pos);
