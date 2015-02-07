@@ -370,7 +370,7 @@ public class VoxelLandscape extends SimpleApplication
 
 
     private void setupSkyTexture() {
-        Texture2D skyTex = TexFromBufferedImage(OnePixelBufferedImage(new Color(.3f,.6f,1f,1f)));
+        Texture2D skyTex = TexFromBufferedImage(OnePixelBufferedImage(new Color(1f,.6f,1f,1f)));
         rootNode.attachChild(SkyFactory.createSky(assetManager, skyTex, true));
     }
     private static BufferedImage OnePixelBufferedImage(Color color) {

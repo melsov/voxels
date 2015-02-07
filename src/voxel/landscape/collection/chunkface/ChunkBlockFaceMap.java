@@ -42,7 +42,6 @@ public class ChunkBlockFaceMap {
         Coord3 localCoord = Chunk.toChunkLocalCoord(global);
         removeAllFaces(localCoord);
         for (int dir : Direction.Directions) {
-//            Coord3 localNudge = localCoord.add(Direction.DirectionCoords[dir]);
             Coord3 globalNudge = global.add(Direction.DirectionCoords[dir]);
             /* Which faceMap? Ours or a neighbors? */
             Map<ChunkBlockFaceCoord, BlockFaceRecord> faceMap;
@@ -57,7 +56,7 @@ public class ChunkBlockFaceMap {
             BlockFaceRecord blockFaceRecord = faceMap.get(new ChunkBlockFaceCoord(localNudge));
             if (blockFaceRecord == null) {
                 /* have we revealed a solid block here? */
-                int blockType = map.lookupOrCreateBlock(global);
+                int blockType = map.lookupOrCreateBlock(globalNudge);
                 if (BlockType.IsSolid(blockType)) {
                     blockFaceRecord = new BlockFaceRecord();
                     faceMap.put(new ChunkBlockFaceCoord(localNudge), blockFaceRecord);
@@ -72,10 +71,8 @@ public class ChunkBlockFaceMap {
         Coord3 localCoord = Chunk.toChunkLocalCoord(global);
         for (int dir : Direction.Directions) {
             Coord3 globalNudge = global.add(Direction.DirectionCoords[dir]);
-//            Coord3 localNudge = localCoord.add(Direction.DirectionCoords[dir]);
             /* Which faceMap? Ours or a neighbors? */
             Map<ChunkBlockFaceCoord, BlockFaceRecord> neighborFaceMap;
-
             if (Chunk.ChunkLocalBox.contains(localCoord.add(Direction.DirectionCoords[dir]))) {
                 neighborFaceMap = getFaces();
             } else {

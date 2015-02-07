@@ -265,7 +265,7 @@ public class ChunkFinder {
         return ClosestChunk(cam, terrainMap, columnMap);
     }
 
-    private static boolean UseTestColumns = true;
+    private static boolean UseTestColumns = false;
     private static int TestColumnIndex = 0;
 
     public static Coord3 ClosestEmptyColumn(Camera cam, TerrainMap terrainMap, ColumnMap columnMap) {

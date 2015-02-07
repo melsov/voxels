@@ -101,13 +101,12 @@ public class FloodFill4D implements Runnable
                 outOfBoundsBagSlices.remove(i--);
             }
         }
-
         // if there were no seeds (no overhangs) we still need to pass this chunk coord along
         if (originalChunkCoordWasNeverAdded) {
             try { floodFilledChunkCoords.put(chunkCoord); } catch (InterruptedException e) { e.printStackTrace(); }
         }
     }
-    private void putDirtyChunks() {
+    private synchronized void putDirtyChunks() { //stab in the dark : 'synchronized'
         if (floodFill.dirtyChunks.size() == 0) return;
         Coord3[] dirtyChunks = new Coord3[floodFill.dirtyChunks.size()];
         dirtyChunks = floodFill.dirtyChunks.toArray(dirtyChunks);

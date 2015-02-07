@@ -447,32 +447,33 @@ public class TerrainMap implements IBlockDataProvider
 	 * Update the map and check if anything else needs updating
 	 * Credit: Mr. Wishmaster methods (YouTube)
 	 */
-	public void SetBlockAndRecompute(byte block, Coord3 pos) {
-        if (!isGlobalCoordWithinWorldBounds(pos)) return;
+	public void SetBlockAndRecompute(byte block, Coord3 global) {
+        if (!isGlobalCoordWithinWorldBounds(global)) return;
 
-		Coord3 chunkPos = Chunk.ToChunkPosition(pos);
-		Coord3 localPos = Chunk.toChunkLocalCoord(pos);
+		Coord3 chunkPos = Chunk.ToChunkPosition(global);
+		Coord3 localPos = Chunk.toChunkLocalCoord(global);
 
         Chunk chunk = GetChunk(chunkPos);
         byte wasType = chunk.blockAt(localPos);
         if (wasType == block) return;
 
-		setBlockAtWorldCoord(block, pos);
+		setBlockAtWorldCoord(block, global);
 
         if (IsTranslucent(block)) {
-            chunk.chunkBlockFaceMap.removeAllFacesUpdateNeighbors(pos, this);
+            chunk.chunkBlockFaceMap.removeAllFacesUpdateNeighbors(global, this);
         }
         if (block != AIR.ordinal()){
             if (IsSolid(block)) {
-                chunk.chunkBlockFaceMap.addExposedFacesUpdateNeighbors(pos, this);
+                chunk.chunkBlockFaceMap.addExposedFacesUpdateNeighbors(global, this);
             }
             //TODO: add faces for the new block. remove occluded faces.
             else {} // TODO: if liquid or glass...
         }
         //need to flood fill?
+        if (false) // ****************** !
         if (!IsTranslucent(wasType) && AIR.ordinal() == block) {
             chunk.setBlockAt((byte) PLACEHOLDER_AIR.ordinal(), localPos); // must 'fool' flood fill
-            chunk.chunkFloodFillSeedSet.addCoord(pos);
+            chunk.chunkFloodFillSeedSet.addCoord(global);
             app.getWorldGenerator().blockFaceFinder.floodFill.startFlood(chunkPos);
         }
 
@@ -492,14 +493,14 @@ public class TerrainMap implements IBlockDataProvider
 		if (localPos.z == Chunk.CHUNKDIMS.z - 1)
 			SetDirty(chunkPos.add(Coord3.forward));
 
-		SunLightComputer.RecomputeLightAtPosition(this, pos.clone());
-		LightComputer.RecomputeLightAtPosition(this, pos.clone());
+		SunLightComputer.RecomputeLightAtPosition(this, global.clone());
+		LightComputer.RecomputeLightAtPosition(this, global.clone());
 
         //TODO: make logic 'more abstract' so TerrainMap doesn't have to deal with the following...
         if (WATER.ordinal() == block) {
-            liquidUpdaterWater.addCoord(pos.clone(), WaterFlowComputer.MAX_WATER_LEVEL);
+            liquidUpdaterWater.addCoord(global.clone(), WaterFlowComputer.MAX_WATER_LEVEL);
         } else {
-            WaterFlowComputer.RecomputeWaterAtPosition(this, pos.clone());
+            WaterFlowComputer.RecomputeWaterAtPosition(this, global.clone());
         }
 	}
 

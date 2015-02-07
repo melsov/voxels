@@ -230,29 +230,32 @@ public class Player
 
         List<Integer> unimpededDirections = new ArrayList<Integer>(); // for use later when finding ground
 
-        /* check side walls */
+        /* check for side walls */
         for (int i = 0; i < Direction.DirectionXZVector3fs.length; ++i) {
-            Vector3f xzunitdir = Direction.DirectionXZVector3fs[i].clone();
-            Vector3f xzdir = xzunitdir.mult(halfWidthXZ);
-            Vector3f xzEdgePos = proposedLoc.add(xzdir);
-            Coord3 edge = Coord3.FromVector3fAdjustNegative(xzEdgePos);
+            Coord3 edge;
+            Vector3f xzunitdir, xzdir, xzEdgePos;
+            xzunitdir = Direction.DirectionXZVector3fs[i].clone();
+            xzdir = xzunitdir.mult(halfWidthXZ);
+            xzEdgePos = proposedLoc.add(xzdir);
+            edge = Coord3.FromVector3fAdjustNegative(xzEdgePos);
             boolean found_solid = BlockType.IsSolid(terrainMap.lookupBlock(edge));
             if (!found_solid){ // check head level
                 edge.y++;
                 found_solid = BlockType.IsSolid(terrainMap.lookupBlock(edge));
             }
+            /* if no side wall, add to the unimpeded list */
             if (!found_solid) {
                 unimpededDirections.add(i);
                 continue;
             }
-
+            /* if side wall, nudge the proposed loc away from the side wall */
             Vector3f corner = edge.toVector3();
             if (xzdir.x < 0 || xzdir.z < 0) {
                 corner = corner.add(Direction.UNIT_XZ.clone()); //doesn't matter which dir since the other dir will be zeroed out.
             }
             proposedLoc = proposedLoc.add(corner.subtract(xzEdgePos).mult(VektorUtil.Abs(xzunitdir)));
         }
-        /* check grounded */
+        /* check grounded, if not jumping */
         Coord3 pco = null;
         boolean gotGround = false;
         if (jumpVelocity < 0.001) {
@@ -262,8 +265,11 @@ public class Player
                 proposedLoc.y = (pco.y + 1f) + (jumping ? .11f : .1f);
             }
 
-            //only look for ground in unimpeded directions b/c our 'toe' can't be on an edge that
-            // we can't occupy (and only if we're not already grounded)
+            /*
+            no ground directly underneath player. check if player's 'toes' are supported by ground.
+            in other words, player collision cube overlaps to an adjacent block and we find ground underneath that block.
+            but only look for ground in unimpeded directions b/c our toes should enter a solid block
+            */
             if (!gotGround) for (Integer i : unimpededDirections) {
                 Vector3f xzunitdir = Direction.DirectionXZVector3fs[i];
                 Vector3f xzdir = xzunitdir.mult(halfWidthXZ);
@@ -275,10 +281,10 @@ public class Player
                 }
             }
             grounded = gotGround;
-            if (!gotGround) jumping = false; // need.
+            if (!gotGround) jumping = false;
         }
 
-    // check for head bump
+        // check for head bump
         boolean gotHeadBump = false;
         if (jumpVelocity > 0) {
             float headRoom = -playerBodyOffset.y + .7f;
@@ -364,7 +370,6 @@ public class Player
 	 */
     private Vector3f stepThroughBlocksUntilHit(Vector3f start, Vector3f direction, boolean wantPlaceBlock) {
     	byte block;
-        //WANT?!!
     	start = start.add(new Vector3f(.5f,.5f,.5f)); //BECAUSE VOXELS ARE CENTERED AROUND WHOLE NUMBER COORDS...
         Coord3 startCoord = Coord3.FromVector3f(start);
     	Coord3 hit = null;
@@ -373,7 +378,9 @@ public class Player
         //TODO: make a plane geom for cursor. it always rotates acc. to hitFaceDirectionIn (which is now never null, etc.)
         int distanceFromPlayerSquared = 0;
 
-        while(distanceFromPlayerSquared < REACHABLE_BLOCK_RADIUS_SQUARED) {
+        int TEST_iter_safety = 0;
+        // TODO: verify: w/o iter_safety does this (somehow) cause an infinite loop?
+        while(distanceFromPlayerSquared < REACHABLE_BLOCK_RADIUS_SQUARED && TEST_iter_safety++ < 20) {
             hitV = VektorUtil.EscapePositionOnUnitGrid(hitV, direction, hitFaceDirectionIn);
             hit = Coord3.FromVector3f(VektorUtil.SubtractOneFromNegativeComponents(hitV));
             distanceFromPlayerSquared = hit.minus(startCoord).magnitudeSquared();
