@@ -36,6 +36,7 @@ public class AsyncGenerateColumnDataInfinite implements Runnable // extends Resp
     }
     @Override
     public void run() {
+        Thread.currentThread().setName("Async Gen Column Data Thread");
         while(keepGoing.get()) {
             try {
                 Coord2 colCoord = columnsToBeBuilt.take(); //thread will block while nothing is available...maybe forever...

@@ -50,9 +50,9 @@ public class ChunkFinder {
         SetupDiagonalCoordLook3D();
         SetupTestColumnCoords();
     }
-    private static final int TestColumnsXDim = 8;
-    private static final int TestColumnsXStart = -8;
-    private static final int TestColumnsZDim = 8;
+    private static final int TestColumnsXDim = 10;
+    private static final int TestColumnsXStart = 0;
+    private static final int TestColumnsZDim = 10;
     private static final int TestColumnsZStart = 0;
     private static Square testColumns; // = new Square(new Coord2(-7, 3), new Coord2(4, 4));
     public static Square GetTestColumns() {
@@ -265,7 +265,7 @@ public class ChunkFinder {
         return ClosestChunk(cam, terrainMap, columnMap);
     }
 
-    private static boolean UseTestColumns = false;
+    private static boolean UseTestColumns = true;
     private static int TestColumnIndex = 0;
 
     public static Coord3 ClosestEmptyColumn(Camera cam, TerrainMap terrainMap, ColumnMap columnMap) {

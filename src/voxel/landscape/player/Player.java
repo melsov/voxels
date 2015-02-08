@@ -34,7 +34,7 @@ public class Player
     private Node playerNode;
     private Node headNode;
 
-    public final Coord3 spawn = new Coord3(-64,0,64);
+    public final Coord3 spawn = new Coord3(0,0,0);
 
     private static float height = 1.0f;
     private static float halfWidthXZ = .40f;

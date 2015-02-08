@@ -85,7 +85,7 @@ public class VoxelLandscapePreFloodFill // extends SimpleApplication
 //	{
 //		rootNode.attachChild(worldNode);
 //
-//        blockFaceFinder.floodFind();
+//        blockFaceFinder.start();
 //        if (!BUILD_INITIAL_CHUNKS) return;
 //
 //        int half_area = 1; // (int) (ADD_COLUMN_RADIUS *.35f);

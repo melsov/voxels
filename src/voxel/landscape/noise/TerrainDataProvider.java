@@ -81,7 +81,8 @@ public class TerrainDataProvider {
 //            return borderBoxMaker.coneCave(xin, yin, zin);
 //            return borderBoxMaker.columns(xin, yin, zin);
 //            return borderBoxMaker.conescape(xin, yin, zin);
-//            return borderBoxMaker.fakeTallCaveWithBoxAndAdjacentEnclosure(xin, yin, zin);
+
+            if (true) return borderBoxMaker.fakeTallCaveWithBoxAndAdjacentEnclosure(xin, yin, zin);
 //        return fakeCaveWithBox(xin, yin, zin);
 //        return testNoise(xin, yin, zin);
 //        if (fakeCave(xin, yin, zin)) return BlockType.LANTERN.ordinal();

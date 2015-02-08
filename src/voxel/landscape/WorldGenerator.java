@@ -57,7 +57,11 @@ public class WorldGenerator {
     public final MaterialLibrarian materialLibrarian;
 
     public final BlockFaceFinder blockFaceFinder;
+    public final BlockFaceFinder shortOrderBlockFaceFinder;
     public final XZBounds xzBounds;
+
+    public static final String BGFloodFillThreadName = "Background Flood-Fill Thread";
+    public static final String ShortOrderFloodFillThreadName = "Short-order Flood-Fill Thread";
 
     public WorldGenerator(Node _worldNode, Camera _camera, TerrainMap _map, final ColumnMap _columnMap, AssetManager _assetManager) {
         worldNode = _worldNode;
@@ -65,7 +69,8 @@ public class WorldGenerator {
         map = _map;
         columnMap = _columnMap;
         xzBounds = new XZBounds(camera, VoxelLandscape.ADD_COLUMN_RADIUS );
-        blockFaceFinder = new BlockFaceFinder(map, camera, xzBounds);
+        blockFaceFinder = new BlockFaceFinder(map, map.chunkCoordsToBeFlooded, camera, xzBounds, BGFloodFillThreadName);
+        shortOrderBlockFaceFinder = new BlockFaceFinder(map, map.chunkCoordsToBePriorityFlooded, camera, xzBounds, ShortOrderFloodFillThreadName);
         materialLibrarian = new MaterialLibrarian(_assetManager);
 
         initThreadPools();
@@ -73,8 +78,9 @@ public class WorldGenerator {
 
     private void initThreadPools() {
         initColumnDataThreadExecutorService();
-        initLightAndWaterScatterService();
-        blockFaceFinder.floodFind(); //TODO: ORDER OF THESE TWO MATTERS RIGHT NOW—AND SHOULDN'T
+//        initLightAndWaterScatterService();
+        blockFaceFinder.start(); //TODO: ORDER OF THESE TWO MATTERS RIGHT NOW—AND SHOULDN'T
+        shortOrderBlockFaceFinder.start();
         initChunkMeshBuildThreadExecutorService();
     }
 
@@ -152,7 +158,10 @@ public class WorldGenerator {
     }
 
     private boolean buildANearbyChunk() {
-        Coord3 chcoord = blockFaceFinder.floodFilledChunkCoords.poll();
+        Coord3 chcoord = shortOrderBlockFaceFinder.floodFilledChunkCoords.poll();
+        if (chcoord == null) {
+            chcoord = blockFaceFinder.floodFilledChunkCoords.poll();
+        }
         if (chcoord == null){ return false; }
         Asserter.assertTrue(map.GetChunk(chcoord) != null, "chunk not in map! at chunk coord: " + chcoord.toString());
         buildThisChunk(map.GetChunk(chcoord));

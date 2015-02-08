@@ -45,6 +45,7 @@ public class TerrainMap implements IBlockDataProvider
     private final VoxelLandscape app;
 
     public final BlockingQueue<Coord3> chunkCoordsToBeFlooded = new ArrayBlockingQueue<Coord3>(128);
+    public final BlockingQueue<Coord3> chunkCoordsToBePriorityFlooded = new ArrayBlockingQueue<Coord3>(128);
 
 	public TerrainMap(VoxelLandscape _app) {
         app = _app;
@@ -470,11 +471,10 @@ public class TerrainMap implements IBlockDataProvider
             else {} // TODO: if liquid or glass...
         }
         //need to flood fill?
-        if (false) // ****************** !
         if (!IsTranslucent(wasType) && AIR.ordinal() == block) {
             chunk.setBlockAt((byte) PLACEHOLDER_AIR.ordinal(), localPos); // must 'fool' flood fill
             chunk.chunkFloodFillSeedSet.addCoord(global);
-            app.getWorldGenerator().blockFaceFinder.floodFill.startFlood(chunkPos);
+            chunkCoordsToBePriorityFlooded.add(chunkPos);
         }
 
 		SetDirty(chunkPos);

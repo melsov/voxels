@@ -169,12 +169,12 @@ public class FloodFill
                     if (BlockType.IsSolid(zNEGWasIs[1])) {
                         addFace(seedChunk, chunkBox, zNegNeighbor, Direction.ZPOS);
                     }
-                    offerLight(lessZNEGCoord, zNegNeighbor, (byte) blockType, zNEGWasIs[1]);
+                    offerLightBothWays(lessZNEGCoord, zNegNeighbor, (byte) blockType, zNEGWasIs[1]);
                     break;
                 }
                 /* light */
                 if (previousZNEGForLight != null) {
-                    offerLight(previousZNEGForLight, lessZNEGCoord, (byte) previousType, (byte) blockType);
+                    offerLightBothWays(previousZNEGForLight, lessZNEGCoord, (byte) previousType, (byte) blockType);
                 }
                 z1--;
             }
@@ -193,10 +193,9 @@ public class FloodFill
             while(true) {
                 if (testSafteyIterCount++ > 8000) { Asserter.assertFalseAndDie("death by iteration: z1 : " + z1 + "chunk box: " + chunkBox.toString()); return; }
 
-                if (subject != null) {
-                    previousSubjectForLight = subject;
-                    previousSubjectBlockType = thisCoordWasIs[1];
-                }
+                previousSubjectForLight = subject;
+                previousSubjectBlockType = thisCoordWasIs[1];
+
                 subject = new Coord3(seed.x, seed.y, z1);
                 /*
                  * Look up the current block. And possibly set it in the map as a side effect.
@@ -211,7 +210,7 @@ public class FloodFill
                     break;
                 }
                 if(previousSubjectForLight != null) {
-                    offerLight(previousSubjectForLight, subject, (byte) previousSubjectBlockType, thisCoordWasIs[1]);
+                    offerLightBothWays(previousSubjectForLight, subject, (byte) previousSubjectBlockType, thisCoordWasIs[1]);
                 }
 
                 /*
@@ -240,7 +239,7 @@ public class FloodFill
                     if (BlockType.IsSolid(xNEGWasIs[1])) {
                         addFace(seedChunk, chunkBox, xNegNeighbor, Direction.XPOS);
                     }
-                    offerLight(subject, xNegNeighbor, thisCoordWasIs[1], xNEGWasIs[1]);
+                    offerLightBothWays(subject, xNegNeighbor, thisCoordWasIs[1], xNEGWasIs[1]);
                 }
 
                 /*
@@ -271,7 +270,7 @@ public class FloodFill
                     if (BlockType.IsSolid(xPOSWasIs[1])) {
                         addFace(seedChunk, chunkBox, xPosNeighbor, Direction.XNEG);
                     }
-                    offerLight(subject, xPosNeighbor, thisCoordWasIs[1], xPOSWasIs[1]);
+                    offerLightBothWays(subject, xPosNeighbor, thisCoordWasIs[1], xPOSWasIs[1]);
                 }
 
                 /*
@@ -290,7 +289,7 @@ public class FloodFill
                 if (BlockType.IsSolid(yNEGWasIs[1])) {
                     addFace(seedChunk, chunkBox, yNegNeighbor, Direction.YPOS);
                 }
-                offerLight(subject, yNegNeighbor, thisCoordWasIs[1], yNEGWasIs[1]);
+                offerLightBothWays(subject, yNegNeighbor, thisCoordWasIs[1], yNEGWasIs[1]);
 
                 /*
                  * YPOS
@@ -309,7 +308,7 @@ public class FloodFill
                 if (BlockType.IsSolid(yPOSWasIs[1])) {
                     addFace(seedChunk, chunkBox, yPosNeighbor, Direction.YNEG);
                 }
-                offerLight(subject, yPosNeighbor, thisCoordWasIs[1], yPOSWasIs[1]);
+                offerLightBothWays(subject, yPosNeighbor, thisCoordWasIs[1], yPOSWasIs[1]);
 
 
                 if (map.isAboveSurface(new Coord3(seed.x, seed.y, z1 ))) { //WANT??? SHOULD WANT RIGHT?
@@ -368,10 +367,17 @@ public class FloodFill
     }
 
     public static final boolean FLOOD_FILL_HANDLES_LIGHT = true;
-    private void offerLight(Coord3 from, Coord3 to, byte fromType, byte toType){
+    private void offerLightBothWays(Coord3 from, Coord3 to, byte fromType, byte toType){
         if (FLOOD_FILL_HANDLES_LIGHT) {
             if (!BlockType.IsTranslucent(toType)) return;
-            map.GetSunLightmap().SetMaxLight((byte) (map.GetSunLightmap().GetLight(from) - LightComputerUtils.GetLightStep(fromType)), to);
+            int fromLightLevel = map.GetSunLightmap().GetLight(from);
+            int toLightLevel = map.GetSunLightmap().GetLight(to);
+            if (fromLightLevel == toLightLevel) return;
+            if (fromLightLevel > toLightLevel) {
+                map.GetSunLightmap().SetMaxLight((byte) (fromLightLevel - LightComputerUtils.GetLightStep(fromType)), to);
+            } else {
+                map.GetSunLightmap().SetMaxLight((byte) (toLightLevel - LightComputerUtils.GetLightStep(toType)), from);
+            }
         }
     }
 
