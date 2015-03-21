@@ -268,6 +268,8 @@ public class ChunkFinder {
     private static boolean UseTestColumns = true;
     private static int TestColumnIndex = 0;
 
+//TODO: improve—"eh-hem"—the closest column finding shape: more of a square around player at first, less based on cam direction
+
     public static Coord3 ClosestEmptyColumn(Camera cam, TerrainMap terrainMap, ColumnMap columnMap) {
         if (UseTestColumns) {
             if (TestColumnIndex < TestColumnCoords.size()) {
@@ -286,8 +288,7 @@ public class ChunkFinder {
         return sign;
     }
 
-    private static Coord3 ClosestChunk(Camera cam, TerrainMap terrainMap, ColumnMap columnMap)
-    {
+    private static Coord3 ClosestChunk(Camera cam, TerrainMap terrainMap, ColumnMap columnMap) {
         Vector3f camDir = cam.getDirection().clone();
         Coord3 result = ClosestChunk(cam, terrainMap, columnMap, camDir.clone());
         if (result == null) {
@@ -297,8 +298,7 @@ public class ChunkFinder {
         return result;
     }
 
-    private static Coord3 ClosestChunk(Camera cam, TerrainMap terrainMap, ColumnMap columnMap, Vector3f camDir)
-    {
+    private static Coord3 ClosestChunk(Camera cam, TerrainMap terrainMap, ColumnMap columnMap, Vector3f camDir) {
         Coord3 camChunkCoord = Chunk.ToChunkPosition(Coord3.FromVector3f(cam.getLocation()));
         if (!columnMap.IsBuilt(camChunkCoord.x, camChunkCoord.z)) return null; //whoa! more important things to do right now
         camChunkCoord.y = Math.min(camChunkCoord.y, terrainMap.getMaxChunkCoordY() - 1);
@@ -363,8 +363,7 @@ public class ChunkFinder {
         return null;
     }
 
-    private static Coord3 ClosestColumn(Camera cam, TerrainMap terrainMap, ColumnMap columnMap)
-    {
+    private static Coord3 ClosestColumn(Camera cam, TerrainMap terrainMap, ColumnMap columnMap) {
         Vector3f camDir = cam.getDirection().clone();
         Coord3 result = ClosestColumn(cam, terrainMap, columnMap, camDir.clone());
         if (result == null) {
@@ -378,8 +377,7 @@ public class ChunkFinder {
         return result;
     }
 
-    private static Coord3 ClosestColumn(Camera cam, TerrainMap terrainMap, ColumnMap columnMap, Vector3f camDir)
-    {
+    private static Coord3 ClosestColumn(Camera cam, TerrainMap terrainMap, ColumnMap columnMap, Vector3f camDir) {
         Coord3 camChunkCoord = Chunk.ToChunkPosition(Coord3.FromVector3f(cam.getLocation()));
         camChunkCoord.y = Math.min(camChunkCoord.y, terrainMap.getMaxChunkCoordY() - 1);
 
@@ -415,7 +413,6 @@ public class ChunkFinder {
             searchCo = FindColumn(columnMap, nextPos.clone());
             if (searchCo != null) return searchCo;
         }
-
 
         return null;
     }

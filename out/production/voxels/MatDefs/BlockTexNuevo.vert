@@ -7,6 +7,7 @@ attribute vec2 inTexCoord;
 
 varying vec2 texCoord;
 varying float shadow;
+varying float distToCamera;
 
 void main(){
 	shadow = max(inColor.z, inColor.w);

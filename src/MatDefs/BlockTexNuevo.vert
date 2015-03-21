@@ -7,6 +7,7 @@ attribute vec2 inTexCoord;
 
 varying vec2 texCoord;
 varying float shadow;
+varying float distToCamera; //TODO get dist to camera: http://stackoverflow.com/questions/16131963/depth-as-distance-to-camera-plane-in-glsl
 
 void main(){
 	shadow = max(inColor.z, inColor.w);

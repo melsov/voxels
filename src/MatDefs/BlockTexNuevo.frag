@@ -1,5 +1,6 @@
 varying vec2 texCoord;
 varying float shadow;
+varying float distToCamera;
 
 uniform sampler2D m_ColorMap;
 uniform vec4 m_Color;

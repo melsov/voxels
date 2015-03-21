@@ -18,15 +18,21 @@ public class BlockFaceFinder {
     public final FloodFill4D floodFill;
     public final BlockingQueue<Coord3> floodFilledChunkCoords = new ArrayBlockingQueue<Coord3>(456);
     private String threadName;
+    private Thread thread;
+    private AtomicBoolean shouldStop = new AtomicBoolean(false);
 
     public BlockFaceFinder(TerrainMap _map, BlockingQueue<Coord3> _chunkCoordsToBeFlooded, Camera _cam, XZBounds _xzBounds, String _threadName) {
-        floodFill = new FloodFill4D(_map, _cam, _chunkCoordsToBeFlooded, floodFilledChunkCoords, new AtomicBoolean(false), _xzBounds);
+        floodFill = new FloodFill4D(_map, _cam, _chunkCoordsToBeFlooded, floodFilledChunkCoords, shouldStop, _xzBounds);
         threadName = _threadName;
     }
     public void start() {
-        Thread thread = new Thread(floodFill);
+        thread = new Thread(floodFill);
         thread.setName(threadName);
         thread.start();
+    }
+
+    public void shutdown() {
+        shouldStop.set(true);
     }
 
 }

@@ -221,7 +221,7 @@ public class VoxelLandscapePreNearby extends SimpleApplication implements Thread
 	private void generateColumnData(int x, int z)  {
 //		columnMap.SetBuilt(x, z);
         columnMap.SetBuildingData(x,z);
-		terrainMap.generateNoiseForChunkColumn(x, z);
+		terrainMap.generateSurface(x, z);
 		ChunkSunLightComputer.ComputeRays(terrainMap, x, z);
 		ChunkSunLightComputer.Scatter(terrainMap, columnMap, x, z); //TEST WANT
 	}

@@ -71,9 +71,6 @@ public class Coord2 implements ICoordXZ
 	public String toString() { return String.format("Coord2:x: %d y: %d", x,y); }
 
     @Override
-//    public int hashCode() {
-//        return (y << 16) | (x & 0xff);
-//    }
     public int hashCode() {
         return (y & Integer.MIN_VALUE) | ((x & Integer.MIN_VALUE) >>> 1 ) |
                 ((y & 32765 ) << 14) | (x & 32765);

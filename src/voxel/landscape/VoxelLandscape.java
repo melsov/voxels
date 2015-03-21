@@ -161,7 +161,6 @@ public class VoxelLandscape extends SimpleApplication
         setupPlayerDebugHat();
 
         setupInputs();
-        setupWASDInput();
         setupDebugInputs();
 
     	initCrossHairs();
@@ -230,6 +229,19 @@ public class VoxelLandscape extends SimpleApplication
         inputManager.addMapping("DebugBlock", new KeyTrigger(KeyInput.KEY_B));
         inputManager.addListener(player.getUserInputListener(), "Break", "Place", "GoHome", "Up", "Down", "Right", "Left",
                 "UpArrow", "DownArrow", "RightArrow", "LeftArrow", "Inventory", "DebugBlock");
+
+        inputManager.addMapping("moveForward",  new KeyTrigger(keyInput.KEY_W));
+        inputManager.addMapping("moveBackward",  new KeyTrigger(keyInput.KEY_S));
+        inputManager.addMapping("moveRight",  new KeyTrigger(keyInput.KEY_D));
+        inputManager.addMapping("moveLeft",  new KeyTrigger(keyInput.KEY_A));
+        inputManager.addMapping("moveUp",  new KeyTrigger(keyInput.KEY_Q));
+        inputManager.addMapping("moveDown",  new KeyTrigger(keyInput.KEY_Z));
+        inputManager.addMapping("jump",  new KeyTrigger(keyInput.KEY_SPACE));
+//        inputManager.addMapping("lmb", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+//        inputManager.addMapping("rmb", new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
+        inputManager.addListener(player.getAnalogListener(),
+                "moveForward", "moveBackward", "moveRight", "moveLeft", "moveDown", "moveUp", "jump",
+                "lmb", "rmb");
     }
 
     private ActionListener utilityInputListener = new ActionListener() {
@@ -247,20 +259,6 @@ public class VoxelLandscape extends SimpleApplication
         inputManager.addListener(utilityInputListener, "WireFrame");
     }
 
-    private void setupWASDInput() {
-        inputManager.addMapping("moveForward",  new KeyTrigger(keyInput.KEY_W));
-        inputManager.addMapping("moveBackward",  new KeyTrigger(keyInput.KEY_S));
-        inputManager.addMapping("moveRight",  new KeyTrigger(keyInput.KEY_D));
-        inputManager.addMapping("moveLeft",  new KeyTrigger(keyInput.KEY_A));
-        inputManager.addMapping("moveUp",  new KeyTrigger(keyInput.KEY_Q));
-        inputManager.addMapping("moveDown",  new KeyTrigger(keyInput.KEY_Z));
-        inputManager.addMapping("jump",  new KeyTrigger(keyInput.KEY_SPACE));
-        inputManager.addMapping("lmb", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
-        inputManager.addMapping("rmb", new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
-        inputManager.addListener(player.getAnalogListener(),
-                "moveForward", "moveBackward", "moveRight", "moveLeft", "moveDown", "moveUp", "jump",
-                "lmb", "rmb");
-    }
 
     /** A centred plus sign to help the player aim. */
     private void initCrossHairs() {

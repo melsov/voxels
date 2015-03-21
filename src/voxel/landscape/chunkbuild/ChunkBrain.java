@@ -230,8 +230,6 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
     public void SetLiquidDirty() { liquidDirty = true; }
 
     private void enqueueChunkBuildMeshSets(boolean onlyLight, boolean onlyLiquid) {
-        if (!VoxelLandscape.SHOULD_BUILD_CHUNK_MESH_ASYNC) return;
-
         ChunkMeshBuildingSet chunkMeshBuildingSet = new ChunkMeshBuildingSet();
         chunkMeshBuildingSet.isOnlyLiquid = onlyLiquid;
         chunkMeshBuildingSet.isOnlyLight = onlyLight;

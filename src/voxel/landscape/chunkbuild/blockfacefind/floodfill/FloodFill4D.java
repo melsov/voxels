@@ -4,7 +4,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import voxel.landscape.BlockType;
 import voxel.landscape.Chunk;
-import voxel.landscape.WorldGenerator;
 import voxel.landscape.chunkbuild.blockfacefind.floodfill.chunkslice.ChunkSlice;
 import voxel.landscape.chunkbuild.blockfacefind.floodfill.chunkslice.ChunkSliceBag;
 import voxel.landscape.chunkbuild.bounds.XZBounds;
@@ -34,15 +33,15 @@ public class FloodFill4D implements Runnable
     public BlockingQueue<Coord3> floodFilledChunkCoords;
     public final BlockingQueue<Coord3> chunkCoordsToBeFlooded;
 
-    // TODO: plan & implement a separate (singleton-ish) class that manages a 'building bounds'. (area where we want to build at any given time)
+    // TODO: plan a separate (singleton?) class that manages a 'building bounds'. (area where we want to build at any given time)
     // TODO: plan exactly what such a class should need to do: maintain current bounds, what about coords that recently went from in to out of bounds?
     // TODO: maybe first list classes that would be clients
+
     private ChunkSliceBag inBoundsBag;
     private ChunkSliceBag outOfBoundsBag;
     private AtomicBoolean shouldStop;
     private TerrainMap map;
     public static final int UntouchedType = BlockType.NON_EXISTENT.ordinal();
-//    private static Coord3 FFBoundsHalf = new Coord3(1,1,2); // TerrainMap.MAX_CHUNK_COORD.minus(TerrainMap.MIN_CHUNK_COORD).divideBy(new Coord3(8));
     private FloodFill floodFill;
 
     public FloodFill4D(TerrainMap _map, Camera _camera, BlockingQueue<Coord3> _chunkCoordsToBeFlooded, BlockingQueue<Coord3> _floodFilledChunkCoords, AtomicBoolean _shouldStop, XZBounds _xzBounds) {
@@ -52,48 +51,35 @@ public class FloodFill4D implements Runnable
         floodFilledChunkCoords = _floodFilledChunkCoords;
         shouldStop = _shouldStop;
         outOfBoundsBag = ChunkSliceBag.UnboundedChunkSliceBag();
-//        inBoundsBag = ChunkSliceBag.ChunkSliceBagWithBounds(boundsFromGlobal(camera.getLocation()));
         inBoundsBag = ChunkSliceBag.ChunkSliceBagWithBounds(_xzBounds);
-        floodFill = new FloodFill(map);
-    }
-
-    public void bugIfShortOrder(String s) {
-        if (Thread.currentThread().getName().equals(WorldGenerator.ShortOrderFloodFillThreadName))
-            System.out.println(s + Thread.currentThread().getName());
+        floodFill = new FloodFill(map, shouldStop);
     }
 
     @Override
     public void run() {
         while (!shouldStop.get()) {
             Coord3 chunkCoord = null;
-            //IN
             try {
-                //TODO: check with debug geom
                 chunkCoord = chunkCoordsToBeFlooded.take();
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 Asserter.assertFalseAndDie("this doesn't happen...?");
                 break;
             }
-            bugIfShortOrder("short order got a chunk co");
             startFlood(chunkCoord);
         }
     }
-    private boolean fake() { return true; }
 
+    public static final boolean DONT_ACTUALLY_FLOOD_FILL = false;
     public void startFlood(Coord3 chunkCoord) {
         // * SHORT CIRCUIT THE WHOLE FLOOD FILL (DON'T FLOOD FILL--for testing) *
-//        if (fake()) {
-//            try { floodFilledChunkCoords.put(chunkCoord);
-//            } catch (InterruptedException e) { e.printStackTrace(); }
-//            return;
-//        }
+        if (DONT_ACTUALLY_FLOOD_FILL) { try { floodFilledChunkCoords.put(chunkCoord); } catch (InterruptedException e) { e.printStackTrace(); } return; }
 
         Chunk chunk = map.GetChunk(chunkCoord);
         boolean originalChunkCoordWasNeverAdded = chunk.chunkFloodFillSeedSet.size() == 0;
 
         while(chunk.chunkFloodFillSeedSet.size() > 0) {
-            bugIfShortOrder("getting a chunk FF seed ");
+            if (shouldStop.get()) return;
             flood(chunk.chunkFloodFillSeedSet.removeNext());
         }
 

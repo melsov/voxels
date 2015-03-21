@@ -33,7 +33,7 @@ public class TerrainMapMultiThreadTest extends TestCase {
         }
         @Override
         public void doRun() {
-            terrainMap.generateNoiseForChunkColumn(x,z);
+            terrainMap.generateSurface(x, z);
             ChunkSunLightComputer.ComputeRays(terrainMap, x, z);
             ChunkSunLightComputer.Scatter(terrainMap, columnMap, x, z); //TEST WANT
         }

@@ -47,8 +47,15 @@ public class AsyncGenerateColumnDataInfinite implements Runnable // extends Resp
 
             if (columnMap.SetIsBuildingOrReturnFalseIfStartedAlready(x,z)) {
                 touchedChunkCoords.clear();
-                terrainMap.generateNoiseForChunkColumn(x, z, dataProvider, touchedChunkCoords);
-                terrainMap.populateFloodFillSeedsUpdateFaceMapsInChunkColumn(x, z, dataProvider, touchedChunkCoords); // ORDER OF THIS LINE AND THE SUN/WATER COMPUTER LINES MATTERS! TODO: FIX
+                terrainMap.generateSurface(x, z, dataProvider, touchedChunkCoords);
+                //WE MAY HAVE CRAWLED BACK OVER AN ALREADY PROCESSED COLUMN
+                //WE COULD BE ITERATING OVER ITS ENTIRE X,Z SURFACE WHEN (SAY) ONLY
+                //ONE X,Z HEIGHT COORD WAS CHANGED. THIS SEEMS WASTEFUL BUT, TO GET AROUND
+                //IT, WE'D NEED TO MAKE A PER-CHUNK 'DIRTY' HEIGHT COORD2 LIST: UGH?
+                for (Coord2 col2 : columnsFromChunkCoords(touchedChunkCoords)) {
+                    terrainMap.populateFloodFillSeedsUpdateFaceMapsInChunkColumn(col2.getX(), col2.getZ(), dataProvider, touchedChunkCoords);
+                }
+//                terrainMap.populateFloodFillSeedsUpdateFaceMapsInChunkColumn(x, z, dataProvider, touchedChunkCoords); // ORDER OF THIS LINE AND THE SUN/WATER COMPUTER LINES MATTERS! TODO: FIX
 
                 columnMap.SetBuiltSurface(x, z);
 //                ChunkSunLightComputer.ComputeRays(terrainMap, x, z); // no need. terrain map does this while generating
@@ -59,7 +66,6 @@ public class AsyncGenerateColumnDataInfinite implements Runnable // extends Resp
 //                columnMap.SetBuilt(x, z); // MOVED
 
                 try { sleep(10); } catch (InterruptedException e) { e.printStackTrace(); }
-
                 /*
                  * AWKWARD BUT: IF THERE WERE NO TOUCHED-CHUNK-COORDS AT ALL,
                  * ADD A 'DUMMY' CHUNK COORD, SO THAT FLOOD FILL 4D WILL BE PROMPTED
@@ -68,6 +74,14 @@ public class AsyncGenerateColumnDataInfinite implements Runnable // extends Resp
                 terrainMap.updateChunksToBeFlooded(touchedChunkCoords);
             }
         }
+    }
+
+    private HashSet<Coord2> columnsFromChunkCoords(HashSet<Coord3> chunkCoords) {
+        HashSet<Coord2> columns = new HashSet<>(6);
+        for (Coord3 co : chunkCoords) {
+            columns.add(new Coord2(co.x, co.z));
+        }
+        return columns;
     }
 
     public int getX() { return x; }

@@ -50,7 +50,7 @@ public class AsyncGenerateColumnDataChunkWise implements Runnable // extends Res
             }
             if (columnMap.SetIsBuildingOrReturnFalseIfStartedAlready(x,z)) {
                 HashSet<Coord3> touchedChunkCoords = new HashSet<Coord3>(terrainMap.getMaxChunkCoordY() - terrainMap.getMaxChunkCoordY());
-                terrainMap.generateNoiseForChunkColumn(x, z, dataProvider, touchedChunkCoords);
+                terrainMap.generateSurface(x, z, dataProvider, touchedChunkCoords);
                 terrainMap.populateFloodFillSeedsUpdateFaceMapsInChunkColumn(x,z, dataProvider, touchedChunkCoords); // ORDER OF THIS LINE AND THE COMPUTERS MATTER! TODO: FIX
                 B.bug("got a chunk coord");
                 ChunkSunLightComputer.ComputeRays(terrainMap, x, z);

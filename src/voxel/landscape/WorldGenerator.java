@@ -79,7 +79,7 @@ public class WorldGenerator {
     private void initThreadPools() {
         initColumnDataThreadExecutorService();
 //        initLightAndWaterScatterService();
-        blockFaceFinder.start(); //TODO: ORDER OF THESE TWO MATTERS RIGHT NOW—AND SHOULDN'T
+        blockFaceFinder.start(); //TODO: ORDER OF THESE THREE MATTERS RIGHT NOW—AND SHOULDN'T
         shortOrderBlockFaceFinder.start();
         initChunkMeshBuildThreadExecutorService();
     }
@@ -127,6 +127,7 @@ public class WorldGenerator {
             colDataPoolCHUNKWISE.execute(asyncChunkWise);
         }
     }
+
     private void initChunkMeshBuildThreadExecutorService() {
         ChunkCoordCamComparator chunkCoordCamComparator = new ChunkCoordCamComparator(camera);
         chunksToBeMeshed = new PriorityBlockingQueue<ChunkMeshBuildingSet>(50, chunkCoordCamComparator);
@@ -185,8 +186,7 @@ public class WorldGenerator {
     }
 
     private void checkAsyncCompletedChunkMeshes() {
-        int count = 0;
-        while (count++ < 5) {
+        for (int count = 0; count < 5; ++count) {
             ChunkMeshBuildingSet chunkMeshBuildingSet = completedChunkMeshSets.poll();
             if (chunkMeshBuildingSet == null) return;
             Chunk chunk = map.GetChunk(chunkMeshBuildingSet.chunkPosition);
@@ -239,15 +239,21 @@ public class WorldGenerator {
         if (g != null) g.removeFromParent();
     }
 
+    //TODO: figure out what stops the app from exiting fully
     public void killThreadPools() {
         columnBuildingThreadsShouldKeepGoing.set(false);
         if (colDataPool != null)
             colDataPool.shutdownNow();
         if (colDataPoolCHUNKWISE != null)
             colDataPoolCHUNKWISE.shutdownNow();
+        if (scatterBuildPool != null)
+            scatterBuildPool.shutdownNow();
 
         asyncChunkMeshThreadsShouldKeepGoing.set(false);
         chunkMeshBuildPool.shutdownNow();
+
+        blockFaceFinder.shutdown();
+        shortOrderBlockFaceFinder.shutdown();
     }
 
 

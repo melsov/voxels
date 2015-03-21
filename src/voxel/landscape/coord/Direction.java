@@ -42,6 +42,10 @@ public class Direction {
             new Coord3(0, 0, -1),
             new Coord3(0, 0, 1),
     };
+    public static Coord3[] DirectionXZNegCoords = new Coord3[]{
+            new Coord3(-1, 0, 0),
+            new Coord3(0, 0, -1),
+    };
     public static Coord3[] DirectionXYCoords = new Coord3[]{
             new Coord3(-1, 0, 0),
             new Coord3(1, 0, 0),

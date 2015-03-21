@@ -1,9 +1,6 @@
 package com.sudoplay.joise.examples;
 
-import com.sudoplay.joise.module.Module;
-import com.sudoplay.joise.module.ModuleCombiner;
-import com.sudoplay.joise.module.ModuleGradient;
-import com.sudoplay.joise.module.ModuleTranslateDomain;
+import com.sudoplay.joise.module.*;
 import voxel.landscape.BlockType;
 import voxel.landscape.noise.TerrainNoiseSettings;
 import voxel.landscape.player.B;
@@ -80,6 +77,22 @@ public class JoiseMultiPanelExample extends JPanel {
 //        Module caveCombinedPreSelect = caveSettings.caveShapeABSettings.makeCombinerModule();
 //        addDemoPanelWithModule(caveCombinedPreSelect, cavePreKey, dummy);
 
+        /*
+         * Test spheres
+         */
+
+        ModuleTiers moduleTiers = new ModuleTiers();
+        moduleTiers.setSource(.5);
+        moduleTiers.setNumTiers(5);
+        String tiersKey = "module tiers";
+        addDemoPanelWithModule(moduleTiers, tiersKey, null);
+        demoPanels.get(tiersKey).removeGUI();
+
+        ModuleCellular moduleCellular = new ModuleCellular();
+        moduleCellular.setCoefficients(9, .5, 3, 7);
+        String cellularKey = "module cellular";
+        addDemoPanelWithModule(moduleCellular, cellularKey, null);
+        demoPanels.get(cellularKey).removeGUI();
 
         /*
          * ground_gradient
@@ -144,7 +157,7 @@ public class JoiseMultiPanelExample extends JPanel {
         Module selectTypeTerr = typeSelectSettings.makeTerrainModule(null);
         //addDemoPanelWithModule(selectTypeTerr, typeSelectSettingKey, typeSelectSettings);
 
-        String dirtOrStoneSelectSettingsKey = "dirt of stone";
+        String dirtOrStoneSelectSettingsKey = "dirt or stone";
         TerrainNoiseSettings dirtOrStoneSelectSettings = getDemoPanelSettings(dirtOrStoneSelectSettingsKey);
         if (dirtOrStoneSelectSettings == null) {
             dirtOrStoneSelectSettings = TerrainNoiseSettings.BlockTypeSelectModuleSettings(seed, selectTypeTerr, BlockType.DIRT, BlockType.STONE);

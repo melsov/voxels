@@ -208,7 +208,7 @@ public class BorderBoxMaker {
     }
     public BorderBox getFakeTallCaveBorderBox() {
         if (fakeTallCaveBorderBox == null) {
-            fakeTallCaveBorderBox = new BorderBox(new Box(new Coord3(18, 8, 18), new Coord3(9,12,9)));
+            fakeTallCaveBorderBox = new BorderBox(new Box(new Coord3(18, 6, 18), new Coord3(9,12,9)));
             fakeTallCaveBorderBox.openFaces[Direction.XNEG] = false;
             fakeTallCaveBorderBox.openFaces[Direction.ZNEG] = false;
             fakeTallCaveBorderBox.openFaces[Direction.ZPOS] = false;
@@ -217,8 +217,8 @@ public class BorderBoxMaker {
     }
     public BorderBox getEnclosure() {
         if (enclosure == null) {
-            enclosure = new BorderBox(new Box(new Coord3(2, 8, 7), new Coord3(6,14,22)));
-            enclosure.openFaces = new boolean[] {false, false, false, false, true, false};
+            enclosure = new BorderBox(new Box(new Coord3(2, 2, 7), new Coord3(6, 13, 22)));
+            enclosure.openFaces = new boolean[] {true, true, false, false, true, false};
         }
         return enclosure;
     }

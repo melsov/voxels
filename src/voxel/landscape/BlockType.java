@@ -134,6 +134,9 @@ public enum BlockType {
 	public static boolean IsAirOrNonExistent(int i) {
 		return i == AIR.ordinal() || i == NON_EXISTENT.ordinal() || i == PLACEHOLDER_AIR.ordinal();
 	}
+    public static boolean IsRenderedType(int i) {
+        return !IsAirOrNonExistent(i);
+    }
     public static boolean AcceptsWater(int i) {
         return i == AIR.ordinal() || i == PLACEHOLDER_AIR.ordinal() || IsWaterType(i); // || i == NON_EXISTENT.ordinal();
     }

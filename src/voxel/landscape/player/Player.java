@@ -161,11 +161,6 @@ public class Player
             else if (name.equals("moveDown") ) {
                 move.y = -MOVE_SPEED;
             }
-            if (name.equals("lmb")) {
-
-            } else if (name.equals("rmb")) {
-
-            }
 
             /*
             TODO: resolve jump, move direction weirdness (look at Unity character controllers)
@@ -187,8 +182,7 @@ public class Player
         inputVelocity.z = 0f;
     }
     private void rotatePlayerHead() {
-        Vector2f mouse;
-        mouse = app.getInputManager().getCursorPosition();
+        Vector2f mouse = app.getInputManager().getCursorPosition();
         if (mouse == null) return;
 
         Vector2f halfScreen = app.getScreenDims().multy(.5f).toVector2f();
@@ -223,7 +217,6 @@ public class Player
             resetInputVelocity();
         }
     }
-
 
     private Vector3f checkCollisions(final Vector3f curLoc, final Vector3f proposedMove) {
         Vector3f proposedLoc = curLoc.add(proposedMove).add(playerBodyOffset);
@@ -266,9 +259,9 @@ public class Player
             }
 
             /*
-            no ground directly underneath player. check if player's 'toes' are supported by ground.
+            if no ground directly underneath player, check if player's 'toes' are supported by ground.
             in other words, player collision cube overlaps to an adjacent block and we find ground underneath that block.
-            but only look for ground in unimpeded directions b/c our toes should enter a solid block
+            but only look for ground in unimpeded directions b/c our toes should not enter a solid block
             */
             if (!gotGround) for (Integer i : unimpededDirections) {
                 Vector3f xzunitdir = Direction.DirectionXZVector3fs[i];
@@ -315,25 +308,24 @@ public class Player
         doSettingsForFlyMode();
     	terrainMap = _terrainMap;
     	audio = _audio;
-
     	app = _app;
 
     	initBlockCursor();
         _overlayNode.attachChild(blockCursor);
-        /* DEBUG */
-        initDebugBlockStepCursors();
-        for(Geometry blockStepCursorDebug : blockStepCursorsDEBUG) {
-            _overlayNode.attachChild(blockStepCursorDebug);
-        }
     	initPlayerGeom(_camera, _terrainNode);
 
         if (_camera != null)
-            adjustCamera(_camera);
+            adjustCameraFrustum(_camera);
 
         teleportHome();
     }
 
-    public Node getPlayerNode() { return playerNode; }
+    public Node getPlayerNode() {
+        if (playerNode == null) {
+            playerNode = new Node("player_node");
+        }
+        return playerNode;
+    }
     public Node getCamNode() { return playerControl.getNode(); }
     public Node getHeadNode() { return headNode; }
     public ActionListener getUserInputListener() { return userInputListener; }
@@ -427,11 +419,7 @@ public class Player
 
     private void initPlayerGeom(Camera _cam, Node _terrainNode)
     {
-    	playerNode = new Node("player_node");
-//    	playerNode.attachChild(makePlayerGeometry());
-//        playerNode.attachChild(makeSmallBox());
-
-
+    	playerNode = getPlayerNode();
         headNode = new Node("head_node");
         playerNode.attachChild(headNode);
 
@@ -450,7 +438,7 @@ public class Player
     	playerNode.setLocalTranslation(new Vector3f(0,50,0));
     }
 
-    public void adjustCamera(Camera _camera) {
+    public void adjustCameraFrustum(Camera _camera) {
         Coord2 dims = app.getScreenDims();
         float aspect = dims.y/(float)dims.x;
         float near = .12f; ;

@@ -162,7 +162,7 @@ public class VoxelLandscapePreFloodFill // extends SimpleApplication
 //
 //	private void generateColumnData(int x, int z)  {
 //        columnMap.SetBuildingData(x,z);
-//		terrainMap.generateNoiseForChunkColumn(x, z);
+//		terrainMap.generateSurface(x, z);
 //        columnMap.SetBuilt(x,z);
 //		ChunkSunLightComputer.ComputeRays(terrainMap, x, z);
 //		ChunkSunLightComputer.Scatter(terrainMap, columnMap, x, z);

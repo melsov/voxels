@@ -179,7 +179,7 @@ public class VoxelLandscapeTestChunkMgmt extends SimpleApplication implements Th
 	private void generateColumnData(int x, int z)
 	{
 		columnMap.SetBuilt(x, z);
-		terrainMap.generateNoiseForChunkColumn(x, z);
+		terrainMap.generateSurface(x, z);
 		ChunkSunLightComputer.ComputeRays(terrainMap, x, z);
 		ChunkSunLightComputer.Scatter(terrainMap, columnMap, x, z); //TEST WANT
 	}
