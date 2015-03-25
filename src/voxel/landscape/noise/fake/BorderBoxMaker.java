@@ -217,7 +217,7 @@ public class BorderBoxMaker {
     }
     public BorderBox getEnclosure() {
         if (enclosure == null) {
-            enclosure = new BorderBox(new Box(new Coord3(2, 2, 7), new Coord3(6, 13, 22)));
+            enclosure = new BorderBox(new Box(new Coord3(2, 2, 7), new Coord3(6, 12, 22)));
             enclosure.openFaces = new boolean[] {true, true, false, false, true, false};
         }
         return enclosure;

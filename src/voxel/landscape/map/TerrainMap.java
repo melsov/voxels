@@ -180,11 +180,7 @@ public class TerrainMap implements IBlockDataProvider
         byte block = lookupBlock(woco);
         if (NON_EXISTENT.equals((int) block) && ChunkCoordWithinWorldBounds(Chunk.ToChunkPosition(woco))) {
             //synchronized block
-            Coord3 chunkPos = Chunk.ToChunkPosition(woco);
-            Coord3 localPos = Chunk.toChunkLocalCoord(woco);
-            Chunk chunk = lookupOrCreateChunkAtPosition(chunkPos);
-            Object lock = chunk.blockLockInstanceAt(localPos);
-            synchronized (lock) {
+            synchronized (lookupOrCreateChunkAtPosition(Chunk.ToChunkPosition(woco)).blockLockInstanceAt(Chunk.toChunkLocalCoord(woco))) {
                 block = (byte) _terrainData.getBlockDataAtPosition(woco.x, woco.y, woco.z);
                 setBlockAtWorldCoord(block, woco.x, woco.y, woco.z);
             }
@@ -215,7 +211,7 @@ public class TerrainMap implements IBlockDataProvider
         Asserter.assertTrue(GetChunk(co) != null, "chunk was null: " + co.toString() + " : " + msg);
     }
 
-    public static final boolean CRAWL_OVER_SURFACE = false;
+    public static final boolean CRAWL_OVER_SURFACE = true;
 	/*
 	 * populate chunk with block values
 	 */
@@ -302,7 +298,7 @@ public class TerrainMap implements IBlockDataProvider
                         }
                         possibleChunk.chunkBlockFaceMap.addFace(relPos, Direction.YPOS);
                         /* Set sunlight map */
-                        sunLightmap.SetSunHeight(wocoY + 1, absPos.x, absPos.z);
+                        setSurfaceHeight(new Coord3(absPos.x, wocoY, absPos.z ));
                         break;
                     }
                     // Impractical for large bodies of water: too many vertices so...
@@ -347,6 +343,7 @@ public class TerrainMap implements IBlockDataProvider
                 relPos.y = Chunk.ToChunkLocalY(global.y);
                 /* find the surface absPos y */
                 int block = findSurfaceFrom(global, _dataProvider, touchedChunkCoords);
+                if (i == 0 && j == 0) touchedChunkCoords.add(Chunk.ToChunkPosition(global));
 
                 /* for 'safety' go up by CHECK_SURFACE_ABOVE_HEIGHT blocks to see if we get an overhang. */
                 for (Coord3 checkAbove = global.clone(); checkAbove.y < global.y + CHECK_SURFACE_ABOVE_HEIGHT; checkAbove.y++) {
@@ -378,7 +375,7 @@ public class TerrainMap implements IBlockDataProvider
         }
         if (!startedInAir) { global.y--; }
         setSurfaceHeight(global);
-        touchedChunkCoords.add(Chunk.ToChunkPosition(global));
+//        touchedChunkCoords.add(Chunk.ToChunkPosition(global));
         return !startedInAir ? lastBlock : block;
     }
     private static final int CHECK_SURFACE_ABOVE_HEIGHT = 8;
@@ -406,6 +403,7 @@ public class TerrainMap implements IBlockDataProvider
                     lookupOrCreateChunkAtPosition(Chunk.ToChunkPosition(neighbor)).chunkBlockFaceMap.addFace(Chunk.toChunkLocalCoord(neighbor), Direction.YPOS);
                     if (neighbor.y > neighborHeight) {
                         coords.add(neighbor.clone());
+                        touchedChunkCoords.add(Chunk.ToChunkPosition(neighbor));
                     }
                 }
             }

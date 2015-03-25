@@ -36,9 +36,10 @@ public class Player
 
     public final Coord3 spawn = new Coord3(0,0,0);
 
-    private static float height = 1.0f;
+    private static float height = 1.5f;
     private static float halfWidthXZ = .40f;
-    private static Vector3f playerBodyOffset = new Vector3f(halfWidthXZ,-height*.85f,halfWidthXZ);
+    private static final Vector3f blockEdgeOffset = new Vector3f(.5f, .5f, .5f);
+    private boolean thirdPerson = true;
 
     private static int AUTO_MOVE = 0;
     private static int FLY_MODE = 1;
@@ -95,6 +96,12 @@ public class Player
                 moveNextChunk(Direction.XPOS);
             }
             else if (name.equals("Inventory") && !keyPressed) {
+            }
+            else if (name.equals("ToggleInfoView") && !keyPressed) {
+                app.toggleInfoViewAxis(); //
+            }
+            else if (name.equals("ToggleInfoViewDistance") && !keyPressed) {
+                app.toggleInfoViewDistance();
             }
             else if (name.equals("DebugBlock") && !keyPressed) {
                 printBlockCursorInfo();
@@ -197,7 +204,7 @@ public class Player
         headNode.setLocalRotation(roll);
     }
     private void movePlayer(float tpf) {
-        Vector3f pos = playerNode.getLocalTranslation().clone();
+        Vector3f pos = playerNode.getWorldTranslation().clone(); // playerNode.getLocalTranslation().clone();
         if (AUTO_MOVE == 1) {
             inputVelocity.x = MOVE_SPEED;
         }
@@ -219,34 +226,47 @@ public class Player
     }
 
     private Vector3f checkCollisions(final Vector3f curLoc, final Vector3f proposedMove) {
-        Vector3f proposedLoc = curLoc.add(proposedMove).add(playerBodyOffset);
+        //proposedMove is the amount the player should move based on user input and gravity (and getting pushed by something?)
+        //make a new vec3f "proposedLoc" by adding proposed move to curLoc
+        //also add blockEdgeOffset (.5, .5, .5) so that we get the correct integer when looking up blocks.
+        //blockEdgeOffset will be subtracted again before returning
+        Vector3f proposedLoc = curLoc.add(proposedMove).add(blockEdgeOffset);
 
-        List<Integer> unimpededDirections = new ArrayList<Integer>(); // for use later when finding ground
+        // a List<Integer> 'unimpededDirections' for use later when finding ground. We need to know
+        // which directions are not blocked, in case we need to check whether the player's toe catches
+        // a block that's one 'next-door' (in x or z)
+        List<Integer> unimpededDirections = new ArrayList<Integer>(6);
 
         /* check for side walls */
+        // Go through all of the XZ directions in a for loop
+        // get the xzUnitVec is a 'unit vector' for the direction in question: example for XPOS: (1, 0, 0). for ZNEG (0, 0, -1)
+        // xzPlayerEdge is the unit vector * player Half Width: example for XPOS (.4, 0, 0). ZNEG (0, 0, -.4)
+        // xzEdgePos is the proposedLoc + xzPlayerEdge: if proposed loc is (3.61, 0, 0) then -> (for XPOS) -> (4.01, 0, 0)
+        // Coord3 edge is the integer version of xzEdgePos. example (4, 0, 0). Use this last to look up the corresponding
+        // block in terrainMap
+        Coord3 edge;
+        Vector3f xzUnitVec, xzPlayerEdge, xzEdgePos;
         for (int i = 0; i < Direction.DirectionXZVector3fs.length; ++i) {
-            Coord3 edge;
-            Vector3f xzunitdir, xzdir, xzEdgePos;
-            xzunitdir = Direction.DirectionXZVector3fs[i].clone();
-            xzdir = xzunitdir.mult(halfWidthXZ);
-            xzEdgePos = proposedLoc.add(xzdir);
+            xzUnitVec = Direction.DirectionXZVector3fs[i].clone();
+            xzPlayerEdge = xzUnitVec.mult(halfWidthXZ);
+            xzEdgePos = proposedLoc.add(xzPlayerEdge);
             edge = Coord3.FromVector3fAdjustNegative(xzEdgePos);
             boolean found_solid = BlockType.IsSolid(terrainMap.lookupBlock(edge));
-            if (!found_solid){ // check head level
+            if (!found_solid){ // if no solid block at feet, check head level
                 edge.y++;
                 found_solid = BlockType.IsSolid(terrainMap.lookupBlock(edge));
             }
-            /* if no side wall, add to the unimpeded list */
+            /* if still no side wall, add to the unimpeded list */
             if (!found_solid) {
                 unimpededDirections.add(i);
                 continue;
             }
             /* if side wall, nudge the proposed loc away from the side wall */
             Vector3f corner = edge.toVector3();
-            if (xzdir.x < 0 || xzdir.z < 0) {
+            if (xzPlayerEdge.x < 0 || xzPlayerEdge.z < 0) {
                 corner = corner.add(Direction.UNIT_XZ.clone()); //doesn't matter which dir since the other dir will be zeroed out.
             }
-            proposedLoc = proposedLoc.add(corner.subtract(xzEdgePos).mult(VektorUtil.Abs(xzunitdir)));
+            proposedLoc = proposedLoc.add(corner.subtract(xzEdgePos).mult(Direction.DirectionXZVector3fsAbsValues[i]));
         }
         /* check grounded, if not jumping */
         Coord3 pco = null;
@@ -280,7 +300,8 @@ public class Player
         // check for head bump
         boolean gotHeadBump = false;
         if (jumpVelocity > 0) {
-            float headRoom = -playerBodyOffset.y + .7f;
+//            float headRoom = -playerBodyOffset.y + .7f;
+            float headRoom = height + .1f; // + .7f;
             pco = Coord3.FromVector3fAdjustNegative(proposedLoc.add(0, headRoom, 0));
             if (BlockType.IsSolid(terrainMap.lookupBlock(pco))){
                 proposedLoc.y = pco.y - headRoom - .1f;
@@ -300,7 +321,7 @@ public class Player
             }
         }
         headBump = gotHeadBump;
-        return proposedLoc.subtract(curLoc).subtract(playerBodyOffset);
+        return proposedLoc.subtract(curLoc).subtract(blockEdgeOffset);
     }
 
     public Player(TerrainMap _terrainMap, Camera _camera, Audio _audio, VoxelLandscape _app, Node _overlayNode, Node _terrainNode)
@@ -407,10 +428,10 @@ public class Player
     	playerGeom.setMaterial(app.wireFrameMaterialWithColor(ColorRGBA.Blue));
         return playerGeom;
     }
-    private Geometry makeSmallBox() {
-        Box box = new Box(Vector3f.ZERO, new Vector3f(.2f,.2f,.2f));
+    private Geometry makeSmallBox(ColorRGBA color) {
+        Box box = new Box(Vector3f.ZERO, new Vector3f(.1f,.1f,.1f));
         Geometry playerGeom = new Geometry("small_geom", box);
-        playerGeom.setMaterial(app.wireFrameMaterialWithColor(ColorRGBA.Orange));
+        playerGeom.setMaterial(app.wireFrameMaterialWithColor(color));
         return playerGeom;
     }
     private void debugMoveHeadNodeUp() {
@@ -423,6 +444,12 @@ public class Player
         headNode = new Node("head_node");
         playerNode.attachChild(headNode);
 
+        //DEBUG: SHOW GEOMETRY
+        Geometry playerGeom = makePlayerGeometry();
+        playerNode.attachChild(playerGeom);
+        playerGeom.setLocalTranslation(-halfWidthXZ, 0f, -halfWidthXZ);
+        playerNode.attachChild(makeSmallBox(ColorRGBA.Orange));
+
         CameraNode camNode;
         if (_cam != null) {
             camNode = new CameraNode("cam_node", _cam);
@@ -432,6 +459,11 @@ public class Player
             camNode.setControlDir(CameraControl.ControlDirection.SpatialToCamera);
             camNode.lookAt(headNode.getLocalTranslation(), Vector3f.UNIT_Y.clone());
             camNode.addControl(playerControl);
+
+            //TEST
+            headNode.setLocalTranslation(0f, height, 0f);
+            headNode.attachChild(makeSmallBox(ColorRGBA.Magenta));
+
         } else {
             _terrainNode.addControl(playerControl);
         }

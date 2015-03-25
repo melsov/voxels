@@ -125,7 +125,51 @@ public class BlockMeshUtil
 			}
 		}
 	}
-	
+
+    public static Vector3f[][] faceVerticesOnTheIntegers = new Vector3f[][] {
+            //Xneg
+            new Vector3f[] {
+                    new Vector3f(0f, 0f, 0f),
+                    new Vector3f(0f,  1f, 0f),
+                    new Vector3f(0f,  1f,  1f),
+                    new Vector3f(0f, 0f,  1f),
+            },
+            //Xpos
+            new Vector3f[] {
+                    new Vector3f(1f, 0f,  1f),
+                    new Vector3f(1f,  1f,  1f),
+                    new Vector3f(1f,  1f, 0f),
+                    new Vector3f(1f, 0f, 0f),
+            },
+            //Yneg
+            new Vector3f[] {
+                    new Vector3f(0f, 0f, 0f),
+                    new Vector3f(0f, 0f,  1f),
+                    new Vector3f( 1f, 0f,  1f),
+                    new Vector3f( 1f, 0f, 0f),
+            },
+            //Ypos
+            new Vector3f[] {
+                    new Vector3f( 1f, 1f, 0f),
+                    new Vector3f( 1f, 1f,  1f),
+                    new Vector3f(0f, 1f,  1f),
+                    new Vector3f(0f, 1f, 0f),
+            },
+            //Zneg
+            new Vector3f[] {
+                    new Vector3f( 1f, 0f, 0f),
+                    new Vector3f( 1f,  1f, 0f),
+                    new Vector3f(0f,  1f, 0f),
+                    new Vector3f(0f, 0f, 0f),
+            },
+            //Zpos
+            new Vector3f[] {
+                    new Vector3f(0f, 0f, 1f),
+                    new Vector3f(0f,  1f, 1f),
+                    new Vector3f( 1f,  1f, 1f),
+                    new Vector3f( 1f, 0f, 1f),
+            },
+    };
 	public static Vector3f[][] faceVertices = new Vector3f[][] {
 		//Xneg
 		new Vector3f[] {

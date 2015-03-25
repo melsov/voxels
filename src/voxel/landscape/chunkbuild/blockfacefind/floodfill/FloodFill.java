@@ -41,7 +41,7 @@ public class FloodFill
         shouldStop = _shouldStop;
     }
 
-    private int iterationSafetyCount = 0;
+
 
     public void flood(ChunkSlice[] chunkSliceShell, Coord3 seedGlobal) {
 //        dirtyChunks.clear(); // dirty chunks keeps track of edited chunks
@@ -99,7 +99,7 @@ public class FloodFill
      * flood fill non air in the future?? (this idea is not really born out anywhere else) (TODO: decide what we need vis-a-vis flood filling in general).
      */
     public void floodScanLines(ChunkSlice[] chunkSliceShell, ChunkSlice yPosChunkSlice, ChunkSlice yNegChunkSlice, Coord3 initialSeedGlobal, int untouchedType) {
-        iterationSafetyCount = 0;
+
         // TODO: deal with water!
 
         ArrayList<Coord3> seeds = new ArrayList<Coord3>(Chunk.XLENGTH * Chunk.YLENGTH * Chunk.ZLENGTH);
@@ -122,7 +122,7 @@ public class FloodFill
         byte[] yPOSWasIs = new byte[2];
 
         getCurrentWasIsWithinChunk(initialSeedGlobal, seedChunk, thisCoordWasIs, (byte) untouchedType);
-        if (!BlockType.IsNonExistentOrPlaceHolderAir(thisCoordWasIs[0])) {
+        if (map.isAboveSurface(initialSeedGlobal) ||  !BlockType.IsNonExistentOrPlaceHolderAir(thisCoordWasIs[0])) {
             return;
         }
 
@@ -193,9 +193,12 @@ public class FloodFill
             Coord3 subject = null;
             Coord3 previousSubjectForLight = null;
             int previousSubjectBlockType = -1;
+            int iterationSafetyCount = 0;
             while(true) {
                 if (shouldStop.get()) { return; }
                 if (iterationSafetyCount++ > 8000) { Asserter.assertFalseAndDie("death by iteration: z1 : " + z1 + "chunk box: " + chunkBox.toString()); return; }
+
+                //DebugGeometry.AddDebugBlock(seed, ColorRGBA.Magenta);
 
                 previousSubjectForLight = subject;
                 previousSubjectBlockType = thisCoordWasIs[1];
@@ -210,7 +213,7 @@ public class FloodFill
                  * ZPOS: hit a wall?
                  * */
                 addFaceForType(seedChunk, chunkBox, subject, Direction.ZNEG, thisCoordWasIs[1]);
-                if (BlockType.IsSolid(thisCoordWasIs[1])) {
+                if (BlockType.IsSolid(thisCoordWasIs[1]) || map.isAboveSurface(subject)) {
                     break;
                 }
                 if(previousSubjectForLight != null) {
@@ -304,7 +307,9 @@ public class FloodFill
                 /*
                  * SURFACE CHECK
                  */
-                if (map.isAboveSurface(new Coord3(seed.x, seed.y, z1 ))) { break; }
+                if (map.isAboveSurface(new Coord3(seed.x, seed.y, z1 ))) {
+                    break;
+                }
 
                 /*
                  * ZPOS

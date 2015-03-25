@@ -226,9 +226,11 @@ public class VoxelLandscape extends SimpleApplication
         inputManager.addMapping("RightArrow", new KeyTrigger(keyInput.KEY_RIGHT));
         inputManager.addMapping("LeftArrow", new KeyTrigger(keyInput.KEY_LEFT));
         inputManager.addMapping("Inventory", new KeyTrigger(KeyInput.KEY_E));
+        inputManager.addMapping("ToggleInfoView", new KeyTrigger(KeyInput.KEY_R));
+        inputManager.addMapping("ToggleInfoViewDistance", new KeyTrigger(KeyInput.KEY_F));
         inputManager.addMapping("DebugBlock", new KeyTrigger(KeyInput.KEY_B));
         inputManager.addListener(player.getUserInputListener(), "Break", "Place", "GoHome", "Up", "Down", "Right", "Left",
-                "UpArrow", "DownArrow", "RightArrow", "LeftArrow", "Inventory", "DebugBlock");
+                "UpArrow", "DownArrow", "RightArrow", "LeftArrow", "Inventory", "ToggleInfoView", "ToggleInfoViewDistance", "DebugBlock");
 
         inputManager.addMapping("moveForward",  new KeyTrigger(keyInput.KEY_W));
         inputManager.addMapping("moveBackward",  new KeyTrigger(keyInput.KEY_S));
@@ -430,7 +432,7 @@ public class VoxelLandscape extends SimpleApplication
         player.getPlayerNode().attachChild(camNode);
 
         Vector3f ploc = player.getPlayerNode().getLocalTranslation();
-        camNode.setLocalTranslation(ploc.x, 200, ploc.z);
+        camNode.setLocalTranslation(0, 4, 0);
         camNode.lookAt(ploc.clone(), Vector3f.UNIT_Y.clone());
 
         ViewPort viewPort2 = renderManager.createMainView("Info_view_port", cam2);
@@ -438,7 +440,33 @@ public class VoxelLandscape extends SimpleApplication
         viewPort2.setBackgroundColor(ColorRGBA.Black);
         viewPort2.attachScene(rootNode);
     }
-
+    private static int INFO_AXIS = Axis.Y;
+    public void toggleInfoViewAxis() {
+        INFO_AXIS = Axis.NextAxis(INFO_AXIS);
+        setInfoCamPosition();
+    }
+    private static float[] infoDistances = new float[] { 6f, 12f, 120f, 300f };
+    private static int infoDistanceIndex = 0;
+    public void toggleInfoViewDistance() {
+        infoDistanceIndex = (++infoDistanceIndex) % infoDistances.length;
+        setInfoCamPosition();
+    }
+    private void setInfoCamPosition() {
+        float distance = infoDistances[infoDistanceIndex];
+        Vector3f ploc = player.getPlayerNode().getLocalTranslation();
+        CameraNode infoCamNode =  (CameraNode) player.getPlayerNode().getChild("cam2_node");
+        float halfHeight = 1f;
+        if (INFO_AXIS == Axis.X) {
+            infoCamNode.setLocalTranslation(0, distance, 0);
+            infoCamNode.lookAt(ploc.clone(), Vector3f.UNIT_Y.clone());
+        } else if (INFO_AXIS == Axis.Y) {
+            infoCamNode.setLocalTranslation(0, halfHeight, -distance);
+            infoCamNode.lookAt(ploc.clone(), Vector3f.UNIT_Z.clone());
+        } else {
+            infoCamNode.setLocalTranslation(-distance, halfHeight, 0);
+            infoCamNode.lookAt(ploc.clone(), Vector3f.UNIT_X.clone());
+        }
+    }
     private Material getDebugColumnMat() {
         if (debugColumnMat == null) debugColumnMat = wireFrameMaterialWithColor(ColorRGBA.Orange);
         return debugColumnMat;
@@ -453,6 +481,7 @@ public class VoxelLandscape extends SimpleApplication
         rootNode.attachChild(g);
         g.setLocalTranslation(pos);
     }
+
     //endregion
     //</editor-fold>
 

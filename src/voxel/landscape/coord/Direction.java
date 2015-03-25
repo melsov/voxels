@@ -60,8 +60,14 @@ public class Direction {
     };
     public static Vector3f[] DirectionXZVector3fs = new Vector3f[]{
             new Vector3f(-1, 0, 0),
+            new Vector3f( 1, 0, 0),
+            new Vector3f( 0, 0,-1),
+            new Vector3f( 0, 0, 1),
+    };
+    public static Vector3f[] DirectionXZVector3fsAbsValues = new Vector3f[]{
             new Vector3f(1, 0, 0),
-            new Vector3f(0, 0, -1),
+            new Vector3f(1, 0, 0),
+            new Vector3f(0, 0, 1),
             new Vector3f(0, 0, 1),
     };
     public static Vector3f[] DirectionXZAndZeroVector3fs = new Vector3f[]{

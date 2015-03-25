@@ -56,7 +56,7 @@ public class DebugGeometry
         AddDebugBlock(position, color, 1f, false);
     }
     public static void AddDebugBlock(Coord3 position, ColorRGBA color, float size, boolean solid) {
-        Box s = new Box(new Vector3f(1,1,1), new Vector3f(14, 5, 14));
+        Box s = new Box(new Vector3f(0,0,0), new Vector3f(1,1,1));
         Geometry g = new Geometry();
         g.setMesh(s);
         AddDebugGeometry(g, position, color, solid);
@@ -86,7 +86,7 @@ public class DebugGeometry
         AddDebugGeometry(g, localTrans, color, solidMat);
     }
     public static void AddDebugGeometry(Geometry g, Vector3f localTrans, ColorRGBA color, boolean solidMat) {
-        localTrans = localTrans.clone().add(.5f, .5f, .5f);
+        localTrans = localTrans.clone(); //.add(.5f, .5f, .5f);
         g.setLocalTranslation(localTrans);
         if (solidMat)
             g.setMaterial(materialLibrarian.solidMaterialWithColor(color));

@@ -99,7 +99,8 @@ public class Coord3 implements ICoordXZ
 	}
 	public static Coord3 FromVector3f(Vector3f v) { return new Coord3(v.x, v.y, v.z); }
 
-    public static Coord3 FromVector3fAdjustNegative(Vector3f v) { return Coord3.FromVector3f(VektorUtil.SubtractOneFromNegativeComponents(v)); }
+    public static Coord3 FromVector3fAdjustNegative(Vector3f v) {
+        return Coord3.FromVector3f(VektorUtil.SubtractOneFromNegativeComponents(v)); }
 
     public static Coord3 GreatestDirectionCoord(Vector3f dir) {
     	Coord3 res = dir.x < 0 ? Coord3.xneg : Coord3.xpos;

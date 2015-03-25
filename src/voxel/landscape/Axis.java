@@ -39,6 +39,9 @@ public class Axis
 		if (Y != notA && Y != notB) return Y;
 		return Z;
 	}
+    public static int NextAxis(int axis) {
+        return (Math.min(Math.max(0, axis), 2) + 1) % 3;
+    }
 
 	 
 }
