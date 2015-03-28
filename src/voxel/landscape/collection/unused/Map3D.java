@@ -27,7 +27,7 @@ public class Map3D<I> {
 	}
 	public void Set(I val, int x, int y, int z) {
 		Coord3 chunkPos = Chunk.ToChunkPosition(x, y, z);
-		Coord3 localPos = Chunk.toChunkLocalCoord(x, y, z);
+		Coord3 localPos = Chunk.ToChunkLocalCoord(x, y, z);
 		Chunk3D<I> chunk = GetChunkInstance(chunkPos);
 		chunk.Set(val, localPos);
 	}
@@ -37,7 +37,7 @@ public class Map3D<I> {
 	}
 	public I Get(int x, int y, int z) {
 		Coord3 chunkPos = Chunk.ToChunkPosition(x, y, z);
-		Coord3 localPos = Chunk.toChunkLocalCoord(x, y, z); 
+		Coord3 localPos = Chunk.ToChunkLocalCoord(x, y, z);
 		Chunk3D<I> chunk = GetChunk(chunkPos);
 		if(chunk != null) return chunk.Get(localPos);
 		return defaultValue;

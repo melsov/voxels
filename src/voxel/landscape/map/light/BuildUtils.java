@@ -73,14 +73,14 @@ public class BuildUtils {
 	}
     public static ColorRGBA GetBlockLight(TerrainMap map, Coord3 pos) {
 		Coord3 chunkPos = Chunk.ToChunkPosition(pos);
-		Coord3 localPos = Chunk.toChunkLocalCoord(pos);
+		Coord3 localPos = Chunk.ToChunkLocalCoord(pos);
 		float light = (float) map.GetLightmap().GetLight( chunkPos, localPos ) / (float) SunLightComputer.MAX_LIGHT;
 		float sun = (float) map.GetSunLightmap().GetLight( chunkPos, localPos, pos.y ) / (float) SunLightComputer.MAX_LIGHT;
         return new ColorRGBA(0,0,light,sun);
 	}
     public static float GetWaterLevel(TerrainMap map, Coord3 pos) {
         Coord3 chunkPos = Chunk.ToChunkPosition(pos);
-        Coord3 localPos = Chunk.toChunkLocalCoord(pos);
+        Coord3 localPos = Chunk.ToChunkLocalCoord(pos);
         return (float) (map.getLiquidLevelMap().GetWaterLevel(chunkPos, localPos) / (float) WaterFlowComputer.MAX_WATER_LEVEL);
     }
 }

@@ -36,7 +36,7 @@ public class ChunkBlockFaceMap {
     }
 
     public void removeAllFacesUpdateNeighbors(Coord3 global, TerrainMap map) {
-        Coord3 localCoord = Chunk.toChunkLocalCoord(global);
+        Coord3 localCoord = Chunk.ToChunkLocalCoord(global);
         removeAllFaces(localCoord);
         for (int dir : Direction.Directions) {
             Coord3 globalNudge = global.add(Direction.DirectionCoords[dir]);
@@ -49,7 +49,7 @@ public class ChunkBlockFaceMap {
                 Asserter.assertTrue(neighbor != null, "null chunk!");
                 faceMap = neighbor.chunkBlockFaceMap.getFaces(); // TODO: FIX NULL P EXCEPTION HERE
             }
-            Coord3 localNudge = Chunk.toChunkLocalCoord(globalNudge);
+            Coord3 localNudge = Chunk.ToChunkLocalCoord(globalNudge);
             BlockFaceRecord blockFaceRecord = faceMap.get(new ChunkBlockFaceCoord(localNudge));
             if (blockFaceRecord == null) {
                 /* have we revealed a solid block here? */
@@ -65,7 +65,7 @@ public class ChunkBlockFaceMap {
         }
     }
     public void addExposedFacesUpdateNeighbors(Coord3 global, TerrainMap map) {
-        Coord3 localCoord = Chunk.toChunkLocalCoord(global);
+        Coord3 localCoord = Chunk.ToChunkLocalCoord(global);
         for (int dir : Direction.Directions) {
             Coord3 globalNudge = global.add(Direction.DirectionCoords[dir]);
             /* Which faceMap? Ours or a neighbors? */
@@ -77,7 +77,7 @@ public class ChunkBlockFaceMap {
                 Asserter.assertTrue(neighbor != null, "null chunk!");
                 neighborFaceMap = neighbor.chunkBlockFaceMap.getFaces();
             }
-            Coord3 localNudge = Chunk.toChunkLocalCoord(globalNudge);
+            Coord3 localNudge = Chunk.ToChunkLocalCoord(globalNudge);
             ChunkBlockFaceCoord neighborBFCoord = new ChunkBlockFaceCoord(localNudge);
             BlockFaceRecord blockFaceRecord = neighborFaceMap.get(neighborBFCoord);
 

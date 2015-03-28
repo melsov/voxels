@@ -348,7 +348,7 @@ public class FloodFill
 //        if (BlockType.IsRenderedType(blockType)) {
 //            if (chunkBounds.contains(globalBlockLocation)) {
 //                map.setBlockFaceForChunk(seedChunk, globalBlockLocation, direction, true);
-////                seedChunk.chunkBlockFaceMap.addFace(Chunk.toChunkLocalCoord(globalBlockLocation), direction);
+////                seedChunk.chunkBlockFaceMap.addFace(Chunk.ToChunkLocalCoord(globalBlockLocation), direction);
 //                dirtyChunks.add(seedChunk.position);
 //                return;
 //            }
@@ -357,7 +357,7 @@ public class FloodFill
 //        }
     }
     private void getCurrentWasIsWithinChunk(Coord3 global, Chunk chunk, byte[] wasIs, byte untouchedType) {
-        wasIs[0] = chunk.blockAt(Chunk.toChunkLocalCoord(global));
+        wasIs[0] = chunk.blockAt(Chunk.ToChunkLocalCoord(global));
         if (wasIs[0] != FloodFill4D.UntouchedType) {
             wasIs[1] = wasIs[0];
             return;

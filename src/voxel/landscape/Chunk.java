@@ -7,6 +7,7 @@ import voxel.landscape.collection.ByteArray3D;
 import voxel.landscape.collection.chunkface.ChunkBlockFaceMap;
 import voxel.landscape.collection.coordmap.managepages.ConcurrentHashMapCoord3D;
 import voxel.landscape.coord.Box;
+import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;
 
@@ -98,10 +99,10 @@ public class Chunk
 	}
     public static int ToChunkLocalY(int worldCoordY) { return worldCoordY & (YLENGTH - 1);  }
     public static int ToChunkPositionY(int worldCoordY) { return worldCoordY >> SIZE_Y_BITS; }
-    public static Coord3 toChunkLocalCoord(Coord3 woco) {
-		return toChunkLocalCoord(woco.x, woco.y, woco.z);
+    public static Coord3 ToChunkLocalCoord(Coord3 woco) {
+		return ToChunkLocalCoord(woco.x, woco.y, woco.z);
 	}
-	public static Coord3 toChunkLocalCoord(int x, int y, int z) {
+	public static Coord3 ToChunkLocalCoord(int x, int y, int z) {
 		/*
 		 * Bitwise mod (%) by X/Y/ZLENGTH. but better. since this is much faster than '%' and as a bonus will always return positive numbers.
 		 * the normal modulo operator ("%") will return negative for negative left-side numbers. (for example -14 % 10 becomes -4. <--bad. 
@@ -116,6 +117,9 @@ public class Chunk
 	public static Coord3 ToWorldPosition(Coord3 chunkPosition) {
 		return ToWorldPosition(chunkPosition, Coord3.Zero);
 	}
+    public static Coord3 ToWorldPosition(Coord2 columnPosition) {
+        return ToWorldPosition(new Coord3(columnPosition.getX(), 0, columnPosition.getZ()), Coord3.Zero);
+    }
 	public static Coord3 ToWorldPosition(Coord3 chunkPosition, Coord3 localPosition) {
 		/*
 		 * Opposite of ToChunkPosition

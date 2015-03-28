@@ -22,7 +22,7 @@ public class MapByte3D
 	}
 	public void Set(byte val, int x, int y, int z) {
 		Coord3 chunkPos = Chunk.ToChunkPosition(x, y, z);
-		Coord3 localPos = Chunk.toChunkLocalCoord(x, y, z);
+		Coord3 localPos = Chunk.ToChunkLocalCoord(x, y, z);
 		ChunkByte3D chunk = GetChunkInstance(chunkPos);
 		chunk.Set(val, localPos);
 	}
@@ -32,7 +32,7 @@ public class MapByte3D
 	}
 	public int Get(int x, int y, int z) {
 		Coord3 chunkPos = Chunk.ToChunkPosition(x, y, z);
-		Coord3 localPos = Chunk.toChunkLocalCoord(x, y, z); 
+		Coord3 localPos = Chunk.ToChunkLocalCoord(x, y, z);
 		ChunkByte3D chunk = GetChunk(chunkPos);
 		if(chunk != null) return chunk.Get(localPos);
 		return defaultValue;

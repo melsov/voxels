@@ -22,7 +22,7 @@ public class ChunkSliceBlockSet
     }
 
     public boolean addCoord(Coord3 global) {
-        Coord3 local = Chunk.toChunkLocalCoord(global);
+        Coord3 local = Chunk.ToChunkLocalCoord(global);
         if (isCoordAdjacent(local)) {
             coords.add(new ChunkLocalCoord(local));
             return true;
@@ -35,7 +35,7 @@ public class ChunkSliceBlockSet
     }
 
     public boolean isCoordAdjacent(Coord3 global) {
-        Coord3 local = Chunk.toChunkLocalCoord(global);
+        Coord3 local = Chunk.ToChunkLocalCoord(global);
         for(Coord3 nudge : Direction.NudgeDirectionsNormalToAxis(axis)) {
             if (coords.contains(new ChunkLocalCoord(local.add(nudge)))) {
                 return true;

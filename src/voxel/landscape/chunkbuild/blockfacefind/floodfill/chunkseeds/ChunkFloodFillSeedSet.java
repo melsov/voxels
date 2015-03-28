@@ -21,7 +21,7 @@ public class ChunkFloodFillSeedSet {
     }
 
     public void addCoord(Coord3 global){
-        Coord3 local = Chunk.toChunkLocalCoord(global);
+        Coord3 local = Chunk.ToChunkLocalCoord(global);
         ChunkFloodFillSeedBlob3D adjacentFloodFillSeed = null;
         // Is this coord adjacent to an existing FloodFillSeedBlob?
         for (int i = 0; i < seeds.size(); ++i) {

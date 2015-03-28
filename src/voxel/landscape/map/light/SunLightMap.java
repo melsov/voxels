@@ -10,7 +10,6 @@ import voxel.landscape.collection.chunkarray.ChunkUByte2D;
 public class SunLightMap 
 {	
 	private MapPrimitive2D<ChunkUByte2D> rays = new MapPrimitive2D<ChunkUByte2D>((byte) 0, ChunkUByte2D.class);
-//	private MapByte3D lights = new MapByte3D((byte) 0);
     private MapNibble3D lights = new MapNibble3D((byte) 0);
 	
 	public void SetSunHeight(int height, int x, int z) {
@@ -32,7 +31,7 @@ public class SunLightMap
 	}
 	public boolean SetMaxLight(byte light, int x, int y, int z) {
 		Coord3 chunkPos = Chunk.ToChunkPosition(x, y, z);
-		Coord3 localPos = Chunk.toChunkLocalCoord(x, y, z);
+		Coord3 localPos = Chunk.ToChunkLocalCoord(x, y, z);
 		
 		if( IsSunLight(chunkPos, localPos, y) ) return false;
 
@@ -47,7 +46,6 @@ public class SunLightMap
 	/*
 	 * Set
 	 */
-
 	public void SetLight(byte light, Coord3 pos) {
 		SetLight(light, pos.x, pos.y, pos.z);
 	}
@@ -65,7 +63,7 @@ public class SunLightMap
 	}
 	public byte GetLight(int x, int y, int z) {
 		Coord3 chunkPos = Chunk.ToChunkPosition(x, y, z);
-		Coord3 localPos = Chunk.toChunkLocalCoord(x, y, z);
+		Coord3 localPos = Chunk.ToChunkLocalCoord(x, y, z);
 		return GetLight(chunkPos, localPos, y);
 	}
 	public byte GetLight(Coord3 chunkPos, Coord3 localPos, int worldY) {
@@ -88,14 +86,5 @@ public class SunLightMap
         lights.RemoveChunk(x,y,z);
     }
     public void RemoveLightData(Coord3 pos) { lights.RemoveChunk(pos); }
-	
-	/*
-	 * DEBUG!!
-	private void debugWithArrayMap(byte light, int x, int y, int z) {
-		Color color = new Color(Math.abs(z/164f), Math.abs(z/164f), .2f);
-		Array2DViewer.getInstance().setPixel(x, y, color);
-	}
-	 */
-	
-	
+
 }

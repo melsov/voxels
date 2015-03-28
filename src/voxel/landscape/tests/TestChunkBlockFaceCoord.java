@@ -18,12 +18,12 @@ public class TestChunkBlockFaceCoord extends TestCase {
         for (Coord3 co : ChunkLocalCoord.Locals) {
             Coord3 c = co.add(global);
             ChunkBlockFaceCoord cb  = new ChunkBlockFaceCoord(c);
-            assertEquals(Chunk.toChunkLocalCoord(c), cb.toCoord3());
+            assertEquals(Chunk.ToChunkLocalCoord(c), cb.toCoord3());
         }
 //        for (int i = 16; i < 34; ++i) {
 //            Coord3 c = new Coord3(0,i,0);
 //            ChunkBlockFaceCoord cb  = new ChunkBlockFaceCoord(c);
-//            assertEquals(Chunk.toChunkLocalCoord(c), cb.toCoord3());
+//            assertEquals(Chunk.ToChunkLocalCoord(c), cb.toCoord3());
 //        }
     }
 }

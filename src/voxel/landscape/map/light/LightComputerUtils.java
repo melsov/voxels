@@ -10,7 +10,7 @@ public class LightComputerUtils {
 	
 	public static void SetLightDirty(TerrainMap map, Coord3 pos) {
 		Coord3 chunkPos = Chunk.ToChunkPosition(pos);
-		Coord3 localPos = Chunk.toChunkLocalCoord(pos);
+		Coord3 localPos = Chunk.ToChunkLocalCoord(pos);
 		
 		SetChunkLightDirty(map, chunkPos);
 		

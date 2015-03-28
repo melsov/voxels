@@ -5,6 +5,8 @@ import voxel.landscape.coord.Coord3;
 
 /**
  * Created by didyouloseyourdog on 10/2/14.
+ * Stands in for chunk local coord3s in HashMaps
+ * to save memory.
  */
 
 public class ChunkBlockFaceCoord

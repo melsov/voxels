@@ -20,11 +20,11 @@ public class ChunkSunLightComputer
 //	private static ArrayList<Coord3> list = new ArrayList<Coord3>();
 	
 	public static void ComputeRays(TerrainMap map, int cx, int cz) {
-		int x1 = cx*Chunk.CHUNKDIMS.x - 1; // SIZE_X-1;
-		int z1 = cz*Chunk.CHUNKDIMS.z - 1; // SIZE_Z-1;
+		int x1 = cx*Chunk.CHUNKDIMS.x - 1;
+		int z1 = cz*Chunk.CHUNKDIMS.z - 1;
 		
-		int x2 = x1+Chunk.CHUNKDIMS.x + 2; //.SIZE_X+2;
-		int z2 = z1+Chunk.CHUNKDIMS.z + 2; // SIZE_Z+2;
+		int x2 = x1+Chunk.CHUNKDIMS.x + 2;
+		int z2 = z1+Chunk.CHUNKDIMS.z + 2;
 		
 		for(int z=z1; z<z2; z++) {
 			for(int x=x1; x<x2; x++) {
@@ -42,7 +42,6 @@ public class ChunkSunLightComputer
 		
 		SunLightMap sunlightmap = map.GetSunLightmap();
         List<Coord3> list = new ArrayList<Coord3>((int) (Chunk.XLENGTH*Chunk.ZLENGTH*Chunk.YLENGTH * .4));
-//		list.clear();
 		for(int x=x1; x<x2; x++) {
 			for(int z=z1; z<z2; z++) {
 				int maxY = ComputeMaxY(sunlightmap, x, z)+1;

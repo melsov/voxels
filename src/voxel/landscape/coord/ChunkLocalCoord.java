@@ -13,7 +13,7 @@ public class ChunkLocalCoord extends Coord3
 
     public ChunkLocalCoord(Coord3 coord3){
         super(0);
-        Coord3 local = Chunk.toChunkLocalCoord(coord3);
+        Coord3 local = Chunk.ToChunkLocalCoord(coord3);
         x = local.x; y = local.y; z =local.z;
     }
 

@@ -4,6 +4,7 @@ import voxel.landscape.collection.ColumnMap;
 import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;
+import voxel.landscape.map.structure.StructureBuilder;
 import voxel.landscape.noise.TerrainDataProvider;
 
 import java.util.HashSet;
@@ -27,6 +28,8 @@ public class AsyncGenerateColumnDataInfinite implements Runnable // extends Resp
 
     private HashSet<Coord3> touchedChunkCoords;
 
+    private StructureBuilder structureBuilder = new StructureBuilder();
+
     public AsyncGenerateColumnDataInfinite(final TerrainMap _terrainMap, final ColumnMap _columnMap, final BlockingQueue<Coord2> _columnsToBeBuilt, AtomicBoolean _keepGoing) {
         columnsToBeBuilt = _columnsToBeBuilt;
         columnMap = _columnMap;
@@ -38,8 +41,9 @@ public class AsyncGenerateColumnDataInfinite implements Runnable // extends Resp
     public void run() {
         Thread.currentThread().setName("Async Gen Column Data Thread");
         while(keepGoing.get()) {
+            Coord2 colCoord = null;
             try {
-                Coord2 colCoord = columnsToBeBuilt.take(); //thread will block while nothing is available...maybe forever...
+                colCoord = columnsToBeBuilt.take(); //thread will block while nothing is available...maybe forever...
                 x = colCoord.x; z = colCoord.y;
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -48,6 +52,7 @@ public class AsyncGenerateColumnDataInfinite implements Runnable // extends Resp
             if (columnMap.SetIsBuildingOrReturnFalseIfStartedAlready(x,z)) {
                 touchedChunkCoords.clear();
                 terrainMap.generateSurface(x, z, dataProvider, touchedChunkCoords);
+                structureBuilder.addStructures(colCoord, terrainMap, dataProvider, touchedChunkCoords);
                 //WE MAY HAVE CRAWLED BACK OVER AN ALREADY PROCESSED COLUMN
                 //WE COULD BE ITERATING OVER ITS ENTIRE X,Z SURFACE WHEN (SAY) ONLY
                 //ONE X,Z HEIGHT COORD WAS CHANGED. THIS SEEMS WASTEFUL BUT, TO GET AROUND
@@ -55,15 +60,12 @@ public class AsyncGenerateColumnDataInfinite implements Runnable // extends Resp
                 for (Coord2 col2 : columnsFromChunkCoords(touchedChunkCoords)) {
                     terrainMap.populateFloodFillSeedsUpdateFaceMapsInChunkColumn(col2.getX(), col2.getZ(), dataProvider, touchedChunkCoords);
                 }
-//                terrainMap.populateFloodFillSeedsUpdateFaceMapsInChunkColumn(x, z, dataProvider, touchedChunkCoords); // ORDER OF THIS LINE AND THE SUN/WATER COMPUTER LINES MATTERS! TODO: FIX
 
                 columnMap.SetBuiltSurface(x, z);
-//                ChunkSunLightComputer.ComputeRays(terrainMap, x, z); // no need. terrain map does this while generating
                 if (!keepGoing.get()) break; //PREVENT FREEZE AT END OF RUN??
 
 //                ChunkSunLightComputer.Scatter(terrainMap, columnMap, x, z); //WANT
 //                ChunkWaterLevelComputer.Scatter(terrainMap, columnMap, x, z); //WANT
-//                columnMap.SetBuilt(x, z); // MOVED
 
                 try { sleep(10); } catch (InterruptedException e) { e.printStackTrace(); }
                 /*

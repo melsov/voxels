@@ -14,7 +14,7 @@ public class LightMap {
 	}
 	public boolean SetMaxLight(byte light, int x, int y, int z) {
 		Coord3 chunkPos = Chunk.ToChunkPosition(x, y, z);
-		Coord3 localPos = Chunk.toChunkLocalCoord(x, y, z);
+		Coord3 localPos = Chunk.ToChunkLocalCoord(x, y, z);
         ChunkNibble3D chunk = lights.GetChunkInstance(chunkPos);
 		byte oldLight = (byte) chunk.Get(localPos);
 		if(oldLight < light) {

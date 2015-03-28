@@ -24,13 +24,6 @@ public class BlockFaceRecord
         return 0 < (storage & Direction.BitMasks[direction]);
     }
 
-    public boolean DEBUGisOnlyXAxisFalse() {
-        return storage == 0B111100;
-    }
-    public boolean DEBUGisOnlyZAxisFalse() {
-        return storage == 0B001111;
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

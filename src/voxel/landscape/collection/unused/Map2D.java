@@ -26,14 +26,14 @@ public class Map2D<I> {
 	
 	public void Set(I val, int x, int z) {
 		Coord3 chunkPos = Chunk.ToChunkPosition(x, 0, z);
-		Coord3 localPos = Chunk.toChunkLocalCoord(x, 0, z);
+		Coord3 localPos = Chunk.ToChunkLocalCoord(x, 0, z);
 		Chunk2D<I> chunk = GetChunkInstance(chunkPos.x, chunkPos.z);
 		chunk.Set(val, localPos.x, localPos.z);
 	}
 	
 	public I Get(int x, int z) {
 		Coord3 chunkPos = Chunk.ToChunkPosition(x, 0, z);
-		Coord3 localPos = Chunk.toChunkLocalCoord(x, 0, z);
+		Coord3 localPos = Chunk.ToChunkLocalCoord(x, 0, z);
 		Chunk2D<I> chunk = GetChunk(chunkPos.x, chunkPos.z);
 		if(chunk != null) return chunk.Get(localPos.x, localPos.z);
 		return defaultValue;
