@@ -7,16 +7,11 @@ import com.sudoplay.joise.module.ModuleCombiner.CombinerType;
 import com.sudoplay.joise.module.ModuleFractal.FractalType;
 import voxel.landscape.BlockType;
 import voxel.landscape.Chunk;
-import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.noise.fake.BorderBox;
 import voxel.landscape.noise.fake.BorderBoxMaker;
-
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import voxel.landscape.noise.image.ImageMap;
 
 //import com.sudoplay.joise.examples.Canvas;
 
@@ -40,9 +35,8 @@ public class TerrainDataProvider {
         NoiseModule, ImageMode
     }
 
-    private Mode mode = Mode.NoiseModule;
-    private BufferedImage buffIm;
-    Coord2 buffiDims;
+    private Mode mode = Mode.ImageMode;
+   ImageMap imageMap;
 
     Module noiseModule;
     public static final double WORLD_TO_VERTICAL_NOISE_SCALE = TerrainMap.GetWorldHeightInBlocks(); // * 2.2;
@@ -53,16 +47,13 @@ public class TerrainDataProvider {
     private BorderBoxMaker borderBoxMaker = new BorderBoxMaker();
 
     public TerrainDataProvider() {
-        this(Mode.NoiseModule);
+        this(Mode.ImageMode);
     }
 
     public TerrainDataProvider(Mode _mode) {
         mode = _mode;
         if (mode == Mode.ImageMode) {
-            String heightMapSrc = "inputTexturesMP/heightMapTex.png";
-            buffIm = getBufferedImage(heightMapSrc);
-            // TODO: sep ims for heightmap and btype map
-            buffiDims = new Coord2(buffIm.getWidth(), buffIm.getHeight());
+            imageMap = new ImageMap();
         } else {
             seed = -21234;
             setupModule();
@@ -70,11 +61,14 @@ public class TerrainDataProvider {
         }
     }
 
-    private static boolean USE_TEST_NOISE = true;
+    private static boolean USE_TEST_NOISE = false;
     private static boolean SOLID_BLOCKTYPE_PER_CHUNK = true;
 
     public int getBlockDataAtPosition(int xin, int yin, int zin) {
-
+        
+        if(mode == Mode.ImageMode) {
+            return imageMap.blockTypeAt(xin, yin, zin);
+        }
         if (USE_TEST_NOISE) {
 //        return enclosuresBorder(xin, yin, zin);
 //        return flat(yin);
@@ -93,6 +87,7 @@ public class TerrainDataProvider {
             }
             return b;
         }
+
         if (yin < 2) return BlockType.BEDROCK.ordinal();
         if (yin > 63) return BlockType.AIR.ordinal();
         double r = noiseModule.get(
@@ -114,34 +109,6 @@ public class TerrainDataProvider {
     private static BorderBox fakeCaveBorderBox;
     private static BorderBox fakeTallCaveBorderBox;
     private static BorderBox enclosure;
-
-
-
-    private BufferedImage getBufferedImage(String src) {
-        File imFile = new File(src);
-
-        BufferedImage buffi = null;
-        try {
-            buffi = ImageIO.read(imFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return buffi;
-    }
-
-    private double readImageAt(double xin, double yin) {
-        int rgb = getRGB(xin, yin);
-
-        //result is neg for some reason when reading pngs...oh well
-        int alpha = (rgb >> 24) & 0xFF;
-
-        return (double) (alpha / ((double) ARGB_POS_ONE_CHANNEL_MAX * 3) * 2 - 1);
-    }
-
-    private int getRGB(double xin, double yin) {
-        int x = (int) Math.abs(xin), y = (int) Math.abs(yin);
-        return buffIm.getRGB(x, y) + ARGB_POS_MAX;
-    }
 
     /*
     * parameterized land method

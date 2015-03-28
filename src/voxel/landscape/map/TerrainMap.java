@@ -211,7 +211,7 @@ public class TerrainMap implements IBlockDataProvider
         Asserter.assertTrue(GetChunk(co) != null, "chunk was null: " + co.toString() + " : " + msg);
     }
 
-    public static final boolean CRAWL_OVER_SURFACE = true;
+    public static final boolean CRAWL_OVER_SURFACE = false;
 	/*
 	 * populate chunk with block values
 	 */

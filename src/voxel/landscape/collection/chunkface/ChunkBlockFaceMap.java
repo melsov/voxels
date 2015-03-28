@@ -149,7 +149,7 @@ public class ChunkBlockFaceMap {
 
             byte blockType = (byte) map.lookupOrCreateBlock(blockWorldCoord);
 
-            if (BlockType.AIR.equals(blockType)) continue;
+            if (BlockType.IsAirOrNonExistent(blockType)) continue;
 
             for (int dir : Direction.Directions)
             {

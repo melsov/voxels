@@ -5,6 +5,7 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../voxels_initial_setup/src/assets_for_voxel" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/Textures" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
@@ -13,4 +14,3 @@
     <orderEntry type="library" name="junit" level="application" />
   </component>
 </module>
-

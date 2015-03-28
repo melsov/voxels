@@ -50,9 +50,9 @@ public class ChunkFinder {
         SetupDiagonalCoordLook3D();
         SetupTestColumnCoords();
     }
-    private static final int TestColumnsXDim = 10;
+    private static final int TestColumnsXDim = 14;
     private static final int TestColumnsXStart = 0;
-    private static final int TestColumnsZDim = 10;
+    private static final int TestColumnsZDim = 14;
     private static final int TestColumnsZStart = 0;
     private static Square testColumns; // = new Square(new Coord2(-7, 3), new Coord2(4, 4));
     public static Square GetTestColumns() {

@@ -41,7 +41,8 @@ public class ChunkBuilder
                     byte btype = (byte) map.lookupBlock(xin, yin, zin); //TEST
                     if (BlockType.NON_EXISTENT.equals(btype)) continue;
 
-					if (BlockType.AIR.equals(btype)) continue;
+//					if (BlockType.AIR.equals(btype)) continue;
+                    if (BlockType.IsAirOrNonExistent(btype)) continue;
 
                     Coord3 worldcoord = new Coord3(xin, yin, zin);
                     if (BlockType.IsWaterType(btype)) {
