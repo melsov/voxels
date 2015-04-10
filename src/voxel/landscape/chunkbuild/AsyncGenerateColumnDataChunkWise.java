@@ -1,5 +1,6 @@
 package voxel.landscape.chunkbuild;
 
+import voxel.landscape.VoxelLandscape;
 import voxel.landscape.collection.ColumnMap;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;
@@ -23,7 +24,7 @@ public class AsyncGenerateColumnDataChunkWise implements Runnable // extends Res
     private int x,z;
     private TerrainMap terrainMap;
     private ColumnMap columnMap;
-    private TerrainDataProvider dataProvider = new TerrainDataProvider();
+    private TerrainDataProvider dataProvider = new TerrainDataProvider(VoxelLandscape.WorldSettings.seed);
     BlockingQueue<Coord3> chunksCoordsThatNeedColumnData;
     BlockingQueue<Coord3> chunksCoordsThatHaveColumnData;
     AtomicBoolean keepGoing;

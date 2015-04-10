@@ -2,19 +2,23 @@ package voxel.landscape.chunkbuild.blockfacefind.floodfill.chunkseeds;
 
 import voxel.landscape.Chunk;
 import voxel.landscape.coord.Coord3;
+import voxel.landscape.fileutil.FileUtil;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by didyouloseyourdog on 10/14/14.
  * A collection of ChunkFloodFillSeedBlob3Ds.
  * Handles adding blobs and combining contiguous blobs.
  */
-public class ChunkFloodFillSeedSet {
+public class ChunkFloodFillSeedSet implements Serializable {
     private Coord3 chunkCoord;
     public Coord3 getChunkCoord() { return chunkCoord; }
-    private List<ChunkFloodFillSeedBlob3D> seeds = new ArrayList<>(7);
+    private ArrayList<ChunkFloodFillSeedBlob3D> seeds = new ArrayList<>(7);
+    public final AtomicBoolean writeDirty = new AtomicBoolean(true);
 
     public ChunkFloodFillSeedSet(Coord3 _chunkCoord) {
         chunkCoord = _chunkCoord;
@@ -39,10 +43,12 @@ public class ChunkFloodFillSeedSet {
         if (adjacentFloodFillSeed == null) {
             seeds.add(new ChunkFloodFillSeedBlob3D(local));
         }
+        writeDirty.set(true);
     }
 
     public Coord3 removeNext() {
         if (seeds.size() == 0) return null;
+        writeDirty.set(true);
         return Chunk.ToWorldPosition(chunkCoord, seeds.remove(0).getSeed());
     }
     public int size() {
@@ -57,4 +63,27 @@ public class ChunkFloodFillSeedSet {
         sb.append(seeds.size());
         return sb.toString();
     }
+
+    /*
+     * Read/Write
+     */
+    public void readFromFile(Coord3 position) {
+        Object seedsO = FileUtil.DeserializeChunkObject(position, FileUtil.ChunkFloodFillSeedSetExtension);
+        if (seedsO != null) {
+            seeds = (ArrayList<ChunkFloodFillSeedBlob3D>) seedsO;
+            writeDirty.set(false);
+        }
+    }
+
+    public void writeToFile(Coord3 position) {
+        try {
+            FileUtil.SerializeChunkObject(seeds, position, FileUtil.ChunkFloodFillSeedSetExtension);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+        writeDirty.set(false);
+    }
+
+
 }

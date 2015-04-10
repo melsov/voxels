@@ -26,7 +26,7 @@ public class WaterFlowComputer
         for(int i=0; i<list.size(); i++) {
             Coord3 pos = list.get(i);
             if(pos.y<0) continue;
-            byte block;
+            int block;
             int waterLevel = liquidLevelMap.GetWaterLevel(pos);
             for(Coord3 dir : Direction.DirectionCoordsXZAndDown) {
                 Coord3 nextPos = pos.add(dir);
@@ -50,7 +50,7 @@ public class WaterFlowComputer
     public static void RecomputeWaterAtPosition(TerrainMap map, Coord3 pos) {
         WaterLevelMap liquidMap = map.getLiquidLevelMap();
         int oldWater = liquidMap.GetWaterLevel(pos);
-        byte block = map.lookupBlock(pos);
+        int block = map.lookupBlock(pos);
         int newWater = BlockType.WaterLevelForType(block);
 
         if (oldWater > newWater) {
@@ -99,7 +99,7 @@ public class WaterFlowComputer
 
             for(Coord3 dir : Direction.DirectionCoordsXZAndDown) {
                 Coord3 nextPos = pos.add(dir);
-                byte block = map.lookupBlock(nextPos);
+                int block = map.lookupBlock(nextPos);
                 if(BlockType.AcceptsWater(block)) {
                     if(dir.y == -1 || liquidLevelMap.GetWaterLevel(nextPos) <= nextWater) {
                         list.add( nextPos );

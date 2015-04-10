@@ -27,7 +27,7 @@ import voxel.landscape.chunkbuild.ChunkFinder;
 import voxel.landscape.chunkbuild.ResponsiveRunnable;
 import voxel.landscape.chunkbuild.ThreadCompleteListener;
 import voxel.landscape.collection.ColumnMap;
-import voxel.landscape.collection.coordmap.managepages.FurthestCoord3PseudoDelegate;
+import voxel.landscape.collection.coordmap.managepages.FurthestChunkFinder;
 import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.debugmesh.DebugChart;
@@ -77,7 +77,7 @@ public class VoxelLandscapePreNearby extends SimpleApplication implements Thread
 	private LinkedBlockingQueue<Coord2> columnsToBeBuilt = new LinkedBlockingQueue<Coord2>();
 
     private static float GameTime = 0f;
-    private FurthestCoord3PseudoDelegate furthestDelegate = new FurthestCoord3PseudoDelegate();
+    private FurthestChunkFinder furthestDelegate = new FurthestChunkFinder();
 
 	private static Coord2 screenDims;
 
@@ -267,7 +267,7 @@ public class VoxelLandscapePreNearby extends SimpleApplication implements Thread
         if (!CULLING_ON) return;
         int culled = 0;
         while (columnMap.columnCount() > COLUMN_CULLING_MIN) {
-            Coord3 furthest = furthestDelegate.getFurthest2D(cam, columnMap.getCoordXZSet());
+            Coord3 furthest = furthestDelegate.getFurthest2D(terrainMap, cam, columnMap.getCoordXZSet().toArray());
             removeColumn(furthest.x, furthest.z);
             if (culled++ > 10) break;
         }
@@ -283,10 +283,10 @@ public class VoxelLandscapePreNearby extends SimpleApplication implements Thread
                 B.bug("chunk null. no clearing/detaching");
                 continue;
             }
-            ch.getChunkBrain().clearMeshBuffersAndSetGeometryNull();
+            ch.getChunkBrain().clearMeshBuffers();
             detachFromScene(ch);
         }
-        terrainMap.removeColumnData(x,z);
+        terrainMap.removeColumn(x, z);
         columnMap.Destroy(x, z);
     }
 

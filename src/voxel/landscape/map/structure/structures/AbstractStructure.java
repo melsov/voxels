@@ -9,20 +9,20 @@ import java.util.HashMap;
 /**
  * Created by didyouloseyourdog on 3/28/15.
  */
-public class AbstractStructure {
-    public HashMap<Coord3, BlockType> outerBlocks = new HashMap(64);
-    public HashMap<Coord3, BlockType> innerBlocks = new HashMap(64);
+public abstract class AbstractStructure {
+//    protected HashMap<Coord3, BlockType> outerBlocks = new HashMap(256);
+//    protected HashMap<Coord3, BlockType> innerBlocks = new HashMap(256);
 
-    public AbstractStructure() {
-        generateBlocks();
+    protected final int seed;
+
+    public AbstractStructure(int _seed) {
+        seed = _seed;
+//        generateBlocks();
     }
 
-    private void generateBlocks() {
-        // stub
-    }
-
-    public boolean viablePlot(Coord3 global, TerrainMap map) {
-        return false;
-    }
+//    protected abstract void generateBlocks();
+    public abstract Coord3 viablePlot(Coord3 global, TerrainMap map);
+    public abstract HashMap<Coord3, BlockType> getOuterBlocks();
+    public abstract HashMap<Coord3, BlockType> getInnerBlocks();
 
 }

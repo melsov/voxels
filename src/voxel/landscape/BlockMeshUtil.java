@@ -13,7 +13,7 @@ import java.util.Arrays;
 
 public class BlockMeshUtil 
 {
-	public static void AddFaceMeshData(Coord3 pos, MeshSet mset, byte blockType, int direction, int triIndexStart, TerrainMap terrainData)
+	public static void AddFaceMeshData(Coord3 pos, MeshSet mset, int blockType, int direction, int triIndexStart, TerrainMap terrainData)
 	{
 		/*
 		 * make four verts
@@ -100,7 +100,7 @@ public class BlockMeshUtil
 			mset.indices.add(i + triIndexStart);
 		}
 	}
-	private static void UVsForDirection(MeshSet mset, int dir, byte blockType) // int height, int width)
+	private static void UVsForDirection(MeshSet mset, int dir, int blockType) // int height, int width)
 	{
 //		if (Direction.AxisForDirection(dir) == Axis.Y) {
 //			mset.uvs.addAll(Arrays.asList(new Vector2f(0,0),new Vector2f(width,0),new Vector2f(width,height),new Vector2f(0,height)));

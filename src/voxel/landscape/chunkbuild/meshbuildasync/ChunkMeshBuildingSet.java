@@ -12,4 +12,6 @@ public class ChunkMeshBuildingSet {
     public boolean isOnlyLight;
     public boolean isOnlyLiquid;
     public Coord3 chunkPosition;
+
+    public static final ChunkMeshBuildingSet POISON_PILL = new ChunkMeshBuildingSet();
 }

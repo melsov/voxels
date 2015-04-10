@@ -54,7 +54,7 @@ public class Player
     private boolean grounded = false;
     private boolean jumping = false;
     private boolean headBump = false;
-    private byte blockInHandType = (byte) BlockType.DIRT.ordinal();
+    private int blockInHandType = BlockType.DIRT.ordinal();
     public static final int REACHABLE_BLOCK_RADIUS = 12;
     private static final int REACHABLE_BLOCK_RADIUS_SQUARED = REACHABLE_BLOCK_RADIUS * REACHABLE_BLOCK_RADIUS;
 
@@ -78,7 +78,7 @@ public class Player
                 nextBlockInHandType();
             }
             else if (name.equals("Right") && !keyPressed) {
-                blockInHandType = (byte) BlockType.LANTERN.ordinal();
+                blockInHandType = BlockType.LANTERN.ordinal();
             }
             else if (name.equals("Left") && !keyPressed) {
                 toggleFlyMode();
@@ -138,7 +138,7 @@ public class Player
 
     }
     private void nextBlockInHandType() {
-        blockInHandType = BlockType.NextPlaceableBlockFrom(blockInHandType); //()byte)(blockInHandType == BlockType.SAND.ordinal() ? BlockType.LANTERN.ordinal() : BlockType.SAND.ordinal());
+        blockInHandType = BlockType.NextPlaceableBlockFrom(blockInHandType);
     }
     //TOOD: create a toggle between first and third person camera (hide/reveal player geometry)
     private AnalogListener analogListener = new AnalogListener() {
@@ -364,7 +364,7 @@ public class Player
     	Coord3 hitC =Coord3.FromVector3f( vhit  );
     	if (hitC == null) return;
         audio.playBreakCompleteSound();
-        terrainMap.SetBlockAndRecompute((byte) BlockType.AIR.ordinal(), hitC);
+        terrainMap.SetBlockAndRecompute(BlockType.AIR.ordinal(), hitC);
     }
     private void handlePlaceBlock() {
     	Vector3f vhit = stepThroughBlocksUntilHitSolid(true);
@@ -382,7 +382,7 @@ public class Player
 	 * So, instead, rely completely on block look-ups for placing/breaking/colliding
 	 */
     private Vector3f stepThroughBlocksUntilHit(Vector3f start, Vector3f direction, boolean wantPlaceBlock) {
-    	byte block;
+    	int block;
     	start = start.add(new Vector3f(.5f,.5f,.5f)); //BECAUSE VOXELS ARE CENTERED AROUND WHOLE NUMBER COORDS...
         Coord3 startCoord = Coord3.FromVector3f(start);
     	Coord3 hit = null;

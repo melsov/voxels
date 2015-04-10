@@ -1,13 +1,11 @@
 package voxel.landscape.chunkbuild.blockfacefind.floodfill;
 
-import com.jme3.math.ColorRGBA;
 import voxel.landscape.BlockType;
 import voxel.landscape.Chunk;
 import voxel.landscape.chunkbuild.blockfacefind.floodfill.chunkslice.ChunkSlice;
 import voxel.landscape.coord.Box;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
-import voxel.landscape.debug.DebugGeometry;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.map.light.LightComputerUtils;
 import voxel.landscape.util.Asserter;
@@ -42,8 +40,6 @@ public class FloodFill
         map = _map;
         shouldStop = _shouldStop;
     }
-
-
 
     public void flood(ChunkSlice[] chunkSliceShell, Coord3 seedGlobal) {
 //        dirtyChunks.clear(); // dirty chunks keeps track of edited chunks
@@ -115,15 +111,15 @@ public class FloodFill
          * we (mostly?) want to continue flooding only over air blocks that were of type "non_existant"
          * before we looked them up. *wasIs[0] stores the type before lookup.
          * *wasIs[1] stores the type after lookup */
-        byte[] thisCoordWasIs = new byte[2];
-        byte[] xNEGWasIs = new byte[2];
-        byte[] xPOSWasIs = new byte[2];
-        byte[] zNEGWasIs = new byte[2];
-        byte[] zPOSWasIs = new byte[2];
-        byte[] yNEGWasIs = new byte[2];
-        byte[] yPOSWasIs = new byte[2];
+        int[] thisCoordWasIs = new int[2];
+        int[] xNEGWasIs = new int[2];
+        int[] xPOSWasIs = new int[2];
+        int[] zNEGWasIs = new int[2];
+        int[] zPOSWasIs = new int[2];
+        int[] yNEGWasIs = new int[2];
+        int[] yPOSWasIs = new int[2];
 
-        getCurrentWasIsWithinChunk(initialSeedGlobal, seedChunk, thisCoordWasIs, (byte) untouchedType);
+        getCurrentWasIsWithinChunk(initialSeedGlobal, seedChunk, thisCoordWasIs, untouchedType);
 //        if (map.isAboveSurface(initialSeedGlobal) || !BlockType.IsNonExistentOrPlaceHolderAir(thisCoordWasIs[0])) {
         if (map.isAboveSurface(initialSeedGlobal) || BlockType.IsFloodFilledAir(thisCoordWasIs[0])) {
             return;
@@ -165,19 +161,19 @@ public class FloodFill
 
                 else if (z1 == zAreaStart) {
                     Coord3 zNegNeighbor = new Coord3(seed.x, seed.y, z1 - 1);
-                    map.setIsGetWasIsUnsetIfAir(zNegNeighbor, (byte) untouchedType, zNEGWasIs);
+                    map.setIsGetWasIsUnsetIfAir(zNegNeighbor, untouchedType, zNEGWasIs);
 
                     if (ShouldSeedBlock(zNegNeighbor, zNEGWasIs)) {
                         chunkSliceFromShell(chunkSliceShell, Direction.ZNEG).addCoord(zNegNeighbor);
                     }
                     addFaceForType(seedChunk, chunkBox, zNegNeighbor, Direction.ZPOS, zNEGWasIs[1]);
 
-                    offerLightBothWays(lessZNEGCoord, zNegNeighbor, (byte) blockType, zNEGWasIs[1]);
+                    offerLightBothWays(lessZNEGCoord, zNegNeighbor, blockType, zNEGWasIs[1]);
                     break;
                 }
                 /* light */
                 if (previousZNEGForLight != null) {
-                    offerLightBothWays(previousZNEGForLight, lessZNEGCoord, (byte) previousType, (byte) blockType);
+                    offerLightBothWays(previousZNEGForLight, lessZNEGCoord, previousType, blockType);
                 }
                 z1--;
             }
@@ -205,7 +201,7 @@ public class FloodFill
                 /*
                  * Look up the current block. And possibly set it in the map as a side effect.
                  */
-                getCurrentWasIsWithinChunk(subject, seedChunk, thisCoordWasIs, (byte) untouchedType);
+                getCurrentWasIsWithinChunk(subject, seedChunk, thisCoordWasIs, untouchedType);
 
                 // TODO: figure out why that sliver still doesn't get flood filled
                 /*
@@ -217,7 +213,7 @@ public class FloodFill
                 }
                 setFloodFilledAirIfAir(subject, thisCoordWasIs[1]);
                 if(previousSubjectForLight != null) {
-                    offerLightBothWays(previousSubjectForLight, subject, (byte) previousSubjectBlockType, thisCoordWasIs[1]);
+                    offerLightBothWays(previousSubjectForLight, subject, previousSubjectBlockType, thisCoordWasIs[1]);
                 }
 
                 /*
@@ -227,10 +223,10 @@ public class FloodFill
                     Coord3 xNegNeighbor = new Coord3(seed.x - 1, seed.y, z1);
                     boolean localXNeighbor = false;
                     if (seed.x > xAreaStart) {
-                        getCurrentWasIsWithinChunk(xNegNeighbor, seedChunk, xNEGWasIs, (byte) untouchedType);
+                        getCurrentWasIsWithinChunk(xNegNeighbor, seedChunk, xNEGWasIs, untouchedType);
                         localXNeighbor = true;
                     } else {
-                        map.setIsGetWasIsUnsetIfAir(xNegNeighbor, (byte) untouchedType, xNEGWasIs);
+                        map.setIsGetWasIsUnsetIfAir(xNegNeighbor, untouchedType, xNEGWasIs);
                     }
                     if (ShouldSeedBlock(xNegNeighbor, xNEGWasIs)) {
                         if (seed.x == xAreaStart) {
@@ -253,10 +249,10 @@ public class FloodFill
                     Coord3 xPosNeighbor = new Coord3(seed.x + 1, seed.y, z1);
                     boolean localXNeighbor = false;
                     if (seed.x < xAreaEnd - 1) {
-                        getCurrentWasIsWithinChunk(xPosNeighbor, seedChunk, xPOSWasIs, (byte) untouchedType);
+                        getCurrentWasIsWithinChunk(xPosNeighbor, seedChunk, xPOSWasIs, untouchedType);
                         localXNeighbor = true;
                     } else {
-                        map.setIsGetWasIsUnsetIfAir(xPosNeighbor, (byte) untouchedType, xPOSWasIs);
+                        map.setIsGetWasIsUnsetIfAir(xPosNeighbor, untouchedType, xPOSWasIs);
                     }
                     if (ShouldSeedBlock(xPosNeighbor, xPOSWasIs)) {
                         if (seed.x == xAreaEnd - 1) {
@@ -277,7 +273,7 @@ public class FloodFill
                  * YNEG
                  */
                 Coord3 yNegNeighbor = new Coord3(seed.x, seed.y - 1, z1);
-                map.setIsGetWasIsUnsetIfAir(yNegNeighbor, (byte) untouchedType, yNEGWasIs);
+                map.setIsGetWasIsUnsetIfAir(yNegNeighbor, untouchedType, yNEGWasIs);
                 if (ShouldSeedBlock(yNegNeighbor, yNEGWasIs)) {
                     if (seed.y == yAreaStart) {
                         chunkSliceFromShell(chunkSliceShell, Direction.YNEG).addCoord(yNegNeighbor);
@@ -292,7 +288,7 @@ public class FloodFill
                  * YPOS
                  */
                 Coord3 yPosNeighbor = new Coord3(seed.x, seed.y + 1, z1);
-                map.setIsGetWasIsUnsetIfAir(yPosNeighbor, (byte) untouchedType, yPOSWasIs);
+                map.setIsGetWasIsUnsetIfAir(yPosNeighbor, untouchedType, yPOSWasIs);
 
                 if (ShouldSeedBlock(yPosNeighbor, yPOSWasIs)){
                     if (seed.y == yAreaEnd - 1) {
@@ -314,7 +310,7 @@ public class FloodFill
                  */
                 if (z1 == zAreaEnd - 1) {
                     Coord3 zPosNeighbor = new Coord3(seed.x, seed.y, z1 + 1);
-                    map.setIsGetWasIsUnsetIfAir(zPosNeighbor, (byte) untouchedType, zPOSWasIs);
+                    map.setIsGetWasIsUnsetIfAir(zPosNeighbor, untouchedType, zPOSWasIs);
 
                     if (ShouldSeedBlock(zPosNeighbor, zPOSWasIs)) {
                         chunkSliceFromShell(chunkSliceShell, Direction.ZPOS).addCoord(zPosNeighbor);
@@ -328,10 +324,10 @@ public class FloodFill
         }
         return;
     }
-    private boolean ShouldSeedBlock(Coord3 global, byte[] wasIs) {
+    private boolean ShouldSeedBlock(Coord3 global, int[] wasIs) {
         return ShouldSeedBlock(global, wasIs, false);
     }
-    private boolean ShouldSeedBlock(Coord3 global, byte[] wasIs, boolean XNeighborCriteria) {
+    private boolean ShouldSeedBlock(Coord3 global, int[] wasIs, boolean XNeighborCriteria) {
         if (wasIs[1] == BlockType.AIR.ordinal() && !map.isAboveSurface(global)) return true;
         return wasIs[0] == BlockType.NON_EXISTENT.ordinal() && (wasIs[1] == BlockType.AIR.ordinal() || wasIs[1] == BlockType.FLOODFILLED_AIR.ordinal());
 //        if (XNeighborCriteria) {
@@ -356,23 +352,22 @@ public class FloodFill
 //            dirtyChunks.add(Chunk.ToChunkPosition(globalBlockLocation));
 //        }
     }
-    private void getCurrentWasIsWithinChunk(Coord3 global, Chunk chunk, byte[] wasIs, byte untouchedType) {
+    private void getCurrentWasIsWithinChunk(Coord3 global, Chunk chunk, int[] wasIs, int untouchedType) {
         wasIs[0] = chunk.blockAt(Chunk.ToChunkLocalCoord(global));
         if (wasIs[0] != FloodFill4D.UntouchedType) {
             wasIs[1] = wasIs[0];
             return;
         }
-        wasIs[1] = (byte) map.lookupOrCreateBlock(global);
+        wasIs[1] = map.lookupOrCreateBlock(global);
     }
-    private void setFloodFilledAirIfAir(Coord3 global, byte block) {
+    private void setFloodFilledAirIfAir(Coord3 global, int block) {
         if (block == BlockType.AIR.ordinal()) {
-            DebugGeometry.AddDebugBlock(global, ColorRGBA.randomColor());
-            map.setBlockAtWorldCoord((byte) BlockType.FLOODFILLED_AIR.ordinal(), global);
+            map.setBlockAtWorldCoord(BlockType.FLOODFILLED_AIR.ordinal(), global);
         }
     }
 
     public static final boolean FLOOD_FILL_HANDLES_LIGHT = true;
-    private void offerLightBothWays(Coord3 from, Coord3 to, byte fromType, byte toType){
+    private void offerLightBothWays(Coord3 from, Coord3 to, int fromType, int toType){
         if (FLOOD_FILL_HANDLES_LIGHT) {
             if (!BlockType.IsTranslucent(toType)) return;
             int fromLightLevel = map.GetSunLightmap().GetLight(from);

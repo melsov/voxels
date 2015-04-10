@@ -2,6 +2,7 @@ package voxel.landscape.tests;
 
 import junit.framework.TestCase;
 import org.junit.Test;
+import voxel.landscape.VoxelLandscape;
 import voxel.landscape.chunkbuild.ResponsiveRunnable;
 import voxel.landscape.collection.ColumnMap;
 import voxel.landscape.map.TerrainMap;
@@ -25,7 +26,7 @@ public class TerrainMapMultiThreadTest extends TestCase {
         private int x,z;
         private TerrainMap terrainMap;
         private ColumnMap columnMap;
-        private TerrainDataProvider dataProvider = new TerrainDataProvider();
+        private TerrainDataProvider dataProvider = new TerrainDataProvider(VoxelLandscape.WorldSettings.seed);
         public AsyncGenerateColumnDataTester(final TerrainMap _terrainMap, final ColumnMap _columnMap, int xx, int zz) {
             columnMap = _columnMap;
             x = xx; z = zz;

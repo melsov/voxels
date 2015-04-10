@@ -3,13 +3,17 @@ package voxel.landscape;
 import com.jme3.scene.Node;
 import voxel.landscape.chunkbuild.ChunkBrain;
 import voxel.landscape.chunkbuild.blockfacefind.floodfill.chunkseeds.ChunkFloodFillSeedSet;
-import voxel.landscape.collection.ByteArray3D;
+import voxel.landscape.collection.LocalBlockMap;
 import voxel.landscape.collection.chunkface.ChunkBlockFaceMap;
 import voxel.landscape.collection.coordmap.managepages.ConcurrentHashMapCoord3D;
 import voxel.landscape.coord.Box;
 import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Owns a mesh representing a 
@@ -18,10 +22,13 @@ import voxel.landscape.map.TerrainMap;
  */
 public class Chunk 
 {
+    //TODO: make an exit method for chunks.
+    //TODO: In chunk culling, include stages for 'go into background' and 'totally leave memory (save to disk)'
+    //TODO: would be good if: chunks saved on a separate thread and then notified when done and then deleted themselves
+
 	public Coord3 position;
 
-	private ByteArray3D blocks = new ByteArray3D(new Coord3(XLENGTH, YLENGTH, ZLENGTH));
-//    private ConcurrentByteArray3D blocks = new ConcurrentByteArray3D(new Coord3(XLENGTH, YLENGTH, ZLENGTH));
+    private LocalBlockMap blocks = new LocalBlockMap(new Coord3(XLENGTH, YLENGTH, ZLENGTH));
 
     // (SYNCHRONIZING) LOCKS FOR BLOCKS
     private ConcurrentHashMapCoord3D<Object> blockLocks = new ConcurrentHashMapCoord3D<Object>(Object.class);
@@ -42,7 +49,7 @@ public class Chunk
 	private ChunkBrain chunkBrain;
 	private TerrainMap terrainMap;
 
-    public final ChunkBlockFaceMap chunkBlockFaceMap = new ChunkBlockFaceMap();
+    public ChunkBlockFaceMap chunkBlockFaceMap = new ChunkBlockFaceMap();
     public ChunkFloodFillSeedSet chunkFloodFillSeedSet;
 
     private volatile boolean isAllAir = false;
@@ -51,18 +58,68 @@ public class Chunk
     }
     public boolean getIsAllAir() { return isAllAir; }
 
+    /*
+     * Flags
+     */
     private volatile boolean hasEverStartedBuilding = false;
     public void setHasEverStartedBuildingToTrue() { hasEverStartedBuilding = true; }
     public boolean getHasEverStartedBuilding() { return hasEverStartedBuilding; }
 
+    public volatile AtomicBoolean hasStartedWriting = new AtomicBoolean(false);
+
+    private volatile boolean hasGenerated = false;
+    public void setHasGeneratedTrue() { hasGenerated = true; }
+    public boolean getHasGenerated() { return hasGenerated; }
+
+    public boolean isWriteDirty() {
+        return blocks.writeDirty.get() || chunkBlockFaceMap.writeDirty.get() || chunkFloodFillSeedSet.writeDirty.get();
+    }
+
+    public final Lock lock = new ReentrantLock(true);
+
     public static boolean USE_TEST_GEOMETRY = false;
-	
+
 	public Chunk(Coord3 _coord, TerrainMap _terrainMap) {
 		position = _coord;
 		terrainMap = _terrainMap;
         chunkFloodFillSeedSet = new ChunkFloodFillSeedSet(position);
 	}
-	
+
+
+    /*
+     * Read/Write
+     */
+    public void readFromFile() {
+       lock.lock();
+        try {
+            blocks.readFromFile(position);
+            chunkBlockFaceMap.readFromFile(position);
+            chunkFloodFillSeedSet.readFromFile(position);
+        } finally {
+            lock.unlock();
+        }
+
+    }
+
+    public void writeToFile() {
+        lock.lock();
+        try {
+            if (blocks.writeDirty.get()) {
+                blocks.writeToFile(position);
+            }
+            if (chunkBlockFaceMap.writeDirty.get()) {
+                chunkBlockFaceMap.writeToFile(position);
+            }
+            if (chunkFloodFillSeedSet.writeDirty.get()) {
+                chunkFloodFillSeedSet.writeToFile(position);
+            }
+            hasStartedWriting.set(false);
+        } finally {
+            lock.unlock();
+        }
+
+    }
+
 	public Node getRootSpatial() {
         if (chunkBrain == null) return null;
 		return chunkBrain.getRootSpatial();
@@ -79,9 +136,11 @@ public class Chunk
     }
 	
 	public TerrainMap getTerrainMap() { return terrainMap; }
-	
+
+
+
 	/*
-	 * Block info...
+	 * Coord3 mapping
 	 */
 	public static Coord3 ToChunkPosition(Coord3 point) {
 		return ToChunkPosition( point.x, point.y, point.z );
@@ -132,15 +191,15 @@ public class Chunk
     public static Box ChunkLocalBox = new Box(new Coord3(0), new Coord3(XLENGTH, YLENGTH, ZLENGTH));
     public static int ToWorldPositionY(int chunkPositionY, int relPositionY) { return chunkPositionY << SIZE_Y_BITS + relPositionY; }
 	
-	public byte blockAt(Coord3 co) { return blockAt(co.x, co.y, co.z); }
+	public int blockAt(Coord3 co) { return blockAt(co.x, co.y, co.z); }
 	
-	public byte blockAt(int x, int y, int z) {
+	public int blockAt(int x, int y, int z) {
 		return blocks.SafeGet(x, y, z);
 	}
 
-	public void setBlockAt(byte block, Coord3 co) { setBlockAt(block, co.x, co.y, co.z); }
+	public void setBlockAt(int block, Coord3 co) { setBlockAt(block, co.x, co.y, co.z); }
 	
-	public void setBlockAt(byte block, int x, int y, int z) {
+	public void setBlockAt(int block, int x, int y, int z) {
         blocks.Set(block, x, y, z);
 	}
 	

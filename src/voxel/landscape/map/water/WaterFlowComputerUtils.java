@@ -28,7 +28,7 @@ public class WaterFlowComputerUtils {
         chunkBrain.SetLiquidDirty();
     }
 
-    public static int GetWaterStep(byte block) {
+    public static int GetWaterStep(int block) {
         if(BlockType.AcceptsWater(block)) {
             return WATER_STEP;
         } else {

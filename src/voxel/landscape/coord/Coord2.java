@@ -6,11 +6,15 @@ import com.jme3.math.Vector3f;
 
 public class Coord2 implements ICoordXZ
 {
-	public int x;
+    private static final long serialVersionUID = 222L;
+
+    public int x;
 	public int y;
 	
 	public static final Coord2 one = new Coord2(1,1);
 	public static final Coord2 zero = new Coord2(0,0);
+
+    public static final Coord2 SPECIAL_FLAG = new Coord2(Integer.MIN_VALUE + 1);
 	
 	public Coord2(int _x, int _y)
 	{
@@ -35,9 +39,15 @@ public class Coord2 implements ICoordXZ
 	public Coord2 divideBy(Coord2 other) {
 		return new Coord2(this.x / other.x, this.y / other.y);
 	}
+    public Coord2 divideBy(int value) {
+        return new Coord2(this.x / value, this.y / value);
+    }
 	public Coord2 add(Coord2 other) {
 		return new  Coord2(this.x + other.x, this.y + other.y);
 	}
+    public Coord2 minus(int x, int y) {
+        return new  Coord2(this.x - x, this.y - y);
+    }
 	public Coord2 minus(Coord2 other) {
 		return new  Coord2(this.x - other.x, this.y - other.y);
 	}
@@ -68,6 +78,7 @@ public class Coord2 implements ICoordXZ
     public int distanceSquared(Coord2 other) { return other.minus(this).distanceSquared(); }
     public int distanceSquared() { return x*x + y*y; }
     public static Coord2 FromXZOfVector3f(Vector3f v) { return new Coord2(v.x,v.z); }
+    public static Coord2 FromCoord3XZ(Coord3 c) { return new Coord2(c.x,c.z); }
 	public String toString() { return String.format("Coord2:x: %d y: %d", x,y); }
 
     @Override

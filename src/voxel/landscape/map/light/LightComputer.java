@@ -29,8 +29,7 @@ public class LightComputer
 		}
 	}
 	private static int lightAtWorldCoord(TerrainMap map, Coord3 pos) {
-		byte block = map.lookupBlock(pos);
-		return BlockType.LightLevelForType(block);
+		return BlockType.LightLevelForType(map.lookupBlock(pos));
 	}
 	
 	private static void Scatter(TerrainMap map, Coord3 pos) {
@@ -50,7 +49,7 @@ public class LightComputer
         	Coord3 pos = list.get(i);
 			if(pos.y<0) continue;
 			
-			byte block = map.lookupBlock(pos);
+			int block = map.lookupBlock(pos);
             int light = lightmap.GetLight(pos) - LightComputerUtils.GetLightStep(block);
             if(light <= MIN_LIGHT) continue;
 			
@@ -89,7 +88,7 @@ public class LightComputer
 			
 			for(Coord3 dir : Direction.DirectionCoords) {
 				Coord3 nextPos = pos.add(dir);
-				byte block = map.lookupBlock(nextPos);
+				int block = map.lookupBlock(nextPos);
 				
 				if(BlockType.IsTranslucent(block)) {
 					if(lightmap.GetLight(nextPos) <= light) {

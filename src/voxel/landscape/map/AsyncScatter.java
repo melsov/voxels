@@ -4,6 +4,7 @@ import voxel.landscape.collection.ColumnMap;
 import voxel.landscape.coord.Coord2;
 import voxel.landscape.map.light.ChunkSunLightComputer;
 import voxel.landscape.map.water.ChunkWaterLevelComputer;
+import voxel.landscape.player.B;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -30,6 +31,10 @@ public class AsyncScatter implements Runnable {
         while(keepGoing.get()) {
             try {
                 colCoord = columnsToBeScattered.take(); //thread will block while nothing is available...maybe forever...
+                if (colCoord.equals(Coord2.SPECIAL_FLAG)) {
+                    B.bug("time to quit: " + Thread.currentThread().getName());
+                    return;
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

@@ -2,6 +2,7 @@ package voxel.landscape.map.structure;
 
 import voxel.landscape.BlockType;
 import voxel.landscape.Chunk;
+import voxel.landscape.WorldGenerator;
 import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;
@@ -17,9 +18,22 @@ public class StructureBuilder {
 
     private SurfaceStructureDataProvider surfaceStructureDataProvider = new SurfaceStructureDataProvider();
 
+    /*
+     * Iterate over the x,z surface of a chunk column
+     * check for and add structures to the chunk and possibly
+     * adjacent chunks.
+     */
     public void addStructures(Coord2 chunkColumn, TerrainMap map, TerrainDataProvider dataProvider, HashSet<Coord3> touchedChunkCoords) {
-        int x1 = chunkColumn.getX()* Chunk.CHUNKDIMS.x;
-        int z1 = chunkColumn.getZ()*Chunk.CHUNKDIMS.z;
+//        if (true) return; // **************!
+        // TODO: contemplate how to really deal with detecting already-built-from-file chunks
+        if (WorldGenerator.TEST_DONT_BUILD) return;
+        if (map.columnChunksBuiltFromFile(chunkColumn.getX(), chunkColumn.getZ())) {
+            return;
+        }
+        // TODO: chunk noise map (utility noise)
+        // TODO: CONSIDER: are we deleting light and water map data when we delete chunks?
+        int x1 = chunkColumn.getX() * Chunk.CHUNKDIMS.x;
+        int z1 = chunkColumn.getZ() * Chunk.CHUNKDIMS.z;
 
         int x2 = x1+Chunk.CHUNKDIMS.x;
         int z2 = z1+Chunk.CHUNKDIMS.z;
@@ -29,11 +43,17 @@ public class StructureBuilder {
                 surfaceY = map.getSurfaceHeight(x, z);
                 Coord3 global = new Coord3(x, surfaceY, z);
                 AbstractStructure structure = surfaceStructureDataProvider.structureAt(global);
-                if (structure == null || !structure.viablePlot(global, map)) continue;
-                for (Coord3 structureLocal : structure.outerBlocks.keySet()) {
-                    BlockType blockType = structure.outerBlocks.get(structureLocal);
+                if (structure == null) continue;
+                Coord3 shiftPlot = structure.viablePlot(global, map);
+                if (shiftPlot == null) continue; //structure refuses to be placed
+                global = global.add(shiftPlot);
+                for (Coord3 structureLocal : structure.getOuterBlocks().keySet()) {
+                    BlockType blockType = structure.getOuterBlocks().get(structureLocal);
                     Coord3 structureGlobal = global.add(structureLocal);
-                    map.setBlockAtWorldCoord((byte) blockType.ordinal(), structureGlobal);
+                    Chunk chunk = map.lookupOrCreateChunkAtPosition(Chunk.ToChunkPosition(structureGlobal));
+                    if (chunk == null) continue;
+                    map.setBlockAtWorldCoord(blockType.ordinal(), structureGlobal);
+                    chunk.chunkBlockFaceMap.addExposedFacesUpdateNeighbors(structureGlobal, map);
                     touchedChunkCoords.add(Chunk.ToChunkPosition(structureGlobal));
                 }
             }

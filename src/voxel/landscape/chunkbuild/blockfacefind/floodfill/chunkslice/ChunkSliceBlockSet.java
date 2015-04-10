@@ -1,7 +1,8 @@
 package voxel.landscape.chunkbuild.blockfacefind.floodfill.chunkslice;
 
 import voxel.landscape.Chunk;
-import voxel.landscape.coord.ChunkLocalCoord;
+//import voxel.landscape.coord.LocalCoord3;
+import voxel.landscape.chunkbuild.blockfacefind.ChunkLocalCoord;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
 
@@ -9,7 +10,6 @@ import java.util.HashSet;
 
 public class ChunkSliceBlockSet
 {
-
     private Coord3 seedGlobal;
     public Coord3 getSeedGlobal() { return seedGlobal; }
     private int axis;

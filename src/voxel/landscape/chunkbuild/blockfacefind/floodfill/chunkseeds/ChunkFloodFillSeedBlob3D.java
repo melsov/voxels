@@ -1,9 +1,10 @@
 package voxel.landscape.chunkbuild.blockfacefind.floodfill.chunkseeds;
 
-import voxel.landscape.coord.ChunkLocalCoord;
+import voxel.landscape.chunkbuild.blockfacefind.ChunkLocalCoord;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
 
+import java.io.Serializable;
 import java.util.HashSet;
 
 /**
@@ -12,11 +13,11 @@ import java.util.HashSet;
  * are all contiguous, where contiguity is valid in
  * any direction x, y or z
  */
-public class ChunkFloodFillSeedBlob3D {
+public class ChunkFloodFillSeedBlob3D implements Serializable {
 
     private Coord3 seed;
     public Coord3 getSeed() { return  seed; }
-    public final HashSet<ChunkLocalCoord> coords = new HashSet<ChunkLocalCoord>(128);
+    public final HashSet<ChunkLocalCoord> coords = new HashSet<>(128);
 
     public ChunkFloodFillSeedBlob3D(Coord3 _seed) {
         seed = _seed;

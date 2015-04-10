@@ -32,7 +32,6 @@ public class MapNibble3D
         chunk.Set(val, localPos);
     }
 
-
     public int Get(Coord3 pos) {
         return Get(pos.x, pos.y, pos.z);
     }

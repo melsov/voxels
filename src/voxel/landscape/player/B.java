@@ -17,6 +17,19 @@ public class B {
 	public static void bug(int i) {
 		System.out.println(i);
 	}
+    public static void bug(long l) {
+        System.out.println(l);
+    }
+    public static void bug(long...is) {
+        for (long i : is) {
+            bug(i);
+        }
+    }
+    public static void bug(int...is) {
+        for (int i : is) {
+            bug(i);
+        }
+    }
 	public static void bug(double d) {
 		System.out.println(d);
 	}

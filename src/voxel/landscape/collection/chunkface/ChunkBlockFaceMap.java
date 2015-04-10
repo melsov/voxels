@@ -5,33 +5,37 @@ import voxel.landscape.BlockType;
 import voxel.landscape.Chunk;
 import voxel.landscape.MeshSet;
 import voxel.landscape.chunkbuild.blockfacefind.BlockFaceRecord;
-import voxel.landscape.chunkbuild.blockfacefind.ChunkBlockFaceCoord;
+import voxel.landscape.chunkbuild.blockfacefind.ChunkLocalCoord;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
+import voxel.landscape.fileutil.FileUtil;
 import voxel.landscape.map.TerrainMap;
-import voxel.landscape.player.B;
 import voxel.landscape.util.Asserter;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by didyouloseyourdog on 10/2/14.
  */
-public class ChunkBlockFaceMap {
+public class ChunkBlockFaceMap implements Serializable {
 
-    private volatile ConcurrentHashMap<ChunkBlockFaceCoord, BlockFaceRecord> faces = new ConcurrentHashMap<>(16*16*4);
+    private volatile ConcurrentHashMap<ChunkLocalCoord, BlockFaceRecord> faces = new ConcurrentHashMap<>(16*16*4);
     public volatile boolean deleteDirty; //True if a face has been deleted and map hasn't yet re-meshed
+    public final AtomicBoolean writeDirty = new AtomicBoolean(true);
 
-    private Map<ChunkBlockFaceCoord, BlockFaceRecord> getFaces() {
+    private Map<ChunkLocalCoord, BlockFaceRecord> getFaces() {
         return faces;
     }
     public boolean empty() {
         return getFaces().isEmpty();
     }
-    public Iterator<Map.Entry<ChunkBlockFaceCoord, BlockFaceRecord>> iterator() {
+    public Iterator<Map.Entry<ChunkLocalCoord, BlockFaceRecord>> iterator() {
         return faces.entrySet().iterator();
     }
 
@@ -40,27 +44,33 @@ public class ChunkBlockFaceMap {
         removeAllFaces(localCoord);
         for (int dir : Direction.Directions) {
             Coord3 globalNudge = global.add(Direction.DirectionCoords[dir]);
-            /* Which faceMap? Ours or a neighbors? */
-            Map<ChunkBlockFaceCoord, BlockFaceRecord> faceMap;
+            /* Which (chunkBlock)FaceMap? Ours or a neighbors? */
+            ChunkBlockFaceMap chunkBlockFaceMap;
+//            Map<ChunkLocalCoord, BlockFaceRecord> faceMap;
             if (Chunk.ChunkLocalBox.contains(localCoord.add(Direction.DirectionCoords[dir]))) {
-                faceMap = getFaces();
+                chunkBlockFaceMap = this;
+//                faceMap = getFaces();
             } else {
                 Chunk neighbor = map.GetChunk(Chunk.ToChunkPosition(globalNudge));
-                Asserter.assertTrue(neighbor != null, "null chunk!");
-                faceMap = neighbor.chunkBlockFaceMap.getFaces(); // TODO: FIX NULL P EXCEPTION HERE
+                Asserter.assertTrue(neighbor != null, "null chunk!"); // TODO: FIX NULL P EXCEPTION HERE
+                chunkBlockFaceMap = neighbor.chunkBlockFaceMap;
+//                faceMap = neighbor.chunkBlockFaceMap.getFaces();
             }
             Coord3 localNudge = Chunk.ToChunkLocalCoord(globalNudge);
-            BlockFaceRecord blockFaceRecord = faceMap.get(new ChunkBlockFaceCoord(localNudge));
+//            BlockFaceRecord blockFaceRecord = faceMap.get(new ChunkLocalCoord(localNudge));
+            BlockFaceRecord blockFaceRecord = chunkBlockFaceMap.getFaces().get(new ChunkLocalCoord(localNudge));
             if (blockFaceRecord == null) {
                 /* have we revealed a solid block here? */
                 int blockType = map.lookupOrCreateBlock(globalNudge);
                 if (BlockType.IsSolid(blockType)) {
                     blockFaceRecord = new BlockFaceRecord();
-                    faceMap.put(new ChunkBlockFaceCoord(localNudge), blockFaceRecord);
+//                    faceMap.put(new ChunkLocalCoord(localNudge), blockFaceRecord);
+                    chunkBlockFaceMap.getFaces().put(new ChunkLocalCoord(localNudge), blockFaceRecord);
                 }
             }
             if (blockFaceRecord != null) {
                 blockFaceRecord.setFace(Direction.OppositeDirection(dir), true);
+                chunkBlockFaceMap.writeDirty.set(true);
             }
         }
     }
@@ -69,22 +79,30 @@ public class ChunkBlockFaceMap {
         for (int dir : Direction.Directions) {
             Coord3 globalNudge = global.add(Direction.DirectionCoords[dir]);
             /* Which faceMap? Ours or a neighbors? */
-            Map<ChunkBlockFaceCoord, BlockFaceRecord> neighborFaceMap;
+//            Map<ChunkLocalCoord, BlockFaceRecord> neighborFaceMap = null;
+            ChunkBlockFaceMap chunkBlockFaceMap = null;
             if (Chunk.ChunkLocalBox.contains(localCoord.add(Direction.DirectionCoords[dir]))) {
-                neighborFaceMap = getFaces();
+                chunkBlockFaceMap = this;
+//                neighborFaceMap = getFaces();
             } else {
                 Chunk neighbor = map.GetChunk(Chunk.ToChunkPosition(globalNudge));
-                Asserter.assertTrue(neighbor != null, "null chunk!");
-                neighborFaceMap = neighbor.chunkBlockFaceMap.getFaces();
+//                Asserter.assertTrue(neighbor != null, "null chunk!");
+                if (neighbor != null) {
+//                    neighborFaceMap = neighbor.chunkBlockFaceMap.getFaces();
+                    chunkBlockFaceMap = neighbor.chunkBlockFaceMap;
+                }
+
             }
-            Coord3 localNudge = Chunk.ToChunkLocalCoord(globalNudge);
-            ChunkBlockFaceCoord neighborBFCoord = new ChunkBlockFaceCoord(localNudge);
-            BlockFaceRecord blockFaceRecord = neighborFaceMap.get(neighborBFCoord);
+            BlockFaceRecord blockFaceRecord = null;
+            if (chunkBlockFaceMap != null && chunkBlockFaceMap.getFaces() != null) {
+                blockFaceRecord = chunkBlockFaceMap.getFaces().get(new ChunkLocalCoord(Chunk.ToChunkLocalCoord(globalNudge)));
+            }
 
             if (blockFaceRecord == null || !blockFaceRecord.getFace(Direction.OppositeDirection(dir))) {
                 addFace(localCoord, dir);
             } else {
                 blockFaceRecord.setFace(Direction.OppositeDirection(dir), false);
+                chunkBlockFaceMap.writeDirty.set(true);
             }
         }
     }
@@ -100,7 +118,7 @@ public class ChunkBlockFaceMap {
         setFace(localCoord, direction, true);
     }
     private void setFace(Coord3 localCoord, int direction, boolean exists) {
-        ChunkBlockFaceCoord bfCoord = new ChunkBlockFaceCoord(localCoord);
+        ChunkLocalCoord bfCoord = new ChunkLocalCoord(localCoord);
         BlockFaceRecord blockFaceRecord = getFaces().get(bfCoord);
         if (blockFaceRecord == null) {
             if (!exists) return;
@@ -108,46 +126,46 @@ public class ChunkBlockFaceMap {
             getFaces().put(bfCoord, blockFaceRecord);
         }
         blockFaceRecord.setFace(direction, exists);
+        writeDirty.set(true);
         if (!exists && !blockFaceRecord.hasFaces()) {
             getFaces().remove(bfCoord);
         }
     }
     public boolean getFace(Coord3 localCoord, int direction) {
-        BlockFaceRecord blockFaceRecord = getFaces().get(new ChunkBlockFaceCoord(localCoord));
+        BlockFaceRecord blockFaceRecord = getFaces().get(new ChunkLocalCoord(localCoord));
         if (blockFaceRecord == null) return false;
         return blockFaceRecord.getFace(direction);
     }
     public String infoFor(Coord3 local) {
-        BlockFaceRecord blockFaceRecord = getFaces().get(new ChunkBlockFaceCoord(local));
+        BlockFaceRecord blockFaceRecord = getFaces().get(new ChunkLocalCoord(local));
         if (blockFaceRecord == null) return "null block face record";
         return blockFaceRecord.toString();
     }
 
-    public ChunkBlockFaceMap() {
-    }
-
+    /*
+     * Meshing
+     */
     public void buildMeshFromMap(Chunk chunk, MeshSet mset, MeshSet waterMSet, boolean lightOnly, boolean liquidOnly) {
         TerrainMap map = chunk.getTerrainMap();
         Coord3 worldCoord = chunk.originInBlockCoords();
         int triIndex = 0, waterTriIndex = 0;
 
-        Iterator<Map.Entry<ChunkBlockFaceCoord, BlockFaceRecord>> iterator = chunk.chunkBlockFaceMap.iterator();
+        Iterator<Map.Entry<ChunkLocalCoord, BlockFaceRecord>> iterator = chunk.chunkBlockFaceMap.iterator();
 
         while (iterator.hasNext())
         {
-            Map.Entry<ChunkBlockFaceCoord, BlockFaceRecord> entry = null;
+            Map.Entry<ChunkLocalCoord, BlockFaceRecord> entry = null;
             try {
                 entry = iterator.next();
             } catch (ConcurrentModificationException e) {
-                B.bug("concurrent modif exception with chunk Coord: " + chunk.position.toString());
                 e.printStackTrace();
-                Asserter.assertFalseAndDie("death");
+                Asserter.assertFalseAndDie("concurrent modification exception with chunk coord: " + chunk.position.toString());
             }
-            ChunkBlockFaceCoord blockFaceCoord = entry.getKey();
+            ChunkLocalCoord blockFaceCoord = entry.getKey();
             BlockFaceRecord faceRecord =  entry.getValue(); //faces.get(blockFaceCoord);
             Coord3 blockWorldCoord = worldCoord.add(blockFaceCoord.toCoord3());
 
-            byte blockType = (byte) map.lookupOrCreateBlock(blockWorldCoord);
+            int blockType = map.lookupOrCreateBlock(blockWorldCoord);
 
             if (BlockType.IsAirOrNonExistent(blockType)) continue;
 
@@ -169,6 +187,29 @@ public class ChunkBlockFaceMap {
             }
         }
         deleteDirty = false;
+    }
+
+    /*
+     * Read/Write
+     */
+    public void readFromFile(Coord3 position) {
+        Object facesO = FileUtil.DeserializeChunkObject(position, FileUtil.ChunkBlockFaceMapExtension);
+        if (facesO != null) {
+            faces = (ConcurrentHashMap<ChunkLocalCoord, BlockFaceRecord>) facesO;
+            writeDirty.set(false);
+            deleteDirty = true;
+        }
+    }
+
+    public void writeToFile(Coord3 position) {
+        try {
+            FileUtil.SerializeChunkObject(faces, position, FileUtil.ChunkBlockFaceMapExtension);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+        writeDirty.set(false);
+        deleteDirty = true;
     }
 
 }

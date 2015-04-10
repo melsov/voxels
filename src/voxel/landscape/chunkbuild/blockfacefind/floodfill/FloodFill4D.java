@@ -4,6 +4,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import voxel.landscape.BlockType;
 import voxel.landscape.Chunk;
+import voxel.landscape.WorldGenerator;
 import voxel.landscape.chunkbuild.blockfacefind.floodfill.chunkslice.ChunkSlice;
 import voxel.landscape.chunkbuild.blockfacefind.floodfill.chunkslice.ChunkSliceBag;
 import voxel.landscape.chunkbuild.bounds.XZBounds;
@@ -43,6 +44,7 @@ public class FloodFill4D implements Runnable
     private TerrainMap map;
     public static final int UntouchedType = BlockType.NON_EXISTENT.ordinal();
     private FloodFill floodFill;
+    private static int instanceCount = 0;
 
     public FloodFill4D(TerrainMap _map, Camera _camera, BlockingQueue<Coord3> _chunkCoordsToBeFlooded, BlockingQueue<Coord3> _floodFilledChunkCoords, AtomicBoolean _shouldStop, XZBounds _xzBounds) {
         map = _map;
@@ -57,13 +59,17 @@ public class FloodFill4D implements Runnable
 
     @Override
     public void run() {
+        Thread.currentThread().setName("Flood-Fill-"+instanceCount++);
         while (!shouldStop.get()) {
             Coord3 chunkCoord = null;
             try {
                 chunkCoord = chunkCoordsToBeFlooded.take();
+                if (chunkCoord.equal(Coord3.SPECIAL_FLAG)) {
+                    B.bugln("time to quit: " + Thread.currentThread().getName());
+                    return;
+                }
             } catch (InterruptedException e) {
-                e.printStackTrace();
-                Asserter.assertFalseAndDie("this doesn't happen...?");
+                B.bugln(Thread.currentThread().getName() + " will stop now");
                 break;
             }
             startFlood(chunkCoord);
@@ -73,9 +79,11 @@ public class FloodFill4D implements Runnable
     public static final boolean DONT_ACTUALLY_FLOOD_FILL = false;
     public void startFlood(Coord3 chunkCoord) {
         // * SHORT CIRCUIT THE WHOLE FLOOD FILL (DON'T FLOOD FILL--for testing) *
-        if (DONT_ACTUALLY_FLOOD_FILL) { try { floodFilledChunkCoords.put(chunkCoord); } catch (InterruptedException e) { e.printStackTrace(); } return; }
+        if (DONT_ACTUALLY_FLOOD_FILL || WorldGenerator.TEST_DONT_BUILD)
+        { try { floodFilledChunkCoords.put(chunkCoord); } catch (InterruptedException e) { e.printStackTrace(); } return; }
 
         Chunk chunk = map.GetChunk(chunkCoord);
+        Asserter.assertChunkNotNull(chunk, chunkCoord);
         boolean originalChunkCoordWasNeverAdded = chunk.chunkFloodFillSeedSet.size() == 0;
 
         while(chunk.chunkFloodFillSeedSet.size() > 0) {
@@ -90,6 +98,7 @@ public class FloodFill4D implements Runnable
          */
         List<ChunkSlice> outOfBoundsBagSlices = outOfBoundsBag.getSlices();
         for(int i=0; i<outOfBoundsBagSlices.size(); ++i) {
+            if (shouldStop.get()) return;
             ChunkSlice obbSlice = outOfBoundsBagSlices.get(i);
             if (obbSlice.getChunkCoord().x == chunkCoord.x && obbSlice.getChunkCoord().z == chunkCoord.z) {
                 while(obbSlice.size() > 0) {
@@ -98,6 +107,7 @@ public class FloodFill4D implements Runnable
                 outOfBoundsBagSlices.remove(i--);
             }
         }
+        if (shouldStop.get()) return;
         // if there were no seeds (no overhangs) we still need to pass this chunk coord along
         if (originalChunkCoordWasNeverAdded) {
             try { floodFilledChunkCoords.put(chunkCoord); } catch (InterruptedException e) { e.printStackTrace(); }

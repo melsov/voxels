@@ -10,7 +10,8 @@ MaterialDef Colored Textured {
         FragmentShader GLSL100: MatDefs/BlockTexNuevo.frag
 
         WorldParameters {
-            WorldViewProjectionMatrix
+            WorldViewMatrix
+            ProjectionMatrix
         }
     }
 

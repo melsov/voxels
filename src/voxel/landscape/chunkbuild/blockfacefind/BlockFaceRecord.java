@@ -2,11 +2,12 @@ package voxel.landscape.chunkbuild.blockfacefind;
 
 import voxel.landscape.coord.Direction;
 
+import java.io.Serializable;
+
 /**
  * Created by didyouloseyourdog on 10/2/14.
  */
-public class BlockFaceRecord
-{
+public class BlockFaceRecord implements Serializable {
     private int storage;
     public int hashCode() { return storage; }
 

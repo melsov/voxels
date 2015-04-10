@@ -37,14 +37,6 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
 
 	@Override
 	protected void controlUpdate(float timePerFrame) {
-		/*
-		if (shouldApplyMesh) {
-			ChunkBuilder.ApplyMeshSet(asyncBuildMesh.getMeshSet(), getMesh(), asyncBuildMesh.getOnlyLight());
-			getGeometry().updateModelBound();
-			asyncBuildMesh = null;
-			shouldApplyMesh = false;
-		}
-		*/
 		if(dirty) {
 			buildMesh(false, false);
 			dirty = lightDirty = liquidDirty = false;
@@ -57,16 +49,16 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
             buildMeshLiquid();
             liquidDirty = false;
         }
-
-//        if (chunk.getIsAllAir()) {
-//            setMeshEmpty();
-//        }
 	}
 
 	@Override
 	protected void controlRender(RenderManager renderManager, ViewPort viewPort) {
 		//do nothing here. must override however.
 	}
+
+    public boolean isDirtyInAnyway() {
+        return dirty || lightDirty || liquidDirty;
+    }
 
     public void setMeshEmpty() {
         getGeometry().setMesh(makeEmptyMesh());
@@ -136,6 +128,8 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
         }
         return node;
     }
+
+
     public void wakeUp() { getChunkBrainRootNode(); }
 
     public void attachToTerrainNode(Node terrainNode) {
@@ -148,18 +142,13 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
         getWaterGeometry().setMaterial(waterMaterial);
     }
 
-    public void clearMeshBuffersAndSetGeometryNull() {
-        ChunkBuilder.ClearBuffers(getMesh());
-        setSpatial(null);
-    }
 
 	private void buildMeshLight() { buildMesh(true, false); }
 
     private void buildMeshLiquid() { buildMesh(false, true); }
 
 
-	private void buildMesh(boolean onlyLight, boolean onlyLiquid)
-	{
+	private void buildMesh(boolean onlyLight, boolean onlyLiquid) {
         if (VoxelLandscape.DO_USE_TEST_GEOMETRY) return;
 
         if (VoxelLandscape.SHOULD_BUILD_CHUNK_MESH_ASYNC) {
@@ -237,6 +226,26 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
 
         chunk.getTerrainMap().getApp().getWorldGenerator().enqueueChunkMeshSets(chunkMeshBuildingSet);
 
+    }
+
+    /*
+     * Clean up
+     */
+    public void clearMeshBuffers() {
+        ChunkBuilder.ClearBuffers(getMesh());
+    }
+
+    public void detachNodeFromParent() {
+        Node g = (Node) getSpatial();
+        if (g != null) {
+            g.removeFromParent();
+            //TEST
+            Asserter.assertTrue(getSpatial() != null, "we want to still have a non-null spatial despite detaching.");
+        }
+    }
+
+    public void setSpatialNull() {
+        setSpatial(null);
     }
 
 }

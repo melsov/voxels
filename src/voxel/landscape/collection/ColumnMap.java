@@ -12,6 +12,16 @@ public class ColumnMap {
 
     public Set<Coord2> getCoordXZSet() { return (Set<Coord2>) columns.keySet(); }
 
+    /*
+     * SET
+     */
+//    public void SetWroteData(int x, int z) {
+//        GetColumnChunk(x, z).buildStatus.set (BuildStatus.WROTE_DATA.ordinal());
+//    }
+//    public void SetWritingData(int x, int z) {
+//        GetColumnChunk(x, z).buildStatus.set (BuildStatus.WRITING_DATA.ordinal());
+//    }
+
 	public void SetBuilt(int x, int z) {
 		GetColumnChunk(x, z).buildStatus.set (BuildStatus.BUILT_DATA.ordinal());
 	}
@@ -23,12 +33,37 @@ public class ColumnMap {
 		GetColumnChunk(x, z).buildStatus.set(BuildStatus.BUILT_SURFACE_DATA.ordinal());
 	}
 
-    public void Destroy(int x, int z) { columns.Remove(x,z); }
-	
-	public boolean IsBuilt(int x, int z) {
-		return GetColumnChunk(x, z).buildStatus.get() == BuildStatus.BUILT_DATA.ordinal();
-	}
+    public synchronized boolean SetIsBuildingOrReturnFalseIfStartedAlready(int x, int z) {
+        if (HasNotBeenStarted(x,z)) {
+            SetBuildingData(x,z);
+            return true;
+        }
+        return false;
+    }
+    public synchronized void SetIsBuiltIfLessThanBuilt(int x, int z) {
+        if (NotYetBuilt(x,z)) {
+            SetBuilt(x,z);
+        }
+    }
 
+//    public synchronized void SetIsBuiltIfWroteData(int x, int z) {
+//        if (WroteData(x, z)) {
+//            SetBuilt(x, z);
+//        }
+//    }
+
+    /*
+     * INFO
+     */
+//    public boolean WroteData(int x, int z) {
+//        return GetColumnChunk(x, z).buildStatus.get() == BuildStatus.WROTE_DATA.ordinal();
+//    }
+//    public boolean IsWritingData(int x, int z) {
+//        return GetColumnChunk(x, z).buildStatus.get() == BuildStatus.WRITING_DATA.ordinal();
+//    }
+	public boolean IsBuilt(int x, int z) {
+		return GetColumnChunk(x, z).buildStatus.get() >= BuildStatus.BUILT_DATA.ordinal();
+	}
     public boolean HasNotBeenStarted(int x, int z) {
         return GetColumnChunk(x, z).buildStatus.get() == BuildStatus.HAS_NOT_BEEN_TOUCHED.ordinal();
     }
@@ -38,13 +73,14 @@ public class ColumnMap {
 	public boolean HasAtLeastBuiltSurface(int x, int z) {
 		return GetColumnChunk(x, z).buildStatus.get() >= BuildStatus.BUILT_SURFACE_DATA.ordinal();
 	}
-    public synchronized boolean SetIsBuildingOrReturnFalseIfStartedAlready(int x, int z) {
-        if (HasNotBeenStarted(x,z)) {
-            SetBuildingData(x,z);
-            return true;
-        }
-        return false;
+    public boolean NotYetBuilt(int x, int z) {
+        return GetColumnChunk(x, z).buildStatus.get() < BuildStatus.BUILT_DATA.ordinal();
     }
+
+    /*
+     * CLEAN-UP
+     */
+    public void Destroy(int x, int z) { columns.Remove(x,z); }
 	
 	public Coord3 GetClosestEmptyColumn(int cx, int cz, int rad) {
 		Coord3 center = new Coord3(cx, 0, cz);
@@ -70,5 +106,7 @@ public class ColumnMap {
 	private ColumnChunk GetColumnChunk(int x, int z) {
 		return columns.GetInstance(x, z);
 	}
+
+
 	
 }

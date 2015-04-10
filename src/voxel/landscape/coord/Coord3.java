@@ -4,9 +4,13 @@ import com.jme3.math.Vector3f;
 import voxel.landscape.Axis;
 import voxel.landscape.util.Asserter;
 
-public class Coord3 implements ICoordXZ
-{
-	public int x,y,z;
+import java.io.Serializable;
+
+public class Coord3 implements ICoordXZ, Serializable {
+
+    private static final long serialVersionUID = 333L;
+
+    public int x,y,z;
 	
 	public static final Coord3 xpos = new Coord3(1,0,0);
 	public static final Coord3 ypos = new Coord3(0,1,0);
@@ -19,6 +23,8 @@ public class Coord3 implements ICoordXZ
 	public static final Coord3 right = xpos;
 	public static final Coord3 up = ypos;
 	public static final Coord3 forward = zpos;
+
+    public static final Coord3 SPECIAL_FLAG = new Coord3(Integer.MIN_VALUE + 1);
 
 	public Coord3(int _x, int _y, int _z) {
 		x = _x; y = _y; z = _z;
@@ -43,6 +49,9 @@ public class Coord3 implements ICoordXZ
 	public Coord3 divideBy(double other) {
 		return new Coord3(x/other, y/other, z/other);
 	}
+    public Coord3 add(int x, int y, int z) {
+        return new Coord3(this.x + x, this.y + y, this.z + z);
+    }
 	public Coord3 add(Coord3 other) {
 		return new Coord3(this.x + other.x, this.y + other.y, this.z + other.z);		
 	}
@@ -86,6 +95,10 @@ public class Coord3 implements ICoordXZ
 	public int magnitudeSquared() { return x*x + y*y + z*z; }
     public double distanceSquared(Coord3 other) {
         return this.minus(other).distanceSquared();
+    }
+    public int distanceXZSquared(Coord3 other) {
+        Coord3 dif = this.minus(other);
+        return dif.x * dif.x + dif.z * dif.z;
     }
 	public Coord3 sign() {
 		return new Coord3(Math.signum(x), Math.signum(y), Math.signum(z));

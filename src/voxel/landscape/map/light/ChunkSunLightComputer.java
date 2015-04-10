@@ -61,7 +61,7 @@ public class ChunkSunLightComputer
 			Coord3 pos = list.get(i);
 			if(pos.y<0) continue;
 			
-			byte block = map.lookupBlock(pos);
+			int block = map.lookupBlock(pos);
 			int light = sunlightmap.GetLight(pos) - LightComputerUtils.GetLightStep(block);
 			if(light <= MIN_LIGHT) continue;
 			

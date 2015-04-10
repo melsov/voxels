@@ -5,13 +5,13 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import voxel.landscape.Chunk;
-import voxel.landscape.VoxelLandscape;
 import voxel.landscape.collection.ColumnMap;
 import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Square;
 import voxel.landscape.coord.VektorUtil;
 import voxel.landscape.map.TerrainMap;
+import voxel.landscape.settings.BuildSettings;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -25,7 +25,7 @@ import static com.jme3.math.FastMath.PI;
  */
 public class ChunkFinder {
 
-    private static int LOOK_RADIUS = (int) (VoxelLandscape.ADD_COLUMN_RADIUS * .75f);
+    private static int LOOK_RADIUS = (int) (BuildSettings.ADD_COLUMN_RADIUS * .75f);
     private static List<Vector3f> LookDirections = new ArrayList<Vector3f>();
 
     private static int SizeLookDirections;
@@ -265,7 +265,7 @@ public class ChunkFinder {
         return ClosestChunk(cam, terrainMap, columnMap);
     }
 
-    private static boolean UseTestColumns = true;
+    private static boolean UseTestColumns = false;
     private static int TestColumnIndex = 0;
 
 //TODO: improve—"eh-hem"—the closest column finding shape: more of a square around player at first, less based on cam direction
@@ -374,6 +374,7 @@ public class ChunkFinder {
             camDir.z *= -1;
             result = ClosestColumn(cam, terrainMap, columnMap, camDir.clone());
         }
+        if (result != null && !BuildSettings.ChunkCoordWithinAddRadius(cam.getLocation(), result)) return null;
         return result;
     }
 

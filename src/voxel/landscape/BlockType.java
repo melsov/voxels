@@ -21,6 +21,7 @@ public enum BlockType {
     FLOODFILLED_AIR(11, 0d, new Color(0.22745098f, 0.9019608f, 1f)),
     PLACEHOLDER_AIR (12, 0d, new Color(0.22745098f, 0.9019608f, 1f)); // DECOMMISSIONED!
 
+    private static final long serialVersionUID = 444L;
 
 	BlockType(int i, double _prevalence, Color _color) {
 		integer = i;
@@ -157,13 +158,13 @@ public enum BlockType {
 
     public static boolean IsWaterType(int i) { return i >= WATER.ordinal(); }
 
-    public static byte NextPlaceableBlockFrom(int block) {
+    public static int NextPlaceableBlockFrom(int block) {
         BlockType[] blockTypes = BlockType.values();
-        byte result;
+        int result;
         BlockType blockType;
         do {
             blockType = blockTypes[(++block) % blockTypes.length];
-            result = (byte) blockType.ordinal();
+            result = blockType.ordinal();
         } while (!IsPlaceable(result));
         return result;
     }

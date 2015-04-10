@@ -214,9 +214,9 @@ public class VoxelLandscapePreFloodFill // extends SimpleApplication
 //                continue;
 //            }
 //            detachFromScene(ch);
-//            ch.getChunkBrain().clearMeshBuffersAndSetGeometryNull();
+//            ch.getChunkBrain().clearMeshBuffers();
 //        }
-//        terrainMap.removeColumnData(x,z);
+//        terrainMap.removeColumn(x,z);
 //        columnMap.Destroy(x, z);
 //    }
 //

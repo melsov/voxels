@@ -31,7 +31,7 @@ public class LightComputerUtils {
 		chunkBrain.SetLightDirty();
 	}
 	
-	public static int GetLightStep(byte block) {
+	public static int GetLightStep(int block) {
 		if(BlockType.IsTranslucent(block)) {
 			return 1;
 		} else {

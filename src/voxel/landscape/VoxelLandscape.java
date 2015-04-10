@@ -41,6 +41,7 @@ import voxel.landscape.map.TerrainMap;
 import voxel.landscape.player.Audio;
 import voxel.landscape.player.B;
 import voxel.landscape.player.Player;
+import voxel.landscape.settings.WorldSettings;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -49,14 +50,13 @@ import java.awt.image.BufferedImage;
 // TODO: Separate world builder and game logic, everything else...
 public class VoxelLandscape extends SimpleApplication
 {
+    public static final WorldSettings WorldSettings = new WorldSettings(-21234);
     public static boolean FULL_SCREEN = false;
     //TEST a different commit & push
 	public static boolean USE_TEXTURE_MAP = false, DEBUG_INFO_ON = false, ADD_CHUNKS_DYNAMICALLY = true, COMPILE_CHUNK_DATA_ASYNC = false,
             CULLING_ON = false, BUILD_INITIAL_CHUNKS = true, DONT_BUILD_CHUNK_MESHES = true, SHOW_COLUMN_DEBUG_QUADS = false, FORCE_WIRE_FRAME = false;
     public static boolean TEST_BLOCK_FACE_MESH_BUILDING = true;
     public static boolean TESTING_DEBUGGING_ON = false, DO_USE_TEST_GEOMETRY = true, SHOULD_BUILD_CHUNK_MESH_ASYNC = true;
-
-    public static int ADD_COLUMN_RADIUS = 12;
 
     private WorldGenerator worldGenerator;
 	private TerrainMap terrainMap;
@@ -92,7 +92,7 @@ public class VoxelLandscape extends SimpleApplication
             ADD_CHUNKS_DYNAMICALLY = true;
             COMPILE_CHUNK_DATA_ASYNC = true;
             DO_USE_TEST_GEOMETRY = false;
-            CULLING_ON = false;
+            CULLING_ON = true;
             BUILD_INITIAL_CHUNKS = false;
             DONT_BUILD_CHUNK_MESHES = false;
             SHOW_COLUMN_DEBUG_QUADS = false;
@@ -370,7 +370,7 @@ public class VoxelLandscape extends SimpleApplication
 
 
     private void setupSkyTexture() {
-        Texture2D skyTex = TexFromBufferedImage(OnePixelBufferedImage(new Color(1f,.6f,1f,1f)));
+        Texture2D skyTex = TexFromBufferedImage(OnePixelBufferedImage(new Color(.4f,.8f,1f,1f)));
         rootNode.attachChild(SkyFactory.createSky(assetManager, skyTex, true));
     }
     private static BufferedImage OnePixelBufferedImage(Color color) {

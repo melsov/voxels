@@ -3,9 +3,11 @@ package voxel.landscape.map;
 import voxel.landscape.BlockType;
 import voxel.landscape.Chunk;
 import voxel.landscape.VoxelLandscape;
+import voxel.landscape.WorldGenerator;
 import voxel.landscape.collection.chunkface.ChunkBlockFaceMap;
 import voxel.landscape.collection.coordmap.managepages.ConcurrentHashMapCoord3D;
 import voxel.landscape.coord.Box;
+import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
 import voxel.landscape.map.light.LightComputer;
@@ -38,7 +40,7 @@ public class TerrainMap implements IBlockDataProvider
 	public static Coord3 MIN_CHUNK_COORD = new Coord3(MIN_DIM_HORIZONTAL, MIN_CHUNK_DIM_VERTICAL, MIN_DIM_HORIZONTAL);
 	public static Coord3 MAX_CHUNK_COORD = new Coord3(MAX_DIM_HORIZONTAL, MAX_CHUNK_DIM_VERTICAL, MAX_DIM_HORIZONTAL);
 
-	TerrainDataProvider terrainDataProvider = new TerrainDataProvider();
+	TerrainDataProvider terrainDataProvider = new TerrainDataProvider(VoxelLandscape.WorldSettings.seed);
 
     private ConcurrentHashMapCoord3D<Chunk> chunks = new ConcurrentHashMapCoord3D<Chunk>(Chunk.class);
 	private SunLightMap sunLightmap = new SunLightMap();
@@ -118,14 +120,14 @@ public class TerrainMap implements IBlockDataProvider
     /*
      * BLOCK INFO
      */
-    public byte lookupBlock(int x, int y, int z) {
+    public int lookupBlock(int x, int y, int z) {
 		return lookupBlock(new Coord3(x, y, z));
 	}
 
-	public byte lookupBlock(Coord3 co) {
+	public int lookupBlock(Coord3 co) {
 		Chunk chunk = GetChunk(Chunk.ToChunkPosition(co));
 		if (chunk == null)
-			return (byte) NON_EXISTENT.ordinal();
+			return NON_EXISTENT.ordinal();
 		return chunk.blockAt(Chunk.ToChunkLocalCoord(co));
 	}
 
@@ -139,25 +141,27 @@ public class TerrainMap implements IBlockDataProvider
 		return IsTranslucent(chunk.blockAt(Chunk.ToChunkLocalCoord(x, y, z)));
 	}
 
-	public void setBlockAtWorldCoord(byte block, Coord3 pos) {
+	public void setBlockAtWorldCoord(int block, Coord3 pos) {
 		setBlockAtWorldCoord(block, pos.x, pos.y, pos.z);
 	}
 
-	public void setBlockAtWorldCoord(byte block, int x, int y, int z) {
+	public void setBlockAtWorldCoord(int block, int x, int y, int z) {
 		Chunk chunk = lookupOrCreateChunkAtPosition(Chunk.ToChunkPosition(x, y, z));
-		if (chunk != null) chunk.setBlockAt(block, Chunk.ToChunkLocalCoord(x, y, z));
+		if (chunk != null) {
+            chunk.setBlockAt(block, Chunk.ToChunkLocalCoord(x, y, z));
+        }
 	}
     /*
      * GET IS SET WASIS (BLOCK LOOK UP)
      */
-    public void setIsGetWasIs(Coord3 global, byte untouchedType, byte[] wasIs) {
+    public void setIsGetWasIs(Coord3 global, int untouchedType, int[] wasIs) {
         Chunk chunk = lookupOrCreateChunkAtPosition(Chunk.ToChunkPosition(global));
         Coord3 local = Chunk.ToChunkLocalCoord(global);
         wasIs[0] = chunk.blockAt(local);
-        wasIs[1] = (byte) lookupOrCreateBlock(global);
+        wasIs[1] = lookupOrCreateBlock(global);
     }
 
-    public void setIsGetWasIsUnsetIfAir(Coord3 woco, byte untouchedType, byte[] wasIs) {
+    public void setIsGetWasIsUnsetIfAir(Coord3 woco, int untouchedType, int[] wasIs) {
         setIsGetWasIs(woco, untouchedType, wasIs);
         if (wasIs[0] == untouchedType && wasIs[1] == AIR.ordinal()) {
             setBlockAtWorldCoord(untouchedType, woco);
@@ -177,11 +181,11 @@ public class TerrainMap implements IBlockDataProvider
         return lookupOrCreateBlock(new Coord3(xin,yin,zin), terrainDataProvider);
     }
     public int lookupOrCreateBlock(Coord3 woco, TerrainDataProvider _terrainData) {
-        byte block = lookupBlock(woco);
+        int block = lookupBlock(woco);
         if (NON_EXISTENT.equals((int) block) && ChunkCoordWithinWorldBounds(Chunk.ToChunkPosition(woco))) {
             //synchronized block
             synchronized (lookupOrCreateChunkAtPosition(Chunk.ToChunkPosition(woco)).blockLockInstanceAt(Chunk.ToChunkLocalCoord(woco))) {
-                block = (byte) _terrainData.getBlockDataAtPosition(woco.x, woco.y, woco.z);
+                block = _terrainData.getBlockDataAtPosition(woco.x, woco.y, woco.z);
                 setBlockAtWorldCoord(block, woco.x, woco.y, woco.z);
             }
         }
@@ -197,30 +201,64 @@ public class TerrainMap implements IBlockDataProvider
     /*
      * Clean up
      */
-    public void removeColumnData(int x, int z) {
-        Coord3 chunkPos = new Coord3(x, MIN_CHUNK_DIM_VERTICAL, z);
-        for (; chunkPos.y < MAX_CHUNK_DIM_VERTICAL; chunkPos.y++) {
+    public void writeChunkAndColumn(Coord3 chunkPos) {
+        Chunk ch = GetChunk(chunkPos);
+        if (ch != null) {
+            ch.writeToFile();
+        }
+//        lightmap. write data ...
+//        sunLightmap.writeLightsToFile(chunkPos);
+//        TODO: write water data
+
+        Coord2 column = Coord2.FromCoord3XZ(chunkPos); // new Coord2(x, z);
+        sunLightmap.writeRaysToFile(column);
+    }
+
+    public boolean removeColumn(int x, int z) {
+        for (Coord3 chunkPos = new Coord3(x, MIN_CHUNK_DIM_VERTICAL, z); chunkPos.y < MAX_CHUNK_DIM_VERTICAL; chunkPos.y++) {
+            Chunk ch = GetChunk(chunkPos);
+            if (ch == null) {
+                continue;
+            }
+            if (ch.isWriteDirty()) {
+                continue;
+            }
             chunks.Remove(chunkPos);
             sunLightmap.RemoveLightData(chunkPos);
             lightmap.RemoveLightData(chunkPos);
+            // TODO: remove water data
+            if (ch != null) {
+                ch.getChunkBrain().clearMeshBuffers();
+                ch.getChunkBrain().detachNodeFromParent();
+                ch.getChunkBrain().setSpatialNull();
+            }
         }
-        sunLightmap.RemoveRays(x,z);
+        sunLightmap.RemoveRays(x, z);
+        return true;
     }
 
-    public void assertChunkNotNull(Coord3 co, String msg) {
-        Asserter.assertTrue(GetChunk(co) != null, "chunk was null: " + co.toString() + " : " + msg);
-    }
-
-    public static final boolean CRAWL_OVER_SURFACE = false;
 	/*
 	 * populate chunk with block values
 	 */
+    public static final boolean CRAWL_OVER_SURFACE = true;
+
     public void generateSurface(int x, int z) {
         generateSurface(x, z, terrainDataProvider, null);
     }
     public void generateSurface(int x, int z, TerrainDataProvider _dataProvider, HashSet<Coord3> touchedChunkCoords) {
         Coord3 chunkPos = new Coord3(x, MAX_CHUNK_DIM_VERTICAL - 1, z);
         instantiateChunksInColumn(x, z);
+
+        // try creating from file
+        sunLightmap.readRaysFromFile(new Coord2(x, z));
+        // TODO: read lights, water, ? from file
+        if (!sunLightmap.raysWriteDirty(new Coord2(x, z))) {
+            if (columnChunksBuiltFromFile(x, z)) {
+                addCoordsInColumn(touchedChunkCoords, x, z);
+                return;
+            }
+        }
+
         if (CRAWL_OVER_SURFACE) {
             crawlOverSurface(chunkPos.x, chunkPos.z, _dataProvider, touchedChunkCoords);
         } else {
@@ -230,6 +268,37 @@ public class TerrainMap implements IBlockDataProvider
     private void instantiateChunksInColumn(int x, int z) {
         for (Coord3 chunkPos = new Coord3(x, MAX_CHUNK_DIM_VERTICAL - 1, z); chunkPos.y >= MIN_CHUNK_DIM_VERTICAL; chunkPos.y--) {
             lookupOrCreateChunkAtPosition(chunkPos);
+        }
+    }
+    public Coord3 writeDirtyButNotWritingChunkInColumn(int x, int z) {
+        for (Coord3 chunkPos = new Coord3(x, MAX_CHUNK_DIM_VERTICAL - 1, z); chunkPos.y >= MIN_CHUNK_DIM_VERTICAL; chunkPos.y--) {
+            Chunk chunk = GetChunk(chunkPos);
+            if (chunk != null && chunk.isWriteDirty() && !chunk.hasStartedWriting.get()) return chunkPos;
+        }
+        return null;
+    }
+//    public void updateColumnBuilt(int x, int z) {
+//        boolean columnBuilt = true;
+//        for (Coord3 chunkPos = new Coord3(x, MAX_CHUNK_DIM_VERTICAL - 1, z); chunkPos.y >= MIN_CHUNK_DIM_VERTICAL; chunkPos.y--) {
+//            Chunk chunk = GetChunk(chunkPos);
+//            if (chunk != null && !chunk.getHasEverStartedBuilding()) {
+//                return;
+//            }
+//        }
+//        if (columnBuilt) {
+//            app.getColumnMap().SetIsBuiltIfLessThanBuilt(x, z);
+//        }
+//    }
+    public boolean columnChunksBuiltFromFile(int x, int z) {
+        for (Coord3 chunkPos = new Coord3(x, MAX_CHUNK_DIM_VERTICAL - 1, z); chunkPos.y >= MIN_CHUNK_DIM_VERTICAL; chunkPos.y--) {
+            Chunk chunk = lookupOrCreateChunkAtPosition(chunkPos);
+            if (!chunk.getHasGenerated() || !chunk.isWriteDirty()) return false;
+        }
+        return true;
+    }
+    public void addCoordsInColumn(HashSet<Coord3> coord3HashSet,int x, int z) {
+        for (Coord3 chunkPos = new Coord3(x, MAX_CHUNK_DIM_VERTICAL - 1, z); chunkPos.y >= MIN_CHUNK_DIM_VERTICAL; chunkPos.y--) {
+            coord3HashSet.add(chunkPos);
         }
     }
 
@@ -263,7 +332,7 @@ public class TerrainMap implements IBlockDataProvider
                     if (i == 0 && j == 0)
                         touchedChunkCoords.add(nextChunkPos);
 
-                    byte block = (byte) lookupOrCreateBlock(absPos, _dataProvider);
+                    int block = lookupOrCreateBlock(absPos, _dataProvider);
 
 					/*
 					 * CONSIDER: grass is too simplistic! grass should grow only
@@ -293,7 +362,7 @@ public class TerrainMap implements IBlockDataProvider
                     if (IsSolid(block)) {
                         relPos = Chunk.ToChunkLocalCoord(relPos);
                         if (DIRT.ordinal() == block) {
-                            block = (byte) GRASS.ordinal();
+                            block = GRASS.ordinal();
                             possibleChunk.setBlockAt(block, relPos);
                         }
                         possibleChunk.chunkBlockFaceMap.addFace(relPos, Direction.YPOS);
@@ -355,6 +424,10 @@ public class TerrainMap implements IBlockDataProvider
                     }
                 }
                 lookupOrCreateChunkAtPosition(Chunk.ToChunkPosition(global)).chunkBlockFaceMap.addFace(Chunk.ToChunkLocalCoord(global), Direction.YPOS);
+                //*** TEST
+                if (WorldGenerator.TEST_DONT_BUILD) {
+                    if (i == 0) return true;
+                }
                 crawlOutOfCave(global, _dataProvider, caveCrawlList, touchedChunkCoords);
             }
         }
@@ -422,6 +495,11 @@ public class TerrainMap implements IBlockDataProvider
      * populate chunk flood fill seed set
      */
     public void populateFloodFillSeedsUpdateFaceMapsInChunkColumn(int cx, int cz, TerrainDataProvider _terrainDataProvider, HashSet<Coord3> touchedChunkCoords) {
+        if (WorldGenerator.TEST_DONT_BUILD) return;
+        Asserter.assertTrue(!columnChunksBuiltFromFile(cx, cz), "wha: " + cx + ", " + cz);
+        if (columnChunksBuiltFromFile(cx, cz)) {
+            return;
+        }
         Coord3 worldPos = Chunk.ToWorldPosition(new Coord3(cx, 0, cz));
 
         Coord3 surfacePos;
@@ -487,7 +565,7 @@ public class TerrainMap implements IBlockDataProvider
                 // TODO: deal with water
                 chunk.chunkFloodFillSeedSet.addCoord(neighbor);
                 // INEFFICIENT BUT NECESSARY UNTIL WE HAVE 'PLACEHOLDER_AIR.' UNSET THE BLOCK!
-                chunk.setBlockAt((byte) NON_EXISTENT.ordinal(), Chunk.ToChunkLocalCoord(neighbor));
+                chunk.setBlockAt(NON_EXISTENT.ordinal(), Chunk.ToChunkLocalCoord(neighbor));
 
                 //TACKING ON SUNLIGHT UPDATE
                 sunLightmap.SetLight(SunLightComputer.OneStepDownFromMaxLight(AIR), neighbor);
@@ -541,18 +619,18 @@ public class TerrainMap implements IBlockDataProvider
 
                     if (possibleChunk == null)
                         continue; // must be at world limit?
-                    byte block;
+                    int block;
 
                     // FAKE WATER
                     boolean IsFakeWaterChunk = cx == 0 && cy == MAX_CHUNK_DIM_VERTICAL - 1 && cz == 0;
                     if (IsFakeWaterChunk && i == 3 && j == 2 && k == Chunk.YLENGTH - 1) {
-                        block = (byte) WATER.ordinal();
+                        block = WATER.ordinal();
                     } else if (IsFakeWaterChunk && k > Chunk.YLENGTH - 5 ) {
-                        block = (byte) AIR.ordinal();
+                        block = AIR.ordinal();
                     }
                     else
                         // #FAKE WATER
-                        block = (byte) lookupOrCreateBlock(absPos, _dataProvider);
+                        block = lookupOrCreateBlock(absPos, _dataProvider);
 
                     // should be grass?
 					/*
@@ -564,8 +642,8 @@ public class TerrainMap implements IBlockDataProvider
                     if (DIRT.ordinal() == block) {
                         Coord3 upOne = absPos.add(Coord3.ypos);
                         if (lookupOrCreateChunkAtPosition(Chunk.ToChunkPosition(upOne)) == null ||
-                                IsTranslucent((byte) lookupOrCreateBlock(upOne))) {
-                            block = (byte) GRASS.ordinal();
+                                IsTranslucent( lookupOrCreateBlock(upOne))) {
+                            block = GRASS.ordinal();
                         }
                     } else if (WATER.ordinal() == block) {
                         liquidLevelMap.SetWaterLevel(WaterFlowComputer.MAX_WATER_LEVEL, absPos);
@@ -591,14 +669,14 @@ public class TerrainMap implements IBlockDataProvider
 	 * Update the map and check if anything else needs updating
 	 * Credit: Mr. Wishmaster methods (YouTube)
 	 */
-	public void SetBlockAndRecompute(byte block, Coord3 global) {
+	public void SetBlockAndRecompute(int block, Coord3 global) {
         if (!isGlobalCoordWithinWorldBounds(global)) return;
 
 		Coord3 chunkPos = Chunk.ToChunkPosition(global);
 		Coord3 localPos = Chunk.ToChunkLocalCoord(global);
 
         Chunk chunk = GetChunk(chunkPos);
-        byte wasType = chunk.blockAt(localPos);
+        int wasType = chunk.blockAt(localPos);
         if (wasType == block) return;
 
 		setBlockAtWorldCoord(block, global);
@@ -615,7 +693,7 @@ public class TerrainMap implements IBlockDataProvider
         }
         //need to flood fill?
         if (!IsTranslucent(wasType) && AIR.ordinal() == block) {
-            chunk.setBlockAt((byte) PLACEHOLDER_AIR.ordinal(), localPos); // must 'fool' flood fill
+            chunk.setBlockAt(PLACEHOLDER_AIR.ordinal(), localPos); // must 'fool' flood fill
             chunk.chunkFloodFillSeedSet.addCoord(global);
             chunkCoordsToBePriorityFlooded.add(chunkPos);
         }
@@ -649,8 +727,9 @@ public class TerrainMap implements IBlockDataProvider
 
 	private void SetDirty(Coord3 chunkPos) {
 		Chunk chunk = GetChunk(chunkPos);
-		if (chunk != null)
-			chunk.getChunkBrain().SetDirty();
+		if (chunk != null) {
+            chunk.getChunkBrain().SetDirty();
+        }
 	}
 
 	public int GetMaxY(int x, int z, boolean forceLookup) {
@@ -669,7 +748,7 @@ public class TerrainMap implements IBlockDataProvider
 				Chunk chunk = chunks.SafeGet(chunkPos);
 				if (chunk == null)
 					break;
-				byte block = chunk.blockAt(localPos);
+				int block = chunk.blockAt(localPos);
 				if (!IsAirOrNonExistent(block)) {
 					return Chunk.ToWorldPosition(chunkPos, localPos).y;
 				}
@@ -688,8 +767,10 @@ public class TerrainMap implements IBlockDataProvider
         if (!ChunkCoordWithinWorldBounds(chunkPos)) return null;
         // Sets chunk at key if not there before. Returns previous value! (null if nothing was there)
         Chunk result = chunks.putIfKeyIsAbsent(chunkPos, new Chunk(chunkPos, this));
+        // new chunk?
         if (result == null) {
             result = chunks.Get(chunkPos); // re-get the Chunk if it was null. now guaranteed to be there.
+            result.readFromFile(); // try to load the chunk from file
         }
         return result;
 	}
@@ -714,17 +795,18 @@ public class TerrainMap implements IBlockDataProvider
     }
 
     public void setWater(Coord3 worldPos) {
-        setBlockAtWorldCoord((byte) WATER.ordinal(), worldPos);
+        setBlockAtWorldCoord(WATER.ordinal(), worldPos);
     }
 
     public void setWaterRunOff(Coord3 worldPos) {
-        setBlockAtWorldCoord((byte) WATER_RUNOFF.ordinal(), worldPos);
+        setBlockAtWorldCoord(WATER_RUNOFF.ordinal(), worldPos);
     }
 
     public void unsetWater(Coord3 worldPos) {
         if (IsWaterType(lookupBlock(worldPos)))
-            setBlockAtWorldCoord((byte) AIR.ordinal(), worldPos);
+            setBlockAtWorldCoord(AIR.ordinal(), worldPos);
     }
+
     /*
      * Block debug info
      */

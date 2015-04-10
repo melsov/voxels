@@ -9,13 +9,16 @@ import voxel.landscape.chunkbuild.blockfacefind.BlockFaceFinder;
 import voxel.landscape.chunkbuild.bounds.XZBounds;
 import voxel.landscape.chunkbuild.meshbuildasync.AsyncMeshBuilder;
 import voxel.landscape.chunkbuild.meshbuildasync.ChunkMeshBuildingSet;
+import voxel.landscape.chunkbuild.unload.ColumnUnloader;
 import voxel.landscape.collection.ColumnMap;
-import voxel.landscape.collection.coordmap.managepages.FurthestCoord3PseudoDelegate;
+import voxel.landscape.collection.coordmap.managepages.FurthestChunkFinder;
 import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.debug.DebugGeometry;
 import voxel.landscape.map.AsyncScatter;
 import voxel.landscape.map.TerrainMap;
+import voxel.landscape.player.B;
+import voxel.landscape.settings.BuildSettings;
 import voxel.landscape.util.Asserter;
 
 import java.util.concurrent.*;
@@ -33,7 +36,11 @@ public class WorldGenerator {
     private BlockingQueue<Coord2> columnsToBeScattered;
     private BlockingQueue<ChunkMeshBuildingSet> chunksToBeMeshed;
     private BlockingQueue<ChunkMeshBuildingSet> completedChunkMeshSets;
-    private AtomicBoolean asyncChunkMeshThreadsShouldKeepGoing = new AtomicBoolean(true);
+
+    //Chunk disposal
+    private BlockingQueue<Coord3> unloadChunks = new ArrayBlockingQueue<>(80);
+    private BlockingQueue<Coord3> deletableChunks = new ArrayBlockingQueue<>(80);
+    ExecutorService chunkUnloadService;
 
     private static final int COLUMN_DATA_BUILDER_THREAD_COUNT = 1;
     private static final int CHUNK_MESH_BUILD_THREAD_COUNT = 1;
@@ -42,14 +49,12 @@ public class WorldGenerator {
     private ExecutorService chunkMeshBuildPool;
     private ExecutorService scatterBuildPool;
 
-    private final int COLUMN_DATA_BUILDER_THREAD_COUNT_CHUNKWISE = 1;
-    private final BlockingQueue<Coord3> chunkCoordsToBeMeshFromChunkWise = new ArrayBlockingQueue<Coord3>(256);
-    ExecutorService colDataPoolCHUNKWISE;
 
     private AtomicBoolean columnBuildingThreadsShouldKeepGoing = new AtomicBoolean(true);
-    private static int COLUMN_CULLING_MIN = (int) ((VoxelLandscape.ADD_COLUMN_RADIUS * 1 + 2)*(VoxelLandscape.ADD_COLUMN_RADIUS * 1 + 2));
+    private static int COLUMN_CULLING_MIN = (int) ((BuildSettings.ADD_COLUMN_RADIUS * 1 + 2)*(BuildSettings.ADD_COLUMN_RADIUS * 1 + 2));
+    private static int COLUMN_DELETING_MIN = (int)(COLUMN_CULLING_MIN * 1.2);
 
-    private FurthestCoord3PseudoDelegate furthestDelegate = new FurthestCoord3PseudoDelegate();
+    private FurthestChunkFinder furthestChunkFinder = new FurthestChunkFinder();
 
     private Node worldNode;
     private TerrainMap map;
@@ -63,12 +68,15 @@ public class WorldGenerator {
     public static final String BGFloodFillThreadName = "Background Flood-Fill Thread";
     public static final String ShortOrderFloodFillThreadName = "Short-order Flood-Fill Thread";
 
+    public static final boolean TEST_DONT_BUILD = false;
+    public static final boolean TEST_DONT_RENDER = false;
+
     public WorldGenerator(Node _worldNode, Camera _camera, TerrainMap _map, final ColumnMap _columnMap, AssetManager _assetManager) {
         worldNode = _worldNode;
         camera = _camera;
         map = _map;
         columnMap = _columnMap;
-        xzBounds = new XZBounds(camera, VoxelLandscape.ADD_COLUMN_RADIUS );
+        xzBounds = new XZBounds(camera, BuildSettings.ADD_COLUMN_RADIUS );
         blockFaceFinder = new BlockFaceFinder(map, map.chunkCoordsToBeFlooded, camera, xzBounds, BGFloodFillThreadName);
         shortOrderBlockFaceFinder = new BlockFaceFinder(map, map.chunkCoordsToBePriorityFlooded, camera, xzBounds, ShortOrderFloodFillThreadName);
         materialLibrarian = new MaterialLibrarian(_assetManager);
@@ -79,27 +87,51 @@ public class WorldGenerator {
     private void initThreadPools() {
         initColumnDataThreadExecutorService();
 //        initLightAndWaterScatterService();
-        blockFaceFinder.start(); //TODO: ORDER OF THESE THREE MATTERS RIGHT NOW—AND SHOULDN'T
+        blockFaceFinder.start();
         shortOrderBlockFaceFinder.start();
         initChunkMeshBuildThreadExecutorService();
+        initUnloadService();
     }
 
     public void update(float tpf) {
         addToColumnPriorityQueue();
-        if(!VoxelLandscape.DONT_BUILD_CHUNK_MESHES && buildANearbyChunk()) {}
+        if(!VoxelLandscape.DONT_BUILD_CHUNK_MESHES) {
+            buildANearbyChunk();
+        }
         checkAsyncCompletedChunkMeshes();
-        cullAnExcessColumn(tpf);
+        cull();
     }
 
     private void addToColumnPriorityQueue() {
         if (columnsToBeBuilt == null) return;
-        BlockingQueue<Coord2> queue = columnsToBeBuilt;
-        if (queue.size() > 10) return;
+        if (columnsToBeBuilt.size() > 10) return;
         Coord3 emptyCol = ChunkFinder.ClosestEmptyColumn(camera, map, columnMap);
-        if (emptyCol == null) {
-            return;
+        if (emptyCol == null) return;
+        removeFromUnloadLists(new Coord2(emptyCol.x, emptyCol.z));
+        columnsToBeBuilt.add(new Coord2(emptyCol.x, emptyCol.z));
+    }
+    /*
+     * TODO: make adding zones actually work
+     */
+
+    private void removeFromUnloadLists(Coord2 column) {
+        for (Coord3 c = new Coord3(column.getX(), TerrainMap.MIN_CHUNK_COORD.y, column.getZ()) ; c.y < TerrainMap.MAX_CHUNK_COORD.y; c.y++){
+//            deletableChunks.remove(c);
+//            unloadChunks.remove(c);
         }
-        queue.add(new Coord2(emptyCol.x, emptyCol.z));
+    }
+
+    private void initUnloadService() {
+        int CHUNK_UNLOAD_THREAD_COUNT = 5;
+        chunkUnloadService = Executors.newFixedThreadPool(CHUNK_UNLOAD_THREAD_COUNT);
+        for (int i = 0; i < CHUNK_UNLOAD_THREAD_COUNT; ++i) {
+            ColumnUnloader columnUnloader= new ColumnUnloader(
+                    map,
+                    columnMap,
+                    unloadChunks,
+                    deletableChunks);
+            chunkUnloadService.execute(columnUnloader);
+        }
     }
 
     private void initColumnDataThreadExecutorService() {
@@ -115,30 +147,16 @@ public class WorldGenerator {
         }
     }
 
-    private void initColumnDataThreadExecutorServiceCHUNKWISE() {
-        colDataPoolCHUNKWISE = Executors.newFixedThreadPool(COLUMN_DATA_BUILDER_THREAD_COUNT_CHUNKWISE);
-        for (int i = 0; i < COLUMN_DATA_BUILDER_THREAD_COUNT_CHUNKWISE; ++i) {
-            AsyncGenerateColumnDataChunkWise asyncChunkWise = new AsyncGenerateColumnDataChunkWise(
-                    map,
-                    columnMap,
-                    blockFaceFinder.floodFilledChunkCoords,
-                    chunkCoordsToBeMeshFromChunkWise,
-                    columnBuildingThreadsShouldKeepGoing );
-            colDataPoolCHUNKWISE.execute(asyncChunkWise);
-        }
-    }
-
     private void initChunkMeshBuildThreadExecutorService() {
         ChunkCoordCamComparator chunkCoordCamComparator = new ChunkCoordCamComparator(camera);
-        chunksToBeMeshed = new PriorityBlockingQueue<ChunkMeshBuildingSet>(50, chunkCoordCamComparator);
-        completedChunkMeshSets = new LinkedBlockingQueue<ChunkMeshBuildingSet>(50);
+        chunksToBeMeshed = new PriorityBlockingQueue<>(50, chunkCoordCamComparator);
+        completedChunkMeshSets = new LinkedBlockingQueue<>(50);
         chunkMeshBuildPool = Executors.newFixedThreadPool(CHUNK_MESH_BUILD_THREAD_COUNT);
         for (int i = 0; i < CHUNK_MESH_BUILD_THREAD_COUNT; ++i) {
             AsyncMeshBuilder asyncMeshBuilder = new AsyncMeshBuilder(
                     map,
                     chunksToBeMeshed,
-                    completedChunkMeshSets,
-                    asyncChunkMeshThreadsShouldKeepGoing);
+                    completedChunkMeshSets);
             chunkMeshBuildPool.execute(asyncMeshBuilder);
         }
     }
@@ -158,15 +176,16 @@ public class WorldGenerator {
         }
     }
 
-    private boolean buildANearbyChunk() {
+
+    private void buildANearbyChunk() {
         Coord3 chcoord = shortOrderBlockFaceFinder.floodFilledChunkCoords.poll();
         if (chcoord == null) {
             chcoord = blockFaceFinder.floodFilledChunkCoords.poll();
         }
-        if (chcoord == null){ return false; }
+        if (chcoord == null){ return; }
         Asserter.assertTrue(map.GetChunk(chcoord) != null, "chunk not in map! at chunk coord: " + chcoord.toString());
         buildThisChunk(map.GetChunk(chcoord));
-        return true;
+        return;
     }
 
     public void enqueueChunkMeshSets(ChunkMeshBuildingSet chunkMeshBuildingSet) {
@@ -175,6 +194,8 @@ public class WorldGenerator {
 
     private void buildThisChunk(Chunk ch) {
         ch.setHasEverStartedBuildingToTrue();
+        if (TEST_DONT_RENDER) return;
+//        ch.setHasGeneratedTrue();
         if (!ch.getIsAllAir()) {
             ch.getChunkBrain().SetDirty();
             ch.getChunkBrain().wakeUp();
@@ -188,6 +209,9 @@ public class WorldGenerator {
     private void checkAsyncCompletedChunkMeshes() {
         for (int count = 0; count < 5; ++count) {
             ChunkMeshBuildingSet chunkMeshBuildingSet = completedChunkMeshSets.poll();
+            if (TEST_DONT_RENDER) {
+                return;
+            }
             if (chunkMeshBuildingSet == null) return;
             Chunk chunk = map.GetChunk(chunkMeshBuildingSet.chunkPosition);
             if (chunk == null) {
@@ -202,30 +226,40 @@ public class WorldGenerator {
     /*
      * Remove columns
      */
-    private void cullAnExcessColumn(float tpf) {
+    private void cull() {
         if (!VoxelLandscape.CULLING_ON) return;
-        int culled = 0;
-        while (columnMap.columnCount() > COLUMN_CULLING_MIN) {
-            Coord3 furthest = furthestDelegate.getFurthest2D(camera, columnMap.getCoordXZSet());
-            removeColumn(furthest.x, furthest.z);
-            if (culled++ > 10) break;
-        }
+        unloadChunks();
+        removeAChunk();
     }
-    private void removeColumn(int x, int z)
-    {
-        int minChunkY = map.getMinChunkCoordY();
-        int maxChunkY = map.getMaxChunkCoordY();
-        for (int k = minChunkY; k < maxChunkY; ++k )
-        {
-            Chunk ch = map.GetChunk(x, k, z);
-            if (ch == null) {
-                continue;
+    private void unloadChunks() {
+        int culled = 0;
+//        while (columnMap.columnCount() > COLUMN_CULLING_MIN && culled++ < 1) {
+            Coord3 furthest = furthestChunkFinder.furthestWriteDirtyButNotYetWritingChunk(map, camera, columnMap.getCoordXZSet().toArray());
+            if (unloadChunks.remainingCapacity() == 0) {
+                B.bugln("capacity is 0");
+                return;
             }
-            detachFromScene(ch);
-            ch.getChunkBrain().clearMeshBuffersAndSetGeometryNull();
+            if (furthest != null && !BuildSettings.ChunkCoordWithinAddRadius(camera.getLocation(), furthest)) {
+                Chunk chunk = map.GetChunk(furthest);
+                if (chunk != null && !unloadChunks.contains(furthest)) {
+                    chunk.hasStartedWriting.set(true);
+                    unloadChunks.add(furthest);
+                }
+            }
+//        }
+    }
+    private void removeAChunk() {
+        Coord3 chunk = deletableChunks.poll();
+        if (chunk == null) return;
+        if (BuildSettings.ChunkCoordWithinAddRadius(camera.getLocation(), chunk)) {
+            return;
+        } else if (!BuildSettings.ChunkCoordOutsideOfRemoveRadius(camera.getLocation(), chunk)) {
+            if (deletableChunks.remainingCapacity() != 0) deletableChunks.add(chunk);
         }
-        map.removeColumnData(x,z);
-        columnMap.Destroy(x, z);
+
+        if (map.removeColumn(chunk.getX(), chunk.getZ())) {
+            columnMap.Destroy(chunk.getX(), chunk.getZ());
+        }
     }
 
     private void attachMeshToScene(Chunk chunk) {
@@ -234,26 +268,34 @@ public class WorldGenerator {
         chunk.getChunkBrain().attachToTerrainNode(worldNode);
     }
 
-    private void detachFromScene(Chunk chunk) {
-        Node g = chunk.getRootSpatial();
-        if (g != null) g.removeFromParent();
-    }
-
-    //TODO: figure out what stops the app from exiting fully
     public void killThreadPools() {
+        poisonThreads();
+
         columnBuildingThreadsShouldKeepGoing.set(false);
         if (colDataPool != null)
             colDataPool.shutdownNow();
-        if (colDataPoolCHUNKWISE != null)
-            colDataPoolCHUNKWISE.shutdownNow();
         if (scatterBuildPool != null)
             scatterBuildPool.shutdownNow();
 
-        asyncChunkMeshThreadsShouldKeepGoing.set(false);
+//        asyncChunkMeshThreadsShouldKeepGoing.set(false);
         chunkMeshBuildPool.shutdownNow();
 
         blockFaceFinder.shutdown();
         shortOrderBlockFaceFinder.shutdown();
+
+//        columnRemovalShouldKeepGoing.set(false);
+        if (chunkUnloadService != null) {
+            chunkUnloadService.shutdownNow();
+        }
+    }
+
+
+    private void poisonThreads() {
+        columnsToBeBuilt.add(Coord2.SPECIAL_FLAG);
+        map.chunkCoordsToBeFlooded.add(Coord3.SPECIAL_FLAG);
+        map.chunkCoordsToBePriorityFlooded.add(Coord3.SPECIAL_FLAG);
+        unloadChunks.add(Coord3.SPECIAL_FLAG);
+        chunksToBeMeshed.add(ChunkMeshBuildingSet.POISON_PILL);
     }
 
 

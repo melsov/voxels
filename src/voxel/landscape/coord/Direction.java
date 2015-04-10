@@ -3,6 +3,8 @@ package voxel.landscape.coord;
 import com.jme3.math.Vector3f;
 import voxel.landscape.Axis;
 
+import static voxel.landscape.Axis.X;
+
 public class Direction {
     public static final int XNEG = 0, XPOS = 1, YNEG = 2, YPOS = 3, ZNEG = 4, ZPOS = 5;
 
@@ -94,7 +96,7 @@ public class Direction {
         return dir - 1;
     }
     public static Coord3[] NudgeDirectionsNormalToAxis(int axis) {
-        if (axis == Axis.X) return DirectionYZCoords;
+        if (axis == X) return DirectionYZCoords;
         if (axis == Axis.Y) return DirectionXZCoords;
         return DirectionXYCoords;
     }
@@ -108,7 +110,7 @@ public class Direction {
     }
 
     public static Vector3f AddToComponentAtAxis(Vector3f vec, float whatToAdd, int axis) {
-        if (axis == Axis.X)
+        if (axis == X)
             vec.x += whatToAdd;
         else if (axis == Axis.Y)
             vec.y += whatToAdd;
@@ -120,7 +122,7 @@ public class Direction {
 
     public static int AxisForDirection(int dir) {
         if (dir <= Direction.XPOS) {
-            return Axis.X;
+            return X;
         }
         if (dir <= Direction.YPOS) {
             return Axis.Y;
@@ -145,6 +147,16 @@ public class Direction {
             0b011111
     };
 
+    public static Coord3[] UnitCoordsForNormalAxis(int normal) {
+        switch (normal) {
+            case Axis.X:
+                return new Coord3[] { Coord3.ypos.clone(), Coord3.zpos.clone() };
+            case Axis.Y:
+                return new Coord3[] { Coord3.xpos.clone(), Coord3.zpos.clone() };
+            default:
+                return new Coord3[] { Coord3.xpos.clone(), Coord3.ypos.clone() };
+        }
+    }
 
     public static String ToString(int dir) {
 

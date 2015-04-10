@@ -29,14 +29,14 @@ import voxel.landscape.noise.image.ImageMap;
 
 //public class TerrainDataProvider implements IBlockDataProvider, IBlockTypeDataProvider
 public class TerrainDataProvider {
-    private static long seed;
+    public final long seed;
 
     public enum Mode {
         NoiseModule, ImageMode
     }
 
     private Mode mode = Mode.ImageMode;
-   ImageMap imageMap;
+    ImageMap imageMap;
 
     Module noiseModule;
     public static final double WORLD_TO_VERTICAL_NOISE_SCALE = TerrainMap.GetWorldHeightInBlocks(); // * 2.2;
@@ -46,26 +46,24 @@ public class TerrainDataProvider {
     private static final int ARGB_POS_ONE_CHANNEL_MAX = 256;
     private BorderBoxMaker borderBoxMaker = new BorderBoxMaker();
 
-    public TerrainDataProvider() {
-        this(Mode.ImageMode);
+    public TerrainDataProvider(long _seed) {
+        this(Mode.NoiseModule, _seed);
     }
 
-    public TerrainDataProvider(Mode _mode) {
+    public TerrainDataProvider(Mode _mode, long _seed) {
         mode = _mode;
+        seed = _seed;
         if (mode == Mode.ImageMode) {
             imageMap = new ImageMap();
         } else {
-            seed = -21234;
             setupModule();
-//            setupModuleBIG();
         }
     }
 
     private static boolean USE_TEST_NOISE = false;
-    private static boolean SOLID_BLOCKTYPE_PER_CHUNK = true;
+    private static boolean SOLID_BLOCKTYPE_PER_CHUNK = false;
 
     public int getBlockDataAtPosition(int xin, int yin, int zin) {
-        
         if(mode == Mode.ImageMode) {
             return imageMap.blockTypeAt(xin, yin, zin);
         }
@@ -99,7 +97,6 @@ public class TerrainDataProvider {
         }
         return r < 0.001 ? BlockType.AIR.ordinal() : (int) r;
     }
-
 
     private int blockTypePerChunk(int x, int y, int z) {
         Coord3 chco = Chunk.ToChunkPosition(x & 511,y & 255,z & 511);
@@ -189,7 +186,7 @@ public class TerrainDataProvider {
          */
         // mountain_shape_fractal
         ModuleFractal mountainShapeFractal = new ModuleFractal(FractalType.FBM, BasisType.GRADIENT, InterpolationType.QUINTIC);
-        mountainShapeFractal.setNumOctaves(8);
+        mountainShapeFractal.setNumOctaves(4);
         mountainShapeFractal.setFrequency(1);
         mountainShapeFractal.setSeed(seed);
 
@@ -209,8 +206,8 @@ public class TerrainDataProvider {
          */
         // mountain_scale
         ModuleScaleOffset mountainScale = new ModuleScaleOffset();
-        mountainScale.setScale(0.75);
-        mountainScale.setOffset(0.15);
+        mountainScale.setScale(0.35);
+        mountainScale.setOffset(0.05);
         mountainScale.setSource(mountainAutoCorrect);
 
         /*

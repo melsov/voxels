@@ -10,6 +10,7 @@ public enum BuildStatus
     BUILDING_DATA (1),
     BUILT_SURFACE_DATA(2),
     BUILT_DATA(3);
+//    WRITING_DATA(4);
 
     private int integer;
 

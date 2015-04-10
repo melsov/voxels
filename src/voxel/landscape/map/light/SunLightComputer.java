@@ -30,7 +30,7 @@ public class SunLightComputer {
             Coord3 pos = list.get(i);
 			if(pos.y<0) continue;
 
-			byte block = map.lookupBlock(pos);
+			int block = map.lookupBlock(pos);
 			int light = sunlightmap.GetLight(pos) - LightComputerUtils.GetLightStep(block);
             if(light <= MIN_LIGHT) continue;
 
@@ -112,7 +112,7 @@ public class SunLightComputer {
             
 			for(Coord3 dir : Direction.DirectionCoords) {
 				Coord3 nextPos = pos.add(dir);
-				byte block = map.lookupBlock(nextPos);
+				int block = map.lookupBlock(nextPos);
 				if(BlockType.IsTranslucent(block)) {
 					if(lightmap.GetLight(nextPos) <= light) {
 						list.add( nextPos );

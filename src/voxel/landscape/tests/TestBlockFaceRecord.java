@@ -3,7 +3,7 @@ package voxel.landscape.tests;
 import junit.framework.TestCase;
 import org.junit.Test;
 import voxel.landscape.chunkbuild.blockfacefind.BlockFaceRecord;
-import voxel.landscape.chunkbuild.blockfacefind.ChunkBlockFaceCoord;
+import voxel.landscape.chunkbuild.blockfacefind.ChunkLocalCoord;
 import voxel.landscape.collection.chunkface.ChunkBlockFaceMap;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
@@ -31,11 +31,11 @@ public class TestBlockFaceRecord extends TestCase {
             for(int j=0; j < 16; j++)
                 for(int k=0; k < 16; k++) {
                     Coord3 co = new Coord3(i,j,k);
-                    ChunkBlockFaceCoord blockFaceCoord = new ChunkBlockFaceCoord(co);
+                    ChunkLocalCoord blockFaceCoord = new ChunkLocalCoord(co);
                     String testStr = "coords should be equal " + co.toString() + " : bFToCoord: " + blockFaceCoord.toCoord3().toString();
                     assertTrue(testStr,
                             co.equal(blockFaceCoord.toCoord3()));
-                    assertTrue("not equal", !blockFaceCoord.equals(new ChunkBlockFaceCoord(new Coord3(i, j, k + 1))));
+                    assertTrue("not equal", !blockFaceCoord.equals(new ChunkLocalCoord(new Coord3(i, j, k + 1))));
                 }
     }
 
