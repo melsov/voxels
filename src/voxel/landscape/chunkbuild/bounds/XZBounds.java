@@ -4,7 +4,7 @@ import com.jme3.renderer.Camera;
 import voxel.landscape.Chunk;
 import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
-import voxel.landscape.coord.Square;
+import voxel.landscape.coord.Box2;
 import voxel.landscape.util.Asserter;
 
 /**
@@ -15,7 +15,7 @@ import voxel.landscape.util.Asserter;
 public class XZBounds {
     public final Camera camera;
 
-    private Square bounds;
+    private Box2 bounds;
     public int radius;
 
     public XZBounds(Camera _camera, int _radius ) {
@@ -25,7 +25,7 @@ public class XZBounds {
 
     private void updateBounds() {
         Coord3 camloc = Chunk.ToChunkPosition(Coord3.FromVector3f(camera.getLocation()));
-        bounds = new Square(new Coord2(camloc.x - radius, camloc.z - radius), new Coord2(radius*2));
+        bounds = new Box2(new Coord2(camloc.x - radius, camloc.z - radius), new Coord2(radius*2));
     }
 
     public boolean contains(Coord3 chunkCoord) {

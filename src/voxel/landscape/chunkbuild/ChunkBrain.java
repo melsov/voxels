@@ -11,7 +11,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.control.AbstractControl;
-import com.jme3.scene.shape.Box;
 import voxel.landscape.Chunk;
 import voxel.landscape.MeshSet;
 import voxel.landscape.VoxelLandscape;
@@ -28,12 +27,20 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
 	private Chunk chunk;
 	private boolean dirty, lightDirty, liquidDirty;
 	private AsyncBuildMesh asyncBuildMesh = null;
-	private boolean shouldApplyMesh = false;
+//	private boolean shouldApplyMesh = false;
+    private boolean testHiding = false;
 
-	public ChunkBrain(Chunk _chunk) {
+    public boolean isHiding() {
+        if (testHiding) {
+            Asserter.assertTrue(getSpatial() != null, "wha. spatial should not be null at this point");
+        }
+        if (getSpatial() == null) return false;
+        return getSpatial().getParent() == null;
+    }
+
+    public ChunkBrain(Chunk _chunk) {
 		chunk = _chunk;
 	}
-
 
 	@Override
 	protected void controlUpdate(float timePerFrame) {
@@ -56,10 +63,6 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
 		//do nothing here. must override however.
 	}
 
-    public boolean isDirtyInAnyway() {
-        return dirty || lightDirty || liquidDirty;
-    }
-
     public void setMeshEmpty() {
         getGeometry().setMesh(makeEmptyMesh());
     }
@@ -70,70 +73,53 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
         mesh.setMode(Mesh.Mode.Triangles);
         return mesh;
     }
-    private Mesh makePlaceHolderMesh() {
-        Mesh mesh = new Box(Vector3f.ZERO.clone(), new Vector3f(1,1,1).mult(12f));
-        mesh.setDynamic();
-        mesh.setMode(Mesh.Mode.Triangles);
-        return mesh;
-    }
 
-    //TODO: figure whether or not this needs to be synchronized
 	private Mesh getMesh() {
-		Geometry geom = getGeometry();
-        if (geom == null) {
-            Asserter.assertFalseAndDie("We thought getGeom never returned null");
-            return null;
-        }
-		if (geom.getMesh() == null) {
-			Mesh mesh = makeEmptyMesh();
-			geom.setMesh(mesh);
-		}
-		return geom.getMesh();
+		return getGeometry().getMesh();
 	}
 	public Geometry getGeometry() {
-        Node node = (Node) getChunkBrainRootNode(); // getSpatial();
+        Node node = getChunkBrainRootNode();
         if (node == null) return null;
-        return (Geometry) node.getChild("chunk_geom");
+        Geometry geometry = (Geometry) node.getChild("chunk_geom");
+        if (geometry == null) {
+            geometry = new Geometry("chunk_geom", makeEmptyMesh());
+            node.attachChild(geometry);
+        }
+        return geometry;
     }
     public synchronized Geometry getWaterGeometry() {
-        Node node = (Node) getChunkBrainRootNode(); //  getSpatial();
+        Node node = getChunkBrainRootNode();
         if (node == null) return null;
         Geometry waterGeom = (Geometry) node.getChild("water_geom");
         if (waterGeom == null) {
             waterGeom = new Geometry("water_geom", makeEmptyMesh());
             waterGeom.setQueueBucket(RenderQueue.Bucket.Transparent);
-            waterGeom.move(Chunk.ToWorldPosition(chunk.position).toVector3());
             node.attachChild(waterGeom);
         }
         return waterGeom;
     }
     private Mesh getWaterMesh() {
-        Geometry g = getWaterGeometry();
-        return g.getMesh();
+        return getWaterGeometry().getMesh();
     }
     public Node getRootSpatial() {
-        return (Node) getChunkBrainRootNode();
+        return getChunkBrainRootNode();
     }
-    public Node getNode() {
-        return (Node) getChunkBrainRootNode();
-    }
+
     private synchronized Node getChunkBrainRootNode() {
         Node node = (Node) getSpatial();
         if (node == null) {
             node = new Node();
-            Geometry g = new Geometry("chunk_geom", makeEmptyMesh());
-            g.move(Chunk.ToWorldPosition(chunk.position).toVector3());
-            node.attachChild(g);
+            node.move(Chunk.ToWorldPosition(chunk.position).toVector3());
             node.addControl(this);
         }
         return node;
     }
 
-
     public void wakeUp() { getChunkBrainRootNode(); }
 
     public void attachToTerrainNode(Node terrainNode) {
-        terrainNode.attachChild(getNode());
+        terrainNode.attachChild(getRootSpatial());
+        testHiding = false;
     }
     public void attachTerrainMaterial(Material terrainMaterial) {
         getGeometry().setMaterial(terrainMaterial);
@@ -241,6 +227,8 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
             g.removeFromParent();
             //TEST
             Asserter.assertTrue(getSpatial() != null, "we want to still have a non-null spatial despite detaching.");
+            Asserter.assertTrue(getSpatial().getParent() == null, "parent not null?");
+            testHiding = true;
         }
     }
 

@@ -6,10 +6,7 @@ import voxel.landscape.VoxelLandscape;
 import voxel.landscape.WorldGenerator;
 import voxel.landscape.collection.chunkface.ChunkBlockFaceMap;
 import voxel.landscape.collection.coordmap.managepages.ConcurrentHashMapCoord3D;
-import voxel.landscape.coord.Box;
-import voxel.landscape.coord.Coord2;
-import voxel.landscape.coord.Coord3;
-import voxel.landscape.coord.Direction;
+import voxel.landscape.coord.*;
 import voxel.landscape.map.light.LightComputer;
 import voxel.landscape.map.light.LightMap;
 import voxel.landscape.map.light.SunLightComputer;
@@ -210,17 +207,19 @@ public class TerrainMap implements IBlockDataProvider
 //        sunLightmap.writeLightsToFile(chunkPos);
 //        TODO: write water data
 
-        Coord2 column = Coord2.FromCoord3XZ(chunkPos); // new Coord2(x, z);
-        sunLightmap.writeRaysToFile(column);
+        sunLightmap.writeRaysToFile(Coord2.FromCoord3XZ(chunkPos));
     }
 
-    public boolean removeColumn(int x, int z) {
-        for (Coord3 chunkPos = new Coord3(x, MIN_CHUNK_DIM_VERTICAL, z); chunkPos.y < MAX_CHUNK_DIM_VERTICAL; chunkPos.y++) {
+    public boolean removeColumn(ICoordXZ iCoordXZ) {
+        // TODO: CONSIDER: this is always returning true: possible effect: a writeDirty chunk is abandoned. never deleted
+        boolean columnNotWriteDirty = true;
+        for (Coord3 chunkPos : new ColumnRange(iCoordXZ)) {
             Chunk ch = GetChunk(chunkPos);
             if (ch == null) {
                 continue;
             }
             if (ch.isWriteDirty()) {
+                columnNotWriteDirty = false;
                 continue;
             }
             chunks.Remove(chunkPos);
@@ -233,8 +232,10 @@ public class TerrainMap implements IBlockDataProvider
                 ch.getChunkBrain().setSpatialNull();
             }
         }
-        sunLightmap.RemoveRays(x, z);
-        return true;
+        if (columnNotWriteDirty) {
+            sunLightmap.RemoveRays(iCoordXZ.getX(), iCoordXZ.getZ());
+        }
+        return columnNotWriteDirty;
     }
 
 	/*
@@ -844,4 +845,13 @@ public class TerrainMap implements IBlockDataProvider
     }
 
 
+    public boolean columnHasHiddenChunk(ICoordXZ look) {
+        for (Coord3 coord3 : new ColumnRange(look)) {
+            Chunk chunk = GetChunk(coord3);
+            if (chunk != null && chunk.getChunkBrain().isHiding()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

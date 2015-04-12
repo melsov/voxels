@@ -3,11 +3,11 @@ package voxel.landscape.coord;
 /**
  * Created by didyouloseyourdog on 12/29/14.
  */
-public class Square {
+public class Box2 {
     public Coord2 start;
     public Coord2 dimensions;
 
-    public Square(Coord2 _start, Coord2 _dims) {
+    public Box2(Coord2 _start, Coord2 _dims) {
         start = _start; dimensions = _dims;
     }
     public Coord2 extent() {

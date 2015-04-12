@@ -31,6 +31,7 @@ import voxel.landscape.chunkbuild.MaterialLibrarian;
 import voxel.landscape.collection.ColumnMap;
 import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
+import voxel.landscape.coord.Direction;
 import voxel.landscape.debug.DebugGeometry;
 import voxel.landscape.debugmesh.DebugChart;
 import voxel.landscape.debugmesh.DebugChart.DebugShapeType;
@@ -52,7 +53,7 @@ public class VoxelLandscape extends SimpleApplication
 {
     public static final WorldSettings WorldSettings = new WorldSettings(-21234);
     public static boolean FULL_SCREEN = false;
-    //TEST a different commit & push
+
 	public static boolean USE_TEXTURE_MAP = false, DEBUG_INFO_ON = false, ADD_CHUNKS_DYNAMICALLY = true, COMPILE_CHUNK_DATA_ASYNC = false,
             CULLING_ON = false, BUILD_INITIAL_CHUNKS = true, DONT_BUILD_CHUNK_MESHES = true, SHOW_COLUMN_DEBUG_QUADS = false, FORCE_WIRE_FRAME = false;
     public static boolean TEST_BLOCK_FACE_MESH_BUILDING = true;
@@ -92,7 +93,7 @@ public class VoxelLandscape extends SimpleApplication
             ADD_CHUNKS_DYNAMICALLY = true;
             COMPILE_CHUNK_DATA_ASYNC = true;
             DO_USE_TEST_GEOMETRY = false;
-            CULLING_ON = true;
+            CULLING_ON = false;
             BUILD_INITIAL_CHUNKS = false;
             DONT_BUILD_CHUNK_MESHES = false;
             SHOW_COLUMN_DEBUG_QUADS = false;
@@ -127,9 +128,6 @@ public class VoxelLandscape extends SimpleApplication
     @Override
     public void simpleInitApp() 
     {
-        DebugGeometry.rootNode = rootNode;
-        DebugGeometry.materialLibrarian = new MaterialLibrarian(assetManager);
-
         terrainMap = new TerrainMap(this);
         BufferUtils.setTrackDirectMemoryEnabled(true);
         setupTestStateVariables();
@@ -142,16 +140,16 @@ public class VoxelLandscape extends SimpleApplication
 
         worldGenerator = new WorldGenerator(worldNode, cam, terrainMap, columnMap, assetManager);
 
-        Chunk.USE_TEST_GEOMETRY = DO_USE_TEST_GEOMETRY;
         inputManager.setCursorVisible(false);
-
-    	Audio audio = new Audio(assetManager, rootNode);
 
     	flyCam.setEnabled(false);
 
     	rootNode.attachChild(overlayNode);
 
-        player = new Player(terrainMap, cam, audio, this, overlayNode, rootNode);
+        // consider: detaching cam from root node
+        // attach to a 'gameNode' (child of rootNode)
+        // thus, separate game view from debug view
+        player = new Player(terrainMap, cam, new Audio(assetManager, rootNode), this, overlayNode, rootNode);
         rootNode.attachChild(player.getPlayerNode());
 
         attachCoordinateGrid(4,4);
@@ -161,20 +159,14 @@ public class VoxelLandscape extends SimpleApplication
         setupPlayerDebugHat();
 
         setupInputs();
-        setupDebugInputs();
+        initDebugGeometry();
 
     	initCrossHairs();
 
         setDisplayFps(true);
         setDisplayStatView(true);
 
-        setupXPositiveMarker();
-        setupZPositiveMarker();
-
-        GUIInfo guiInfo = new GUIInfo(guiNode, assetManager.loadFont("Interface/Fonts/Console.fnt"));
-        guiNode.addControl(guiInfo);
-
-//        initDebugObject();
+        guiNode.addControl(new GUIInfo(guiNode, assetManager.loadFont("Interface/Fonts/Console.fnt")));
     }
 
 	/*******************************
@@ -256,11 +248,16 @@ public class VoxelLandscape extends SimpleApplication
         }
     };
 
-    private void setupDebugInputs() {
+    private void initDebugGeometry() {
+        rootNode.attachChild(DebugGeometry.debugNode);
+        DebugGeometry.debugNode.attachChild(DebugGeometry.addChunkNode);
+        DebugGeometry.debugNode.attachChild(DebugGeometry.removeChunkNode);
+
+        DebugGeometry.materialLibrarian = new MaterialLibrarian(assetManager);
+
         inputManager.addMapping("WireFrame", new KeyTrigger(KeyInput.KEY_V) );
         inputManager.addListener(utilityInputListener, "WireFrame");
     }
-
 
     /** A centred plus sign to help the player aim. */
     private void initCrossHairs() {
@@ -336,13 +333,13 @@ public class VoxelLandscape extends SimpleApplication
 //				return terrainMap.GetMaxY(x, z);
 //			}
 //		});
-//		rootNode.attachChild(terrainHeights);
+//		debugNode.attachChild(terrainHeights);
 //		Geometry terrainSunHeight = debugChart.makeHeightMapVertsUVs(DebugShapeType.QUAD, 0f, wireFrameMaterialWithColor(ColorRGBA.Yellow), new IDebugGet2D() {
 //			public float getAValue(int x, int z) {
 //				return terrainMap.GetSunLightmap().GetSunHeight(x, z);
 //			}
 //		});
-//		rootNode.attachChild(terrainSunHeight);
+//		debugNode.attachChild(terrainSunHeight);
 		Geometry terrainLight = debugChart.makeTerrainInfoVertsUVs3D(DebugShapeType.QUAD, 0f, wireFrameMaterialVertexColor(), new IDebugGet3D() {
 			public float getAValue(int x, int y, int z) {
 				return terrainMap.GetSunLightmap().GetLight(x, y, z);
@@ -439,6 +436,7 @@ public class VoxelLandscape extends SimpleApplication
         viewPort2.setClearFlags(true, true, true);
         viewPort2.setBackgroundColor(ColorRGBA.Black);
         viewPort2.attachScene(rootNode);
+
     }
     private static int INFO_AXIS = Axis.Y;
     public void toggleInfoViewAxis() {
@@ -466,6 +464,12 @@ public class VoxelLandscape extends SimpleApplication
             infoCamNode.setLocalTranslation(-distance, halfHeight, 0);
             infoCamNode.lookAt(ploc.clone(), Vector3f.UNIT_X.clone());
         }
+    }
+    public void nudgeInfoCamXZ(int direction) {
+        Vector3f nudge = Direction.DirectionVector3fs[direction].mult(Chunk.XLENGTH);
+        CameraNode infoCamNode = (CameraNode) player.getPlayerNode().getChild("cam2_node");
+        Vector3f current = infoCamNode.getLocalTranslation();
+        infoCamNode.setLocalTranslation(current.add(nudge));
     }
     private Material getDebugColumnMat() {
         if (debugColumnMat == null) debugColumnMat = wireFrameMaterialWithColor(ColorRGBA.Orange);

@@ -4,6 +4,7 @@ import voxel.landscape.BlockType;
 import voxel.landscape.chunkbuild.blockfacefind.ChunkLocalCoord;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.fileutil.FileUtil;
+import voxel.landscape.util.Asserter;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -22,6 +23,11 @@ public class LocalBlockMap implements Serializable {
 
     public LocalBlockMap(Coord3 _size) {
         map = new HashMap<ChunkLocalCoord, Integer >(_size.x * _size.z * 2);
+        Asserter.assertTrue(isEmpty(), "??? wha");
+    }
+
+    public boolean isEmpty() {
+        return map.size() == 0;
     }
 
     public int Get(Coord3 pos) {
@@ -45,8 +51,10 @@ public class LocalBlockMap implements Serializable {
         Set(obj, new Coord3(x,y,z));
     }
     public void Set(int obj, Coord3 pos) {
-        map.put(new ChunkLocalCoord(pos), obj);
-        writeDirty.set(true);
+        Integer previous = map.put(new ChunkLocalCoord(pos), obj);
+        if (previous != null && previous.intValue() != obj) {
+            writeDirty.set(true);
+        }
     }
 
     /*
@@ -63,7 +71,10 @@ public class LocalBlockMap implements Serializable {
 
     public void writeToFile(Coord3 position) {
         if (!writeDirty.get()) return;
-        if (map.size() == 0) return;
+        if (isEmpty()) {
+            writeDirty.set(false);
+            return;
+        }
         try {
             FileUtil.SerializeChunkObject(map, position, FileUtil.LocalBlockMapExtension);
         } catch (IOException e) {

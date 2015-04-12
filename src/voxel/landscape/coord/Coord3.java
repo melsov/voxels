@@ -61,6 +61,9 @@ public class Coord3 implements ICoordXZ, Serializable {
 	public Coord3 minus (Coord3 other) {
 		return new Coord3(this.x - other.x, this.y - other.y, this.z - other.z);		
 	}
+    public Coord3 minus (ICoordXZ other) {
+        return new Coord3(this.x - other.getX(), 0, this.z - other.getZ());
+    }
 
     @Override
 	public Coord3 clone() {
@@ -97,6 +100,10 @@ public class Coord3 implements ICoordXZ, Serializable {
         return this.minus(other).distanceSquared();
     }
     public int distanceXZSquared(Coord3 other) {
+        Coord3 dif = this.minus(other);
+        return dif.x * dif.x + dif.z * dif.z;
+    }
+    public int distanceXZSquared(ICoordXZ other) {
         Coord3 dif = this.minus(other);
         return dif.x * dif.x + dif.z * dif.z;
     }

@@ -10,6 +10,7 @@ import voxel.landscape.map.structure.structures.AbstractStructure;
 import voxel.landscape.noise.TerrainDataProvider;
 
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by didyouloseyourdog on 3/28/15.
@@ -38,10 +39,19 @@ public class StructureBuilder {
         int x2 = x1+Chunk.CHUNKDIMS.x;
         int z2 = z1+Chunk.CHUNKDIMS.z;
         int surfaceY = 0;
+        Set<Chunk> gotStructureChunks = new HashSet<>(4);
         for(int z=z1; z<z2; z++) {
             for(int x=x1; x<x2; x++) {
                 surfaceY = map.getSurfaceHeight(x, z);
                 Coord3 global = new Coord3(x, surfaceY, z);
+                Chunk originChunk = map.lookupOrCreateChunkAtPosition(global);
+                if (originChunk != null) {
+                    gotStructureChunks.add(originChunk);
+                    if (originChunk.hasAddedStructures.get()) {
+                        touchedChunkCoords.add(originChunk.position);
+                        continue;
+                    }
+                }
                 AbstractStructure structure = surfaceStructureDataProvider.structureAt(global);
                 if (structure == null) continue;
                 Coord3 shiftPlot = structure.viablePlot(global, map);
@@ -58,5 +68,11 @@ public class StructureBuilder {
                 }
             }
         }
+        for (Chunk chunk : gotStructureChunks) {
+            if (chunk != null) {
+                chunk.hasAddedStructures.set(true);
+            }
+        }
+
     }
 }

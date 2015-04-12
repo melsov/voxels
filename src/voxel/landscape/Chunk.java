@@ -9,8 +9,10 @@ import voxel.landscape.collection.coordmap.managepages.ConcurrentHashMapCoord3D;
 import voxel.landscape.coord.Box;
 import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
+import voxel.landscape.fileutil.FileUtil;
 import voxel.landscape.map.TerrainMap;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -52,11 +54,14 @@ public class Chunk
     public ChunkBlockFaceMap chunkBlockFaceMap = new ChunkBlockFaceMap();
     public ChunkFloodFillSeedSet chunkFloodFillSeedSet;
 
+    //CONSIDER: decide whether we can just use hasNoBlocks and get rid of isAllAir
     private volatile boolean isAllAir = false;
     public void setIsAllAir(boolean _allAir) {
         isAllAir = _allAir;
     }
     public boolean getIsAllAir() { return isAllAir; }
+
+    public boolean hasNoBlocks() { return blocks.isEmpty(); }
 
     /*
      * Flags
@@ -66,6 +71,7 @@ public class Chunk
     public boolean getHasEverStartedBuilding() { return hasEverStartedBuilding; }
 
     public volatile AtomicBoolean hasStartedWriting = new AtomicBoolean(false);
+    public AtomicBoolean hasAddedStructures = new AtomicBoolean(false);
 
     private volatile boolean hasGenerated = false;
     public void setHasGeneratedTrue() { hasGenerated = true; }
@@ -77,7 +83,7 @@ public class Chunk
 
     public final Lock lock = new ReentrantLock(true);
 
-    public static boolean USE_TEST_GEOMETRY = false;
+//    public static boolean USE_TEST_GEOMETRY = false;
 
 	public Chunk(Coord3 _coord, TerrainMap _terrainMap) {
 		position = _coord;
@@ -95,15 +101,19 @@ public class Chunk
             blocks.readFromFile(position);
             chunkBlockFaceMap.readFromFile(position);
             chunkFloodFillSeedSet.readFromFile(position);
+            AtomicBoolean hasAddedStructureO = (AtomicBoolean) FileUtil.DeserializeChunkObject(position, FileUtil.HasAddedStructuresExtension);
+            hasAddedStructures = hasAddedStructureO != null ? hasAddedStructureO : hasAddedStructures;
         } finally {
             lock.unlock();
         }
-
     }
 
     public void writeToFile() {
         lock.lock();
         try {
+            if (blocks.writeDirty.get()) { //NOTE: duck-taped condition //TODO: consider serializing the whole chunk instead?
+                try { FileUtil.SerializeChunkObject(hasAddedStructures, position, FileUtil.HasAddedStructuresExtension); } catch(IOException e) { e.printStackTrace(); }
+            }
             if (blocks.writeDirty.get()) {
                 blocks.writeToFile(position);
             }
@@ -113,11 +123,11 @@ public class Chunk
             if (chunkFloodFillSeedSet.writeDirty.get()) {
                 chunkFloodFillSeedSet.writeToFile(position);
             }
-            hasStartedWriting.set(false);
+
         } finally {
+            hasStartedWriting.set(false);
             lock.unlock();
         }
-
     }
 
 	public Node getRootSpatial() {

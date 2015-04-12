@@ -83,7 +83,7 @@ public class VoxelLandscapePreFloodFill // extends SimpleApplication
 //
 //	private void makeInitialWorld()
 //	{
-//		rootNode.attachChild(worldNode);
+//		debugNode.attachChild(worldNode);
 //
 //        blockFaceFinder.start();
 //        if (!BUILD_INITIAL_CHUNKS) return;
@@ -275,14 +275,14 @@ public class VoxelLandscapePreFloodFill // extends SimpleApplication
 //        Chunk.USE_TEST_GEOMETRY = DO_USE_TEST_GEOMETRY;
 //        inputManager.setCursorVisible(false);
 //
-//    	Audio audio = new Audio(assetManager, rootNode);
+//    	Audio audio = new Audio(assetManager, debugNode);
 //
 //    	flyCam.setEnabled(false);
 //
-//    	rootNode.attachChild(overlayNode);
+//    	debugNode.attachChild(overlayNode);
 //
-//        player = new Player(terrainMap, cam, audio, this, overlayNode, rootNode);
-//        rootNode.attachChild(player.getPlayerNode());
+//        player = new Player(terrainMap, cam, audio, this, overlayNode, debugNode);
+//        debugNode.attachChild(player.getPlayerNode());
 //
 //        setupSkyTexture();
 //        setupInfoView();
@@ -399,19 +399,19 @@ public class VoxelLandscapePreFloodFill // extends SimpleApplication
 ////				return terrainMap.GetMaxY(x, z);
 ////			}
 ////		});
-////		rootNode.attachChild(terrainHeights);
+////		debugNode.attachChild(terrainHeights);
 ////		Geometry terrainSunHeight = debugChart.makeHeightMapVertsUVs(DebugShapeType.QUAD, 0f, wireFrameMaterialWithColor(ColorRGBA.Yellow), new IDebugGet2D() {
 ////			public float getAValue(int x, int z) {
 ////				return terrainMap.GetSunLightmap().GetSunHeight(x, z);
 ////			}
 ////		});
-////		rootNode.attachChild(terrainSunHeight);
+////		debugNode.attachChild(terrainSunHeight);
 //		Geometry terrainLight = debugChart.makeTerrainInfoVertsUVs3D(DebugShapeType.QUAD, 0f, wireFrameMaterialVertexColor(), new IDebugGet3D() {
 //			public float getAValue(int x, int y, int z) {
 //				return terrainMap.GetSunLightmap().GetLight(x, y, z);
 //			}
 //		});
-//		rootNode.attachChild(terrainLight); // make a 'debug node?'
+//		debugNode.attachChild(terrainLight); // make a 'debug node?'
 //	}
 //    private Vector3f fakeCamLocation() {
 //        float theta = FastMath.PI * (GameTime/2f);
@@ -434,7 +434,7 @@ public class VoxelLandscapePreFloodFill // extends SimpleApplication
 //
 //    private void setupSkyTexture() {
 //        Texture2D skyTex = TexFromBufferedImage(OnePixelBufferedImage(new Color(.3f,.6f,1f,1f)));
-//        rootNode.attachChild(SkyFactory.createSky(assetManager, skyTex, true));
+//        debugNode.attachChild(SkyFactory.createSky(assetManager, skyTex, true));
 //    }
 //    private static BufferedImage OnePixelBufferedImage(Color color) {
 //        BufferedImage image = new BufferedImage(1,1, BufferedImage.TYPE_INT_ARGB);
@@ -476,7 +476,7 @@ public class VoxelLandscapePreFloodFill // extends SimpleApplication
 //        Mesh hat = new Box(new Vector3f(-.25f,-.25f, 0), new Vector3f(.25f, .25f, markerLength ));
 //        Geometry g = new Geometry("zpos_marker", hat);
 //        g.setMaterial(wireFrameMaterialWithColor(ColorRGBA.Blue));
-//        rootNode.attachChild(g);
+//        debugNode.attachChild(g);
 //        g.setLocalTranslation(0,100f,0);
 //    }
 //    private void setupXPositiveMarker() {
@@ -484,7 +484,7 @@ public class VoxelLandscapePreFloodFill // extends SimpleApplication
 //        Mesh hat = new Box(new Vector3f(0,-.25f,-.25f), new Vector3f(markerLength, .25f, .25f));
 //        Geometry g = new Geometry("xpos_marker", hat);
 //        g.setMaterial(wireFrameMaterialWithColor(ColorRGBA.Orange));
-//        rootNode.attachChild(g);
+//        debugNode.attachChild(g);
 //        g.setLocalTranslation(0,100f,0);
 //    }
 //    private void setupInfoView() {
@@ -501,7 +501,7 @@ public class VoxelLandscapePreFloodFill // extends SimpleApplication
 //        ViewPort viewPort2 = renderManager.createMainView("Info_view_port", cam2);
 //        viewPort2.setClearFlags(true, true, true);
 //        viewPort2.setBackgroundColor(ColorRGBA.Black);
-//        viewPort2.attachScene(rootNode);
+//        viewPort2.attachScene(debugNode);
 //    }
 //
 //    private Material getDebugColumnMat() {
@@ -515,7 +515,7 @@ public class VoxelLandscapePreFloodFill // extends SimpleApplication
 //        Vector3f pos = Chunk.ToWorldPosition(chunkCo).toVector3();
 //        Geometry g = new Geometry("col_mesh",col);
 //        g.setMaterial(getDebugColumnMat());
-//        rootNode.attachChild(g);
+//        debugNode.attachChild(g);
 //        g.setLocalTranslation(pos);
 //    }
 //    //endregion
@@ -532,7 +532,7 @@ public class VoxelLandscapePreFloodFill // extends SimpleApplication
 //    private void setupSkyColor(Camera camera, Color awtcolor) {
 //        ViewPort view_n = renderManager.createMainView("View of main camera", camera);
 //        view_n.setClearFlags(true, false, false);
-//        view_n.attachScene(rootNode);
+//        view_n.attachScene(debugNode);
 ////        java.awt.Color awtcolor = ;
 //        float[] colors = awtcolor.getRGBColorComponents(null);
 //        ColorRGBA jmeColor = new ColorRGBA(colors[0],colors[1],colors[2],1f);

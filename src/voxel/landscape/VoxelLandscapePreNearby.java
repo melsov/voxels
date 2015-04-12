@@ -286,7 +286,7 @@ public class VoxelLandscapePreNearby extends SimpleApplication implements Thread
             ch.getChunkBrain().clearMeshBuffers();
             detachFromScene(ch);
         }
-        terrainMap.removeColumn(x, z);
+        terrainMap.removeColumn(new Coord2(x, z));
         columnMap.Destroy(x, z);
     }
 
@@ -325,7 +325,6 @@ public class VoxelLandscapePreNearby extends SimpleApplication implements Thread
 //    	viewPort.removeProcessor(...); // KEEP FOR REFERENCE: COULD PERHAPS USE THIS TO TOGGLE WIRE FRAMES
         }
         setupTestStateVariables();
-        Chunk.USE_TEST_GEOMETRY = DO_USE_TEST_GEOMETRY;
         inputManager.setCursorVisible(false);
         initBlockMaterial();
     	Audio audio = new Audio(assetManager, rootNode);
@@ -335,7 +334,7 @@ public class VoxelLandscapePreNearby extends SimpleApplication implements Thread
 
     	rootNode.attachChild(overlayNode);
 
-        player = null; // new Player(terrainMap, cam, audio, this, overlayNode, rootNode);
+        player = null; // new Player(terrainMap, cam, audio, this, overlayNode, debugNode);
         rootNode.attachChild(player.getPlayerNode());
 
         makeInitialWorld();
@@ -442,13 +441,13 @@ public class VoxelLandscapePreNearby extends SimpleApplication implements Thread
 //				return terrainMap.GetMaxY(x, z);
 //			}
 //		});
-//		rootNode.attachChild(terrainHeights);
+//		debugNode.attachChild(terrainHeights);
 //		Geometry terrainSunHeight = debugChart.makeHeightMapVertsUVs(DebugShapeType.QUAD, 0f, wireFrameMaterialWithColor(ColorRGBA.Yellow), new IDebugGet2D() {
 //			public float getAValue(int x, int z) {
 //				return terrainMap.GetSunLightmap().GetSunHeight(x, z);
 //			}
 //		});
-//		rootNode.attachChild(terrainSunHeight);
+//		debugNode.attachChild(terrainSunHeight);
 		Geometry terrainLight = debugChart.makeTerrainInfoVertsUVs3D(DebugShapeType.QUAD, 0f, wireFrameMaterialVertexColor(), new IDebugGet3D() {
 			public float getAValue(int x, int y, int z) {
 				return terrainMap.GetSunLightmap().GetLight(x, y, z);

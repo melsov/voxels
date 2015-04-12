@@ -25,7 +25,12 @@ public class Pyramid extends AbstractStructure {
         outerBlocks = new HashMap[1];
         innerBlocks = new HashMap[1];
         outerBlocks[0] = new HashMap<>(256);
-        StructureUtil.AddPyramid(outerBlocks[0], Coord3.Zero.clone(), new Coord2(baseHalfDimension), Axis.Y, BlockType.SAND, true);
+        int level = 4;
+        StructureUtil.AddPyramid(outerBlocks[0], Coord3.ypos.multy(level).clone(), new Coord2(baseHalfDimension), Axis.Y, BlockType.SAND, true);
+        while (--level > 0) {
+            StructureUtil.AddRectangle(outerBlocks[0], new Coord3(-baseHalfDimension + 1, level, -baseHalfDimension + 1), new Coord2(baseHalfDimension * 2 - 2), Axis.Y, BlockType.CAVESTONE, false);
+        }
+
     }
 
     public Pyramid(int _seed) {

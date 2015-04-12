@@ -4,9 +4,14 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import voxel.landscape.Chunk;
+import voxel.landscape.coord.ColumnRange;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.ICoordXZ;
 import voxel.landscape.map.TerrainMap;
+import voxel.landscape.settings.BuildSettings;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by didyouloseyourdog on 7/29/14.
@@ -33,10 +38,7 @@ public class FurthestChunkFinder
         ICoordXZ furthestXZ = null; // (ICoordXZ) Coord2.zero;
         for(int i=0; i < coords.length; ++i) {
             coordxz = (ICoordXZ) coords[i];
-//            if (wantNotWritingData && columnMap.IsWritingData(coordxz.getX(), coordxz.getZ())) {
-//                B.bug((Coord3) coordxz);
-//                continue;
-//            }
+
             Coord3 writeDirtyChunk = !wantNotWritingData ? null : map.writeDirtyButNotWritingChunkInColumn(coordxz.getX(), coordxz.getZ());
             if (!wantNotWritingData || writeDirtyChunk != null) {
                 float nextDistance = vloc.distanceSquared(new Vector2f(coordxz.getX(), coordxz.getZ()));
@@ -48,4 +50,22 @@ public class FurthestChunkFinder
         }
         return (Coord3)furthestXZ;
     }
+
+    public List<Coord3> outsideOfAddRangeChunks(TerrainMap map, Camera cam, Object[] columnCoords) {
+        List<Coord3> result = new ArrayList<>(columnCoords.length);
+        if (columnCoords.length == 0) return null;
+        if (!(columnCoords[0] instanceof ICoordXZ)) return null;
+
+        ICoordXZ coordXZ;
+        for(int i=0; i < columnCoords.length; ++i) {
+            coordXZ = (ICoordXZ) columnCoords[i];
+            if (!BuildSettings.ChunkCoordWithinAddRadius(cam.getLocation(), coordXZ)) {
+                for (Coord3 chunkCoord : new ColumnRange(coordXZ)) {
+                    result.add(chunkCoord);
+                }
+            }
+        }
+        return result;
+    }
+
 }

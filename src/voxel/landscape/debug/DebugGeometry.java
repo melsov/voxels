@@ -9,6 +9,7 @@ import com.jme3.scene.shape.Sphere;
 import voxel.landscape.Chunk;
 import voxel.landscape.chunkbuild.MaterialLibrarian;
 import voxel.landscape.coord.Coord3;
+import voxel.landscape.map.TerrainMap;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +21,12 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class DebugGeometry
 {
-    public static Node rootNode;
+    public static Node debugNode = new Node("debug-node");
+    public static Node addChunkNode = new Node("add-node");
+    public static Node removeChunkNode = new Node("remove-node");
+    private static BlockingQueue<Geometry> addChunks = new LinkedBlockingQueue<>(1024);
+    private static BlockingQueue<Geometry> removeChunks = new LinkedBlockingQueue<>(1024);
+
     public static MaterialLibrarian materialLibrarian;
     private static BlockingQueue<Geometry> geometries = new LinkedBlockingQueue<>(1024);
     private static Map<Coord3, Integer> addedCoords = new HashMap<>(1024);
@@ -33,6 +39,7 @@ public class DebugGeometry
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
     }
     private static int TimesAddedToCoord(Coord3 co) {
         Integer times = addedCoords.get(co);
@@ -44,7 +51,7 @@ public class DebugGeometry
         return times.intValue();
     }
     public static void AddDebugChunk(Coord3 position, ColorRGBA color) {
-        AddDebugBlock(Chunk.ToWorldPosition(position), color, Chunk.XLENGTH, false);
+        AddDebugBlock(Chunk.ToWorldPosition(position), color, Chunk.XLENGTH, true);
     }
     public static void AddDebugChunkSolid(Coord3 position, ColorRGBA color) {
         AddDebugBlock(Chunk.ToWorldPosition(position), color, Chunk.XLENGTH, true);
@@ -56,8 +63,8 @@ public class DebugGeometry
         AddDebugBlock(position, color, 1f, false);
     }
     public static void AddDebugBlock(Coord3 position, ColorRGBA color, float size, boolean solid) {
-        Box s = new Box(new Vector3f(0,0,0), new Vector3f(1,1,1));
-        Geometry g = new Geometry();
+        Box s = new Box(new Vector3f(0,0,0), new Vector3f(size, size, size));
+        Geometry g = new Geometry(position.toString());
         g.setMesh(s);
         AddDebugGeometry(g, position, color, solid);
     }
@@ -98,11 +105,77 @@ public class DebugGeometry
             e.printStackTrace();
         }
     }
+
+    /*
+     * debug chunk management
+     */
+    public static void AddAddChunk(Coord3 position) {
+        Geometry g = makePoleMarker(position, ColorRGBA.Orange, true);
+        try {
+            addChunks.put(g);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    public static void AddRemoveChunk(Coord3 position) {
+        Geometry g = makePoleMarker(position, ColorRGBA.Blue, true);
+        try {
+            removeChunks.put(g);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static Geometry makePoleMarker(Coord3 position, ColorRGBA color, boolean solid) {
+        Coord3 pos = position.clone();
+        pos.y = TerrainMap.MIN_CHUNK_COORD.y;
+        int hedge = 5;
+        pos = Chunk.ToWorldPosition(pos).add(hedge, 0, hedge);
+        return makeBox(pos, color, new Vector3f(Chunk.XLENGTH - hedge * 2, TerrainMap.GetWorldHeightInBlocks(), Chunk.XLENGTH - hedge * 2), solid);
+    }
+
+    private static Geometry makeBox(Coord3 position, ColorRGBA color, Vector3f size, boolean solid) {
+        Box s = new Box(new Vector3f(0,0,0), size);
+        Geometry g = new Geometry("box" + position.toString());
+        g.setMesh(s);
+        if (solid)
+            g.setMaterial(materialLibrarian.solidMaterialWithColor(color));
+        else
+            g.setMaterial(materialLibrarian.wireFrameMaterialWithColor(color));
+        g.setLocalTranslation(position.toVector3());
+        return g;
+    }
+
+    /*
+     * update
+     */
     public static void Update(float tpf) {
         Geometry g = null;
         g = geometries.poll();
         if (g != null) {
-            rootNode.attachChild(g);
+            debugNode.attachChild(g);
+        }
+        UpdateChunkDebug();
+    }
+    private static void UpdateChunkDebug() {
+        Geometry g = addChunks.poll();
+        if (g != null) {
+            if (addChunkNode.getChild(g.getName()) == null) {
+                addChunkNode.attachChild(g);
+            }
+            if (removeChunkNode.getChild(g.getName()) != null) {
+                removeChunkNode.detachChildNamed(g.getName());
+            }
+        }
+
+        Geometry r = removeChunks.poll();
+        if (r != null) {
+            if (removeChunkNode.getChild(r.getName()) == null) {
+                removeChunkNode.attachChild(r);
+            }
+            if (addChunkNode.getChild(r.getName()) != null) {
+                addChunkNode.detachChildNamed(r.getName());
+            }
         }
     }
     // block pointer cursor

@@ -5,25 +5,27 @@ import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.player.B;
 
+import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 
 /**
  * Created by didyouloseyourdog on 4/4/15.
  */
-public class ColumnUnloader implements Runnable {
+public class ChunkUnloader implements Runnable {
 
     private final ColumnMap columnMap;
     private final TerrainMap map;
     private final BlockingQueue<Coord3> unloadChunks;
     private final BlockingQueue<Coord3> deletableChunks;
-//    private final AtomicBoolean keepGoing;
+
     private static int instanceCount = 0;
 
-    public ColumnUnloader(TerrainMap map, ColumnMap columnMap, BlockingQueue<Coord3> unloadColumns, BlockingQueue<Coord3> deletableColumns) {
+    private static final HashMap<Coord3, Integer> debugWriteCount = new HashMap<>(500);
+
+    public ChunkUnloader(TerrainMap map, ColumnMap columnMap, BlockingQueue<Coord3> unloadColumns, BlockingQueue<Coord3> deletableColumns) {
         this.map = map;
         this.unloadChunks = unloadColumns;
         this.deletableChunks = deletableColumns;
-//        this.keepGoing = keepGoing;
         this.columnMap = columnMap;
     }
 
@@ -42,7 +44,7 @@ public class ColumnUnloader implements Runnable {
                 e.printStackTrace();
             }
             map.writeChunkAndColumn(chunkCoord); //WANT
-            B.bug("-");
+            debugCoordWriteTimes(chunkCoord);
             try {
                 if (!deletableChunks.contains(chunkCoord))
                     deletableChunks.put(chunkCoord.clone()); // put = blocking version of add
@@ -50,5 +52,13 @@ public class ColumnUnloader implements Runnable {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void debugCoordWriteTimes(Coord3 coord3) {
+        Integer i = debugWriteCount.get(coord3);
+        i = i == null || i == 0 ? new Integer(1) : new Integer(i + 1);
+        debugWriteCount.put(coord3, i);
+        B.bugln(coord3.toString() + " : " + i);
+
     }
 }

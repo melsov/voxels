@@ -8,7 +8,7 @@ import voxel.landscape.Chunk;
 import voxel.landscape.collection.ColumnMap;
 import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
-import voxel.landscape.coord.Square;
+import voxel.landscape.coord.Box2;
 import voxel.landscape.coord.VektorUtil;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.settings.BuildSettings;
@@ -50,14 +50,14 @@ public class ChunkFinder {
         SetupDiagonalCoordLook3D();
         SetupTestColumnCoords();
     }
-    private static final int TestColumnsXDim = 14;
-    private static final int TestColumnsXStart = 0;
-    private static final int TestColumnsZDim = 14;
-    private static final int TestColumnsZStart = 0;
-    private static Square testColumns; // = new Square(new Coord2(-7, 3), new Coord2(4, 4));
-    public static Square GetTestColumns() {
+    private static final int TestColumnsXDim = 2;
+    private static final int TestColumnsXStart = -1;
+    private static final int TestColumnsZDim = 2;
+    private static final int TestColumnsZStart = -1;
+    private static Box2 testColumns; // = new Square(new Coord2(-7, 3), new Coord2(4, 4));
+    public static Box2 GetTestColumns() {
         if (testColumns == null) {
-            testColumns = new Square(new Coord2(TestColumnsXStart, TestColumnsZStart), new Coord2(TestColumnsXDim, TestColumnsZDim));
+            testColumns = new Box2(new Coord2(TestColumnsXStart, TestColumnsZStart), new Coord2(TestColumnsXDim, TestColumnsZDim));
         }
         return testColumns;
     }
@@ -265,12 +265,12 @@ public class ChunkFinder {
         return ClosestChunk(cam, terrainMap, columnMap);
     }
 
-    private static boolean UseTestColumns = false;
+    public static final boolean UseTestColumns = false;
     private static int TestColumnIndex = 0;
 
 //TODO: improve—"eh-hem"—the closest column finding shape: more of a square around player at first, less based on cam direction
 
-    public static Coord3 ClosestEmptyColumn(Camera cam, TerrainMap terrainMap, ColumnMap columnMap) {
+    public static Coord3 ClosestEmptyColumn(Camera cam, TerrainMap terrainMap, ColumnMap columnMap, boolean limitToAddRadius) {
         if (UseTestColumns) {
             if (TestColumnIndex < TestColumnCoords.size()) {
                 return TestColumnCoords.get(TestColumnIndex++);
@@ -278,7 +278,9 @@ public class ChunkFinder {
             return new Coord3(0);
         }
         // TODO: ensure we're not providing chunks that will be culled because they're far away.
-        return ClosestColumn(cam, terrainMap, columnMap); // ***** WANT
+        Coord3 result = ClosestColumn(cam, terrainMap, columnMap); // ***** WANT
+        if (limitToAddRadius && result != null && !BuildSettings.ChunkCoordWithinAddRadius(cam.getLocation(), result)) return null;
+        return result;
     }
 
     private static Coord3 SignCoordXZ(Vector3f direction) {
@@ -367,14 +369,15 @@ public class ChunkFinder {
         Vector3f camDir = cam.getDirection().clone();
         Coord3 result = ClosestColumn(cam, terrainMap, columnMap, camDir.clone());
         if (result == null) {
-            camDir.x *= -1;
+            result = ClosestColumn(cam, terrainMap, columnMap, VektorUtil.SwapXZ(camDir));
+        }
+        if (result == null) {
+            camDir = camDir.mult(new Vector3f(-1f, 1f, -1f));
             result = ClosestColumn(cam, terrainMap, columnMap, camDir.clone());
         }
         if (result == null) {
-            camDir.z *= -1;
-            result = ClosestColumn(cam, terrainMap, columnMap, camDir.clone());
+            result = ClosestColumn(cam, terrainMap, columnMap, VektorUtil.SwapXZ(camDir));
         }
-        if (result != null && !BuildSettings.ChunkCoordWithinAddRadius(cam.getLocation(), result)) return null;
         return result;
     }
 
@@ -387,7 +390,7 @@ public class ChunkFinder {
 
         for(Coord3 surroundingCoord : SurroundingCoordIncrements2D) {
             nextPos = surroundingCoord.add(camChunkCoord);
-            searchCo = FindColumn(columnMap, nextPos.clone());
+            searchCo = FindColumn(columnMap, terrainMap, nextPos.clone());
             if (searchCo != null) return searchCo;
         }
 
@@ -411,7 +414,7 @@ public class ChunkFinder {
             }
             nudge = nudge.multy(directionSignXZ);
             nextPos = nudge.add(camChunkCoord);
-            searchCo = FindColumn(columnMap, nextPos.clone());
+            searchCo = FindColumn(columnMap, terrainMap, nextPos.clone());
             if (searchCo != null) return searchCo;
         }
 
@@ -425,8 +428,11 @@ public class ChunkFinder {
         return VektorUtil.OneIfPos(direction).mult(cubeUnitLength);
     }
 
-    private static Coord3 FindColumn(ColumnMap columnMap,  Coord3 look) {
+    private static Coord3 FindColumn(ColumnMap columnMap, TerrainMap map,  Coord3 look) {
         if (columnMap.HasNotBeenStarted(look.x, look.z)) return look;
+        if (map.columnHasHiddenChunk(look)) {
+            return look;
+        }
         return null;
     }
 

@@ -39,6 +39,15 @@ public class VektorUtil {
     	return new Vector3f(round(v.x), round(v.y), round(v.z));
     }
 
+    public static Vector3f SwapXZ(Vector3f v) {
+        return new Vector3f(v.z, v.y, v.x);
+    }
+    public static Vector3f SwapXY(Vector3f v) {
+        return new Vector3f(v.y, v.x, v.z);
+    }
+    public static Vector3f SwapYZ(Vector3f v) {
+        return new Vector3f(v.x, v.z, v.y);
+    }
     public static Vector3f MaskClosestToWholeNumber(Vector3f v) {
     	Vector3f test = VektorUtil.Abs(VektorUtil.Round(v).subtract(v) );
     	Vector3f result = Vector3f.UNIT_X;
@@ -75,6 +84,7 @@ public class VektorUtil {
         return new Vector3f(v.x < 0 ? v.x - 1f : v.x, v.y < 0 ? v.y - 1f : v.y, v.z < 0 ? v.z - 1f : v.z);
     }
 
+
     public static Vector3f EscapePositionOnUnitGrid(Vector3f position, Vector3f direction) {
         return EscapePositionOnUnitGrid(position, direction, null);
     }
@@ -88,20 +98,8 @@ public class VektorUtil {
         return RelativeEscapeVector(cornerDistance, dir, 1f, null);
     }
     public static Vector3f RelativeEscapeVector(Vector3f cornerDistance, Vector3f dir, float fudgeFactor, final MutableInteger escapeThroughFaceDirection) {
-//        if (HasAComponentThatIsVeryCloseToZero(cornerDistance)) return dir.mult(fudgeFactor); // WANT?
         Vector3f lengths = VektorUtil.Abs(cornerDistance.divide(dir));
         float length;
-//        if (lengths.x < lengths.y) {
-//            length =lengths.x;
-//            if (escapeThroughFaceDirection!= null) escapeThroughFaceDirection.integer = dir.x < 0 ? Direction.XNEG : Direction.XPOS;
-//        } else {
-//            length = lengths.y;
-//            if (escapeThroughFaceDirection!= null) escapeThroughFaceDirection.integer = dir.y < 0 ? Direction.YNEG : Direction.YPOS;
-//            //DBUG
-//            if (escapeThroughFaceDirection!= null) {
-//
-//            }
-//        }
         if (lengths.x > lengths.y) {
             length = lengths.y;
             if (escapeThroughFaceDirection!= null) escapeThroughFaceDirection.integer = dir.y < 0 ? Direction.YNEG : Direction.YPOS;

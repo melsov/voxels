@@ -24,6 +24,7 @@ public class FileUtil {
     public static final String ConcurrentHashMapC3DExtension = ".ch3m";
     public static final String ChunkFloodFillSeedSetExtension = ".cfs";
     public static final String ChunkBlockFaceMapExtension = ".cbfm";
+    public static final String HasAddedStructuresExtension = ".has";
     private static final String SerializationExtension = ".ser";
 
     public static String WorldDirectory() {

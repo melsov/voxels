@@ -84,16 +84,16 @@ public class Player
                 toggleFlyMode();
             }
             else if (name.equals("UpArrow") && !keyPressed) {
-                moveNextChunk(Direction.ZPOS);
+                app.nudgeInfoCamXZ(Direction.ZPOS);
             }
             else if (name.equals("DownArrow") && !keyPressed) {
-                moveNextChunk(Direction.ZNEG);
+                app.nudgeInfoCamXZ(Direction.ZNEG);
             }
             else if (name.equals("RightArrow") && !keyPressed) {
-                moveNextChunk(Direction.XNEG);
+                app.nudgeInfoCamXZ(Direction.XNEG);
             }
             else if (name.equals("LeftArrow") && !keyPressed) {
-                moveNextChunk(Direction.XPOS);
+                app.nudgeInfoCamXZ(Direction.XPOS);
             }
             else if (name.equals("Inventory") && !keyPressed) {
             }
@@ -324,8 +324,7 @@ public class Player
         return proposedLoc.subtract(curLoc).subtract(blockEdgeOffset);
     }
 
-    public Player(TerrainMap _terrainMap, Camera _camera, Audio _audio, VoxelLandscape _app, Node _overlayNode, Node _terrainNode)
-    {
+    public Player(TerrainMap _terrainMap, Camera _camera, Audio _audio, VoxelLandscape _app, Node _overlayNode, Node _terrainNode) {
         doSettingsForFlyMode();
     	terrainMap = _terrainMap;
     	audio = _audio;

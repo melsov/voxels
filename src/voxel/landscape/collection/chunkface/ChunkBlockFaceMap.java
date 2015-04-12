@@ -46,31 +46,28 @@ public class ChunkBlockFaceMap implements Serializable {
             Coord3 globalNudge = global.add(Direction.DirectionCoords[dir]);
             /* Which (chunkBlock)FaceMap? Ours or a neighbors? */
             ChunkBlockFaceMap chunkBlockFaceMap;
-//            Map<ChunkLocalCoord, BlockFaceRecord> faceMap;
             if (Chunk.ChunkLocalBox.contains(localCoord.add(Direction.DirectionCoords[dir]))) {
                 chunkBlockFaceMap = this;
-//                faceMap = getFaces();
             } else {
                 Chunk neighbor = map.GetChunk(Chunk.ToChunkPosition(globalNudge));
                 Asserter.assertTrue(neighbor != null, "null chunk!"); // TODO: FIX NULL P EXCEPTION HERE
                 chunkBlockFaceMap = neighbor.chunkBlockFaceMap;
-//                faceMap = neighbor.chunkBlockFaceMap.getFaces();
             }
             Coord3 localNudge = Chunk.ToChunkLocalCoord(globalNudge);
-//            BlockFaceRecord blockFaceRecord = faceMap.get(new ChunkLocalCoord(localNudge));
             BlockFaceRecord blockFaceRecord = chunkBlockFaceMap.getFaces().get(new ChunkLocalCoord(localNudge));
             if (blockFaceRecord == null) {
                 /* have we revealed a solid block here? */
                 int blockType = map.lookupOrCreateBlock(globalNudge);
                 if (BlockType.IsSolid(blockType)) {
                     blockFaceRecord = new BlockFaceRecord();
-//                    faceMap.put(new ChunkLocalCoord(localNudge), blockFaceRecord);
                     chunkBlockFaceMap.getFaces().put(new ChunkLocalCoord(localNudge), blockFaceRecord);
                 }
             }
             if (blockFaceRecord != null) {
-                blockFaceRecord.setFace(Direction.OppositeDirection(dir), true);
-                chunkBlockFaceMap.writeDirty.set(true);
+                if (!blockFaceRecord.getFace(Direction.OppositeDirection(dir))) {
+                    blockFaceRecord.setFace(Direction.OppositeDirection(dir), true);
+                    chunkBlockFaceMap.writeDirty.set(true);
+                }
             }
         }
     }
@@ -79,16 +76,12 @@ public class ChunkBlockFaceMap implements Serializable {
         for (int dir : Direction.Directions) {
             Coord3 globalNudge = global.add(Direction.DirectionCoords[dir]);
             /* Which faceMap? Ours or a neighbors? */
-//            Map<ChunkLocalCoord, BlockFaceRecord> neighborFaceMap = null;
             ChunkBlockFaceMap chunkBlockFaceMap = null;
             if (Chunk.ChunkLocalBox.contains(localCoord.add(Direction.DirectionCoords[dir]))) {
                 chunkBlockFaceMap = this;
-//                neighborFaceMap = getFaces();
             } else {
                 Chunk neighbor = map.GetChunk(Chunk.ToChunkPosition(globalNudge));
-//                Asserter.assertTrue(neighbor != null, "null chunk!");
                 if (neighbor != null) {
-//                    neighborFaceMap = neighbor.chunkBlockFaceMap.getFaces();
                     chunkBlockFaceMap = neighbor.chunkBlockFaceMap;
                 }
 
@@ -101,8 +94,10 @@ public class ChunkBlockFaceMap implements Serializable {
             if (blockFaceRecord == null || !blockFaceRecord.getFace(Direction.OppositeDirection(dir))) {
                 addFace(localCoord, dir);
             } else {
-                blockFaceRecord.setFace(Direction.OppositeDirection(dir), false);
-                chunkBlockFaceMap.writeDirty.set(true);
+                if (blockFaceRecord.getFace(Direction.OppositeDirection(dir))) {
+                    blockFaceRecord.setFace(Direction.OppositeDirection(dir), false);
+                    chunkBlockFaceMap.writeDirty.set(true);
+                }
             }
         }
     }
@@ -125,8 +120,10 @@ public class ChunkBlockFaceMap implements Serializable {
             blockFaceRecord = new BlockFaceRecord();
             getFaces().put(bfCoord, blockFaceRecord);
         }
-        blockFaceRecord.setFace(direction, exists);
-        writeDirty.set(true);
+        if (blockFaceRecord.getFace(direction) != exists) {
+            blockFaceRecord.setFace(direction, exists);
+            writeDirty.set(true);
+        }
         if (!exists && !blockFaceRecord.hasFaces()) {
             getFaces().remove(bfCoord);
         }

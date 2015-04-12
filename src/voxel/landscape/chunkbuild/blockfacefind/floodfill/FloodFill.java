@@ -1,11 +1,11 @@
 package voxel.landscape.chunkbuild.blockfacefind.floodfill;
 
+import com.jme3.math.ColorRGBA;
 import voxel.landscape.BlockType;
 import voxel.landscape.Chunk;
 import voxel.landscape.chunkbuild.blockfacefind.floodfill.chunkslice.ChunkSlice;
-import voxel.landscape.coord.Box;
-import voxel.landscape.coord.Coord3;
-import voxel.landscape.coord.Direction;
+import voxel.landscape.coord.*;
+import voxel.landscape.debug.DebugGeometry;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.map.light.LightComputerUtils;
 import voxel.landscape.util.Asserter;
@@ -379,6 +379,11 @@ public class FloodFill
                 map.GetSunLightmap().SetMaxLight((byte) (toLightLevel - LightComputerUtils.GetLightStep(toType)), from);
             }
         }
+    }
+
+    private static Box2 DebugBox = new Box2(new Coord2(-1), new Coord2(0));
+    private static void debugBlockWithinBounds(Coord3 global, ColorRGBA color) {
+        DebugGeometry.AddDebugBlock(global, color);
     }
 
 }

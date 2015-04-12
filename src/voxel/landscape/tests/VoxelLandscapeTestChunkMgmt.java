@@ -212,7 +212,6 @@ public class VoxelLandscapeTestChunkMgmt extends SimpleApplication implements Th
     @Override
     public void simpleInitApp()
     {
-        Chunk.USE_TEST_GEOMETRY = true;
         makeInitialWorld();
     	Audio audio = new Audio(assetManager, rootNode);
         inputManager.setCursorVisible(false);
@@ -273,13 +272,13 @@ public class VoxelLandscapeTestChunkMgmt extends SimpleApplication implements Th
 //				return terrainMap.GetMaxY(x, z);
 //			}
 //		});
-//		rootNode.attachChild(terrainHeights);
+//		debugNode.attachChild(terrainHeights);
 //		Geometry terrainSunHeight = debugChart.makeHeightMapVertsUVs(DebugShapeType.QUAD, 0f, wireFrameMaterialWithColor(ColorRGBA.Yellow), new IDebugGet2D() {
 //			public float getAValue(int x, int z) {
 //				return terrainMap.GetSunLightmap().GetSunHeight(x, z);
 //			}
 //		});
-//		rootNode.attachChild(terrainSunHeight);
+//		debugNode.attachChild(terrainSunHeight);
 		Geometry terrainLight = debugChart.makeTerrainInfoVertsUVs3D(DebugShapeType.QUAD, 0f, wireFrameMaterialVertexColor(), new IDebugGet3D() {
 			public float getAValue(int x, int y, int z) {
 				return terrainMap.GetSunLightmap().GetLight(x, y, z);

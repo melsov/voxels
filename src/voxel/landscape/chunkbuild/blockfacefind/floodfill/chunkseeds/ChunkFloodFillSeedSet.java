@@ -27,17 +27,16 @@ public class ChunkFloodFillSeedSet implements Serializable {
     public void addCoord(Coord3 global){
         Coord3 local = Chunk.ToChunkLocalCoord(global);
         ChunkFloodFillSeedBlob3D adjacentFloodFillSeed = null;
-        // Is this coord adjacent to an existing FloodFillSeedBlob?
         for (int i = 0; i < seeds.size(); ++i) {
             ChunkFloodFillSeedBlob3D floodFillSeed = seeds.get(i);
+            // Is this coord adjacent to an existing FloodFillSeedBlob?
             if (adjacentFloodFillSeed == null && floodFillSeed.addCoord(local)) {
                 adjacentFloodFillSeed = floodFillSeed;
-            } else {
-                // else: if we did find an adjacent blob already, is the current one also adjacent? if so, combine.
-                if (floodFillSeed.isCoordAdjacent(global)) {
-                    adjacentFloodFillSeed.addMembersOfSet(floodFillSeed);
-                    seeds.remove(i--);
-                }
+            // else if we did find an adjacent blob already,
+            // is the current one also adjacent? if so, combine.
+            } else if (floodFillSeed.isCoordAdjacent(global)) {
+                adjacentFloodFillSeed.addMembersOfSet(floodFillSeed);
+                seeds.remove(i--);
             }
         }
         if (adjacentFloodFillSeed == null) {

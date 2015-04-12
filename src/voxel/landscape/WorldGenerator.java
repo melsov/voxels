@@ -1,20 +1,22 @@
 package voxel.landscape;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Node;
-import voxel.landscape.chunkbuild.*;
+import voxel.landscape.chunkbuild.AsyncGenerateColumnDataInfinite;
+import voxel.landscape.chunkbuild.ChunkCoordCamComparator;
+import voxel.landscape.chunkbuild.ChunkFinder;
+import voxel.landscape.chunkbuild.MaterialLibrarian;
 import voxel.landscape.chunkbuild.blockfacefind.BlockFaceFinder;
 import voxel.landscape.chunkbuild.bounds.XZBounds;
 import voxel.landscape.chunkbuild.meshbuildasync.AsyncMeshBuilder;
 import voxel.landscape.chunkbuild.meshbuildasync.ChunkMeshBuildingSet;
-import voxel.landscape.chunkbuild.unload.ColumnUnloader;
+import voxel.landscape.chunkbuild.unload.ChunkUnloader;
 import voxel.landscape.collection.ColumnMap;
 import voxel.landscape.collection.coordmap.managepages.FurthestChunkFinder;
+import voxel.landscape.coord.ColumnRange;
 import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
-import voxel.landscape.debug.DebugGeometry;
 import voxel.landscape.map.AsyncScatter;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.player.B;
@@ -94,43 +96,25 @@ public class WorldGenerator {
     }
 
     public void update(float tpf) {
-        addToColumnPriorityQueue();
+        addColumns();
         if(!VoxelLandscape.DONT_BUILD_CHUNK_MESHES) {
-            buildANearbyChunk();
+            buildAChunk();
         }
-        checkAsyncCompletedChunkMeshes();
+        renderChunks();
         cull();
     }
 
-    private void addToColumnPriorityQueue() {
-        if (columnsToBeBuilt == null) return;
-        if (columnsToBeBuilt.size() > 10) return;
-        Coord3 emptyCol = ChunkFinder.ClosestEmptyColumn(camera, map, columnMap);
-        if (emptyCol == null) return;
-        removeFromUnloadLists(new Coord2(emptyCol.x, emptyCol.z));
-        columnsToBeBuilt.add(new Coord2(emptyCol.x, emptyCol.z));
-    }
-    /*
-     * TODO: make adding zones actually work
-     */
-
-    private void removeFromUnloadLists(Coord2 column) {
-        for (Coord3 c = new Coord3(column.getX(), TerrainMap.MIN_CHUNK_COORD.y, column.getZ()) ; c.y < TerrainMap.MAX_CHUNK_COORD.y; c.y++){
-//            deletableChunks.remove(c);
-//            unloadChunks.remove(c);
-        }
-    }
 
     private void initUnloadService() {
         int CHUNK_UNLOAD_THREAD_COUNT = 5;
         chunkUnloadService = Executors.newFixedThreadPool(CHUNK_UNLOAD_THREAD_COUNT);
         for (int i = 0; i < CHUNK_UNLOAD_THREAD_COUNT; ++i) {
-            ColumnUnloader columnUnloader= new ColumnUnloader(
+            ChunkUnloader chunkUnloader = new ChunkUnloader(
                     map,
                     columnMap,
                     unloadChunks,
                     deletableChunks);
-            chunkUnloadService.execute(columnUnloader);
+            chunkUnloadService.execute(chunkUnloader);
         }
     }
 
@@ -177,48 +161,80 @@ public class WorldGenerator {
     }
 
 
-    private void buildANearbyChunk() {
-        Coord3 chcoord = shortOrderBlockFaceFinder.floodFilledChunkCoords.poll();
-        if (chcoord == null) {
-            chcoord = blockFaceFinder.floodFilledChunkCoords.poll();
+    /*
+     * Update
+     */
+    private void addColumns() {
+        if (columnsToBeBuilt == null) return;
+        // TODO: new approach. in each update, go over a list of all columns within the add radius
+        // TODO: clear columnsToBeBuilt, add all columns from the within-add-radius list
+
+        if (columnsToBeBuilt.size() > 10) return;
+        Coord3 emptyCol = ChunkFinder.ClosestEmptyColumn(camera, map, columnMap, false);
+        if (emptyCol == null) return;
+        removeFromUnloadLists(new Coord2(emptyCol.x, emptyCol.z));
+        if (!columnMap.IsBuiltOrIsBuilding(emptyCol.x, emptyCol.z)) {
+            columnsToBeBuilt.add(new Coord2(emptyCol.x, emptyCol.z));
+        } else if (map.columnHasHiddenChunk(emptyCol)) {
+            for (Coord3 coord3 : new ColumnRange(emptyCol)) {
+                Chunk chunk = map.GetChunk(coord3);
+                if (chunk != null) {
+                    buildThisChunk(chunk);
+                }
+            }
         }
-        if (chcoord == null){ return; }
-        Asserter.assertTrue(map.GetChunk(chcoord) != null, "chunk not in map! at chunk coord: " + chcoord.toString());
-        buildThisChunk(map.GetChunk(chcoord));
-        return;
+    }
+
+    private void removeFromUnloadLists(Coord2 column) {
+        for (Coord3 c : new ColumnRange(column)) {
+            deletableChunks.remove(c);
+            unloadChunks.remove(c);
+        }
+    }
+
+    private void buildAChunk() {
+        Coord3 chunkCoord = shortOrderBlockFaceFinder.floodFilledChunkCoords.poll();
+        if (chunkCoord == null) chunkCoord = blockFaceFinder.floodFilledChunkCoords.poll();
+        if (chunkCoord == null){ return; }
+
+        Asserter.assertTrue(map.GetChunk(chunkCoord) != null, "chunk not in map! at chunk coord: " + chunkCoord.toString());
+
+        buildThisChunk(map.GetChunk(chunkCoord));
+    }
+
+    private void buildThisChunk(Chunk chunk) {
+        chunk.setHasEverStartedBuildingToTrue();
+        if (!chunk.getIsAllAir()) {
+            chunk.getChunkBrain().SetDirty();
+            chunk.getChunkBrain().wakeUp();
+            attachMeshToScene(chunk); //no mesh geom yet
+        } else {
+            chunk.getChunkBrain().setMeshEmpty();
+        }
+    }
+
+    private void attachMeshToScene(Chunk chunk) {
+        chunk.getChunkBrain().attachTerrainMaterial(materialLibrarian.getBlockMaterial());
+        chunk.getChunkBrain().attachWaterMaterial(materialLibrarian.getBlockMaterialTranslucentAnimated());
+        chunk.getChunkBrain().attachToTerrainNode(worldNode);
     }
 
     public void enqueueChunkMeshSets(ChunkMeshBuildingSet chunkMeshBuildingSet) {
         chunksToBeMeshed.add(chunkMeshBuildingSet);
     }
 
-    private void buildThisChunk(Chunk ch) {
-        ch.setHasEverStartedBuildingToTrue();
-        if (TEST_DONT_RENDER) return;
-//        ch.setHasGeneratedTrue();
-        if (!ch.getIsAllAir()) {
-            ch.getChunkBrain().SetDirty();
-            ch.getChunkBrain().wakeUp();
-            attachMeshToScene(ch); //note: no mesh geom yet
-        } else {
-            DebugGeometry.AddDebugChunk(ch.position, ColorRGBA.Orange);
-            ch.getChunkBrain().setMeshEmpty();
-        }
-    }
-
-    private void checkAsyncCompletedChunkMeshes() {
+    private void renderChunks() {
         for (int count = 0; count < 5; ++count) {
             ChunkMeshBuildingSet chunkMeshBuildingSet = completedChunkMeshSets.poll();
-            if (TEST_DONT_RENDER) {
-                return;
-            }
             if (chunkMeshBuildingSet == null) return;
-            Chunk chunk = map.GetChunk(chunkMeshBuildingSet.chunkPosition);
-            if (chunk == null) {
-                DebugGeometry.AddDebugChunk(chunkMeshBuildingSet.chunkPosition, ColorRGBA.Blue);
-                Asserter.assertFalseAndDie("null chunk in check async...");
+
+            // write to file and don't mesh chunk?
+            if (!BuildSettings.ChunkCoordWithinAddRadius(camera.getLocation(), chunkMeshBuildingSet.chunkPosition)) {
+                slateForUnload(map.GetChunk(chunkMeshBuildingSet.chunkPosition));
                 return;
             }
+            Chunk chunk = map.GetChunk(chunkMeshBuildingSet.chunkPosition);
+            Asserter.assertTrue(chunk != null, "null chunk in check async...");
             chunk.getChunkBrain().applyMeshBuildingSet(chunkMeshBuildingSet);
         }
     }
@@ -229,45 +245,53 @@ public class WorldGenerator {
     private void cull() {
         if (!VoxelLandscape.CULLING_ON) return;
         unloadChunks();
-        removeAChunk();
+        removeChunks();
     }
     private void unloadChunks() {
-        int culled = 0;
-//        while (columnMap.columnCount() > COLUMN_CULLING_MIN && culled++ < 1) {
-            Coord3 furthest = furthestChunkFinder.furthestWriteDirtyButNotYetWritingChunk(map, camera, columnMap.getCoordXZSet().toArray());
+        for (Coord3 chunkCoord : furthestChunkFinder.outsideOfAddRangeChunks(map, camera, columnMap.getCoordXZSet().toArray())) {
+            if (chunkCoord == null) continue;
             if (unloadChunks.remainingCapacity() == 0) {
                 B.bugln("capacity is 0");
                 return;
             }
-            if (furthest != null && !BuildSettings.ChunkCoordWithinAddRadius(camera.getLocation(), furthest)) {
-                Chunk chunk = map.GetChunk(furthest);
-                if (chunk != null && !unloadChunks.contains(furthest)) {
-                    chunk.hasStartedWriting.set(true);
-                    unloadChunks.add(furthest);
-                }
+            if (!BuildSettings.ChunkCoordWithinAddRadius(camera.getLocation(), chunkCoord)) {
+                slateForUnload(map.GetChunk(chunkCoord));
             }
-//        }
-    }
-    private void removeAChunk() {
-        Coord3 chunk = deletableChunks.poll();
-        if (chunk == null) return;
-        if (BuildSettings.ChunkCoordWithinAddRadius(camera.getLocation(), chunk)) {
-            return;
-        } else if (!BuildSettings.ChunkCoordOutsideOfRemoveRadius(camera.getLocation(), chunk)) {
-            if (deletableChunks.remainingCapacity() != 0) deletableChunks.add(chunk);
-        }
-
-        if (map.removeColumn(chunk.getX(), chunk.getZ())) {
-            columnMap.Destroy(chunk.getX(), chunk.getZ());
         }
     }
+    private void slateForUnload(Chunk chunk) {
+        if (chunk != null && !unloadChunks.contains(chunk.position) && chunk.isWriteDirty() && !chunk.hasStartedWriting.get()) {
+            chunk.hasStartedWriting.set(true);
+            chunk.getChunkBrain().detachNodeFromParent();
+            unloadChunks.add(chunk.position);
+        }
+    }
+    private void removeChunks() {
+        int addedBack = 0;
+        while(deletableChunks.size() - addedBack > 0) {
+            Coord3 chunkCoord = deletableChunks.poll();
+            if (chunkCoord == null) return;
+            if (BuildSettings.ChunkCoordWithinAddRadius(camera.getLocation(), chunkCoord)) {
+                continue;
+            }
+            else if (!BuildSettings.ChunkCoordOutsideOfRemoveRadius(camera.getLocation(), chunkCoord)) {
+                Chunk chunk = map.GetChunk(chunkCoord);
+                if (chunk != null && !chunk.isWriteDirty() && deletableChunks.remainingCapacity() != 0) {
+                    deletableChunks.add(chunkCoord);
+                    addedBack++;
+                }
+                return;
+            }
 
-    private void attachMeshToScene(Chunk chunk) {
-        chunk.getChunkBrain().attachTerrainMaterial(materialLibrarian.getBlockMaterial());
-        chunk.getChunkBrain().attachWaterMaterial(materialLibrarian.getBlockMaterialTranslucentAnimated());
-        chunk.getChunkBrain().attachToTerrainNode(worldNode);
+            if (map.removeColumn(chunkCoord)) {
+                columnMap.Destroy(chunkCoord.getX(), chunkCoord.getZ());
+            }
+        }
     }
 
+    /*
+     * Clean-up
+     */
     public void killThreadPools() {
         poisonThreads();
 
