@@ -70,19 +70,19 @@ public class TerrainMap implements IBlockDataProvider
         return lookupOrCreateChunkAtPosition(chunkCoord).chunkBlockFaceMap;
     }
     // add a face to a block in direction. Use chunk if it contains the block coord to cut down on looks up in map
-    public boolean setBlockFaceForChunkIfType(Chunk chunk, Box chunkBounds, Coord3 globalBlockLocation, int direction, int blockType) {
+    public Coord3 setBlockFaceForChunkIfType(Chunk chunk, Box chunkBounds, Coord3 globalBlockLocation, int direction, int blockType) {
         if (BlockType.IsRenderedType(blockType)) {
             if (chunkBounds.contains(globalBlockLocation)) {
                 setBlockFaceForChunk(chunk, globalBlockLocation, direction, true);
 //                seedChunk.chunkBlockFaceMap.addFace(Chunk.ToChunkLocalCoord(globalBlockLocation), direction);
 //                dirtyChunks.add(chunk.position);
-                return true;
+                return chunk.position;
             }
             setBlockFace(globalBlockLocation, direction, true);
 //            dirtyChunks.add(Chunk.ToChunkPosition(globalBlockLocation));
-            return true;
+            return Chunk.ToChunkPosition(globalBlockLocation);
         }
-        return false;
+        return null;
     }
 
     public void setBlockFace(Coord3 worldCoord, int direction, boolean shouldExist) {
@@ -402,7 +402,7 @@ public class TerrainMap implements IBlockDataProvider
         Coord3 relPos, global, chunkPos = null;
         Chunk possibleChunk = null;
         Deque<Coord3> caveCrawlList = new ArrayDeque<>(40);
-
+        Box2 columnFootprint = new Box2(new Coord2(0), new Coord2(Chunk.CHUNKDIMS.x));
         for (int i = -1; i < Chunk.CHUNKDIMS.x + 1; ++i) {
             for (int j = -1; j < Chunk.CHUNKDIMS.z + 1; ++j) {
                 //find start y
@@ -413,7 +413,7 @@ public class TerrainMap implements IBlockDataProvider
                 relPos.y = Chunk.ToChunkLocalY(global.y);
                 /* find the surface absPos y */
                 int block = findSurfaceFrom(global, _dataProvider, touchedChunkCoords);
-                if (i == 0 && j == 0) touchedChunkCoords.add(Chunk.ToChunkPosition(global));
+                if (columnFootprint.containsXZ(relPos)) touchedChunkCoords.add(Chunk.ToChunkPosition(global));
 
                 /* for 'safety' go up by CHECK_SURFACE_ABOVE_HEIGHT blocks to see if we get an overhang. */
                 for (Coord3 checkAbove = global.clone(); checkAbove.y < global.y + CHECK_SURFACE_ABOVE_HEIGHT; checkAbove.y++) {
@@ -540,10 +540,20 @@ public class TerrainMap implements IBlockDataProvider
         // TODO: add chunk coord to needs flood fill--here?
     }
 
+    /*
+     * Sunlight/Surface
+     */
     public boolean isAboveSurface(Coord3 global) { return getSurfaceHeight(global) < global.y;  }
     public int getSurfaceHeight(Coord3 global) { return getSurfaceHeight(global.x,global.z); }
     public int getSurfaceHeight(int x, int z) { return sunLightmap.GetSunHeight(x,z) - 1; }
-    public void setSurfaceHeight(Coord3 global) { sunLightmap.SetSunHeight(global.y + 1, global.x, global.z); }
+    public void setSurfaceHeight(Coord3 global) {
+        sunLightmap.SetSunHeight(global.y + 1, global.x, global.z);
+    }
+    public void updateSurface(Coord3 global) {
+        if ((global.y > getSurfaceHeight(global))) {
+            setSurfaceHeight(global);
+        }
+    }
 
     private void climbUpCliff(Coord3 global, int height, int direction, TerrainDataProvider _terrainDataProvider, HashSet<Coord3> touchedChunkCoords) {
         Coord3 neighbor = global.add(Direction.DirectionCoords[direction]);
@@ -562,15 +572,12 @@ public class TerrainMap implements IBlockDataProvider
                 is = lookupOrCreateBlock(neighbor, _terrainDataProvider);
             }
 
-            if (was == NON_EXISTENT.ordinal() && IsTranslucent(is)) {
+            if (IsTranslucent(is)) {
                 // TODO: deal with water
                 chunk.chunkFloodFillSeedSet.addCoord(neighbor);
-                // INEFFICIENT BUT NECESSARY UNTIL WE HAVE 'PLACEHOLDER_AIR.' UNSET THE BLOCK!
-                chunk.setBlockAt(NON_EXISTENT.ordinal(), Chunk.ToChunkLocalCoord(neighbor));
-
                 //TACKING ON SUNLIGHT UPDATE
                 sunLightmap.SetLight(SunLightComputer.OneStepDownFromMaxLight(AIR), neighbor);
-            } //else
+            }
             if (IsSolid(is)) {
                 touchedChunkCoords.add(chunkCoord);
                 chunk.chunkBlockFaceMap.addFace(Chunk.ToChunkLocalCoord(neighbor),Direction.OppositeDirection(direction));

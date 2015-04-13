@@ -8,6 +8,7 @@ import voxel.landscape.coord.Box;
 import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
+import voxel.landscape.map.structure.structures.Pyramid;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,8 @@ public class BorderBoxMaker {
     private List<Cone> cones;
     private List<BorderBox> columns;
     private static final int ENCLOSURE_COUNT = 8;
+
+    private Pyramid pyramid = new Pyramid(123);
 
     private List<BorderBox> getColumns() {
         if (columns == null) {
@@ -228,6 +231,10 @@ public class BorderBoxMaker {
     }
     public int fakeTallCaveWithBoxAndAdjacentEnclosure(int x, int y, int z) {
         if (y < 4) return BlockType.GRASS.ordinal();
+        BlockType pyrBlock = pyramidBlock(x,y,z, new Coord3(2, 0, 2));
+        if (pyrBlock != null) {
+            return pyrBlock.ordinal();
+        }
         if (getFakeTallCaveBorderBox().isOnBorder(new Coord3(x,y,z))) {
             if ((x == 2 && y < 21 && y > 16)) {
                 return BlockType.AIR.ordinal();
@@ -238,6 +245,11 @@ public class BorderBoxMaker {
             return BlockType.SAND.ordinal();
         }
         return BlockType.AIR.ordinal();
+    }
+    private BlockType pyramidBlock(int x, int y, int z, Coord3 offset) {
+        Coord3 global = new Coord3(x, y - 4, z).minus(offset);
+        Coord3 local =global; // Chunk.ToChunkLocalCoord(global);
+        return pyramid.getOuterBlocks().get(local);
     }
     public int coneCave(int x, int y, int z) {
         if (y < 4) return BlockType.GRASS.ordinal();

@@ -90,7 +90,7 @@ public class AsyncGenerateColumnDataInfinite implements Runnable // extends Resp
         Object[] chunkCos = chunkCoords.toArray();
         for (Object coord : chunkCos) {
             Coord3 coord3 = (Coord3) coord;
-            if (!columnMap.HasAtLeastBuiltSurface(coord3.x, coord3.z)) {
+            if (!columnMap.HasBuiltSurface(coord3.x, coord3.z)) {
                 chunkCoords.remove(coord3);
             }
         }

@@ -70,7 +70,7 @@ public class ColumnMap {
     public boolean IsBuiltOrIsBuilding(int x, int z) {
         return GetColumnChunk(x, z).buildStatus.get() > BuildStatus.HAS_NOT_BEEN_TOUCHED.ordinal();
     }
-	public boolean HasAtLeastBuiltSurface(int x, int z) {
+	public boolean HasBuiltSurface(int x, int z) {
 		return GetColumnChunk(x, z).buildStatus.get() >= BuildStatus.BUILT_SURFACE_DATA.ordinal();
 	}
     public boolean NotYetBuilt(int x, int z) {

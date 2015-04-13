@@ -54,12 +54,10 @@ public class FloodFill
 
         while(slices.size() > 0) {
             ChunkSlice nextSlice = slices.remove(0);
-
             ChunkSlice yPosChunkSliceNext = new ChunkSlice(Chunk.ToChunkPosition(seedGlobal), Direction.YPOS);
             ChunkSlice yNegChunkSliceNext = new ChunkSlice(Chunk.ToChunkPosition(seedGlobal), Direction.YNEG);
             while(nextSlice.size() > 0) {
-                Coord3 nextSeed = nextSlice.removeNext();
-                floodScanLines(chunkSliceShell, yPosChunkSliceNext, yNegChunkSliceNext, nextSeed, FloodFill4D.UntouchedType );
+                floodScanLines(chunkSliceShell, yPosChunkSliceNext, yNegChunkSliceNext, nextSlice.removeNext(), FloodFill4D.UntouchedType );
             }
             if (yPosChunkSliceNext.size() > 0) {
                 slices.add(yPosChunkSliceNext);
@@ -121,6 +119,7 @@ public class FloodFill
 
         getCurrentWasIsWithinChunk(initialSeedGlobal, seedChunk, thisCoordWasIs, untouchedType);
 //        if (map.isAboveSurface(initialSeedGlobal) || !BlockType.IsNonExistentOrPlaceHolderAir(thisCoordWasIs[0])) {
+
         if (map.isAboveSurface(initialSeedGlobal) || BlockType.IsFloodFilledAir(thisCoordWasIs[0])) {
             return;
         }
@@ -221,10 +220,8 @@ public class FloodFill
                  */
                 {
                     Coord3 xNegNeighbor = new Coord3(seed.x - 1, seed.y, z1);
-                    boolean localXNeighbor = false;
                     if (seed.x > xAreaStart) {
                         getCurrentWasIsWithinChunk(xNegNeighbor, seedChunk, xNEGWasIs, untouchedType);
-                        localXNeighbor = true;
                     } else {
                         map.setIsGetWasIsUnsetIfAir(xNegNeighbor, untouchedType, xNEGWasIs);
                     }
@@ -247,10 +244,8 @@ public class FloodFill
                  */
                 {
                     Coord3 xPosNeighbor = new Coord3(seed.x + 1, seed.y, z1);
-                    boolean localXNeighbor = false;
                     if (seed.x < xAreaEnd - 1) {
                         getCurrentWasIsWithinChunk(xPosNeighbor, seedChunk, xPOSWasIs, untouchedType);
-                        localXNeighbor = true;
                     } else {
                         map.setIsGetWasIsUnsetIfAir(xPosNeighbor, untouchedType, xPOSWasIs);
                     }
@@ -324,33 +319,16 @@ public class FloodFill
         }
         return;
     }
+
     private boolean ShouldSeedBlock(Coord3 global, int[] wasIs) {
-        return ShouldSeedBlock(global, wasIs, false);
-    }
-    private boolean ShouldSeedBlock(Coord3 global, int[] wasIs, boolean XNeighborCriteria) {
         if (wasIs[1] == BlockType.AIR.ordinal() && !map.isAboveSurface(global)) return true;
         return wasIs[0] == BlockType.NON_EXISTENT.ordinal() && (wasIs[1] == BlockType.AIR.ordinal() || wasIs[1] == BlockType.FLOODFILLED_AIR.ordinal());
-//        if (XNeighborCriteria) {
-//            return wasIs[1] == BlockType.AIR.ordinal() || wasIs[1] == BlockType.PLACEHOLDER_AIR.ordinal();
-//        }
-//        return wasIs[1] == BlockType.PLACEHOLDER_AIR.ordinal();
     }
 
-//    // add a face to a block in direction. Use seedChunk if it contains the block coord to cut down on looks up in map
+    // add a face to a block in direction. Use seedChunk if it contains the block coord to cut down on looks up in map
     private void addFaceForType(Chunk seedChunk, Box chunkBounds, Coord3 globalBlockLocation, int direction, int blockType) {
-        if (map.setBlockFaceForChunkIfType(seedChunk, chunkBounds, globalBlockLocation, direction, blockType)) {
-            dirtyChunks.add(seedChunk.position);
-        }
-//        if (BlockType.IsRenderedType(blockType)) {
-//            if (chunkBounds.contains(globalBlockLocation)) {
-//                map.setBlockFaceForChunk(seedChunk, globalBlockLocation, direction, true);
-////                seedChunk.chunkBlockFaceMap.addFace(Chunk.ToChunkLocalCoord(globalBlockLocation), direction);
-//                dirtyChunks.add(seedChunk.position);
-//                return;
-//            }
-//            map.setBlockFace(globalBlockLocation, direction, true);
-//            dirtyChunks.add(Chunk.ToChunkPosition(globalBlockLocation));
-//        }
+        Coord3 updatedChunkCoord = map.setBlockFaceForChunkIfType(seedChunk, chunkBounds, globalBlockLocation, direction, blockType);
+        if (updatedChunkCoord != null) { dirtyChunks.add(updatedChunkCoord); }
     }
     private void getCurrentWasIsWithinChunk(Coord3 global, Chunk chunk, int[] wasIs, int untouchedType) {
         wasIs[0] = chunk.blockAt(Chunk.ToChunkLocalCoord(global));

@@ -60,7 +60,7 @@ public class TerrainDataProvider {
         }
     }
 
-    private static boolean USE_TEST_NOISE = true;
+    private static boolean USE_TEST_NOISE = false;
     private static boolean SOLID_BLOCKTYPE_PER_CHUNK = false;
 
     public int getBlockDataAtPosition(int xin, int yin, int zin) {
@@ -217,7 +217,7 @@ public class TerrainDataProvider {
          */
         // mountain_y_scale
         ModuleScaleDomain mountainYScale = new ModuleScaleDomain();
-        mountainYScale.setScaleY(0.6);
+        mountainYScale.setScaleY(0.7);
         mountainYScale.setSource(mountainScale);
 
         /*

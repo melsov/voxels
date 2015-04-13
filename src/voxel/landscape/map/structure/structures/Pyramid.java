@@ -30,7 +30,6 @@ public class Pyramid extends AbstractStructure {
         while (--level > 0) {
             StructureUtil.AddRectangle(outerBlocks[0], new Coord3(-baseHalfDimension + 1, level, -baseHalfDimension + 1), new Coord2(baseHalfDimension * 2 - 2), Axis.Y, BlockType.CAVESTONE, false);
         }
-
     }
 
     public Pyramid(int _seed) {

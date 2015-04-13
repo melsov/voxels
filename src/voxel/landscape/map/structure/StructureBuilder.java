@@ -2,7 +2,9 @@ package voxel.landscape.map.structure;
 
 import voxel.landscape.BlockType;
 import voxel.landscape.Chunk;
+import voxel.landscape.VoxelLandscape;
 import voxel.landscape.WorldGenerator;
+import voxel.landscape.coord.Box2;
 import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;
@@ -27,7 +29,8 @@ public class StructureBuilder {
     public void addStructures(Coord2 chunkColumn, TerrainMap map, TerrainDataProvider dataProvider, HashSet<Coord3> touchedChunkCoords) {
 //        if (true) return; // **************!
         // TODO: contemplate how to really deal with detecting already-built-from-file chunks
-        if (WorldGenerator.TEST_DONT_BUILD) return;
+        if (WorldGenerator.TEST_DONT_BUILD || !VoxelLandscape.BUILD_STRUCTURES) return;
+
         if (map.columnChunksBuiltFromFile(chunkColumn.getX(), chunkColumn.getZ())) {
             return;
         }
@@ -40,6 +43,7 @@ public class StructureBuilder {
         int z2 = z1+Chunk.CHUNKDIMS.z;
         int surfaceY = 0;
         Set<Chunk> gotStructureChunks = new HashSet<>(4);
+        Box2 columnFootprint = new Box2( new Coord2(x1, z1), new Coord2(Chunk.XLENGTH));
         for(int z=z1; z<z2; z++) {
             for(int x=x1; x<x2; x++) {
                 surfaceY = map.getSurfaceHeight(x, z);
@@ -60,11 +64,13 @@ public class StructureBuilder {
                 for (Coord3 structureLocal : structure.getOuterBlocks().keySet()) {
                     BlockType blockType = structure.getOuterBlocks().get(structureLocal);
                     Coord3 structureGlobal = global.add(structureLocal);
+                    if (!columnFootprint.containsXZ(structureGlobal)) continue;
                     Chunk chunk = map.lookupOrCreateChunkAtPosition(Chunk.ToChunkPosition(structureGlobal));
                     if (chunk == null) continue;
                     map.setBlockAtWorldCoord(blockType.ordinal(), structureGlobal);
                     chunk.chunkBlockFaceMap.addExposedFacesUpdateNeighbors(structureGlobal, map);
                     touchedChunkCoords.add(Chunk.ToChunkPosition(structureGlobal));
+                    map.updateSurface(structureGlobal);
                 }
             }
         }

@@ -55,7 +55,8 @@ public class VoxelLandscape extends SimpleApplication
     public static boolean FULL_SCREEN = false;
 
 	public static boolean USE_TEXTURE_MAP = false, DEBUG_INFO_ON = false, ADD_CHUNKS_DYNAMICALLY = true, COMPILE_CHUNK_DATA_ASYNC = false,
-            CULLING_ON = false, BUILD_INITIAL_CHUNKS = true, DONT_BUILD_CHUNK_MESHES = true, SHOW_COLUMN_DEBUG_QUADS = false, FORCE_WIRE_FRAME = false;
+            CULLING_ON = false, BUILD_INITIAL_CHUNKS = true, DONT_BUILD_CHUNK_MESHES = true, SHOW_COLUMN_DEBUG_QUADS = false, FORCE_WIRE_FRAME = false,
+            BUILD_STRUCTURES = false;
     public static boolean TEST_BLOCK_FACE_MESH_BUILDING = true;
     public static boolean TESTING_DEBUGGING_ON = false, DO_USE_TEST_GEOMETRY = true, SHOULD_BUILD_CHUNK_MESH_ASYNC = true;
 
@@ -87,6 +88,7 @@ public class VoxelLandscape extends SimpleApplication
             SHOW_COLUMN_DEBUG_QUADS = false;
             TEST_BLOCK_FACE_MESH_BUILDING = false;
             FORCE_WIRE_FRAME = true;
+            BUILD_STRUCTURES = true;
         } else {
             USE_TEXTURE_MAP = true;
             DEBUG_INFO_ON = false;
@@ -99,6 +101,7 @@ public class VoxelLandscape extends SimpleApplication
             SHOW_COLUMN_DEBUG_QUADS = false;
             TEST_BLOCK_FACE_MESH_BUILDING = true;
             FORCE_WIRE_FRAME = true;
+            BUILD_STRUCTURES = true;
         }
     }
 

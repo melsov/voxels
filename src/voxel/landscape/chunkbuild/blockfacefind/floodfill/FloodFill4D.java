@@ -165,7 +165,7 @@ public class FloodFill4D implements Runnable
                     ChunkSlice slice = iBBSlices.remove(i); // iBBSlices.get(i);
                     if (slice.size() == 0) {  Asserter.assertFalseAndDie("happens?"); continue; } //TEST? NOT SURE?
 
-                    if (columnMap.HasAtLeastBuiltSurface(slice.getChunkCoord().x, slice.getChunkCoord().z)) {
+                    if (columnMap.HasBuiltSurface(slice.getChunkCoord().x, slice.getChunkCoord().z)) {
                         chunkSlice = slice;
                         break;
                     } else {
