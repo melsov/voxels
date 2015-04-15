@@ -16,9 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class LocalBlockMap implements Serializable {
 
-    private static final int serialVersionUID = 23;
-
-    public HashMap<ChunkLocalCoord, Integer> map;  // public for testing: make private
+    private HashMap<ChunkLocalCoord, Integer> map;  // public for testing: make private
     public final AtomicBoolean writeDirty = new AtomicBoolean(true);
 
     public LocalBlockMap(Coord3 _size) {

@@ -174,8 +174,8 @@ public class Chunk
 	public static Coord3 ToChunkLocalCoord(int x, int y, int z) {
 		/*
 		 * Bitwise mod (%) by X/Y/ZLENGTH. but better. since this is much faster than '%' and as a bonus will always return positive numbers.
-		 * the normal modulo operator ("%") will return negative for negative left-side numbers. (for example -14 % 10 becomes -4. <--bad. 
-		 * since all local coords are positive we, want -14 mod 10 to be 6.)
+		 * the normal modulo operator ("%") will return negative for negative left-side numbers. (for example -17 % 16 becomes -1. <--bad.
+		 * since all local coords are positive we, want -17 mod 16 to be 15.)
 		 */
 		int xlocal = x & (XLENGTH - 1);
 		int ylocal = y & (YLENGTH - 1);
