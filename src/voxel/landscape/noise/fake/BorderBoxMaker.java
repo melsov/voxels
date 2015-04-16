@@ -249,7 +249,7 @@ public class BorderBoxMaker {
     private BlockType pyramidBlock(int x, int y, int z, Coord3 offset) {
         Coord3 global = new Coord3(x, y - 4, z).minus(offset);
         Coord3 local =global; // Chunk.ToChunkLocalCoord(global);
-        return pyramid.getOuterBlocks().get(local);
+        return pyramid.getBlocks().get(local);
     }
     public int coneCave(int x, int y, int z) {
         if (y < 4) return BlockType.GRASS.ordinal();

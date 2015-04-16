@@ -36,7 +36,7 @@ public class TotemPole extends AbstractStructure {
     }
 
     @Override
-    public HashMap<Coord3, BlockType> getOuterBlocks() {
+    public HashMap<Coord3, BlockType> getBlocks() {
         return outerBlocks[0];
     }
 

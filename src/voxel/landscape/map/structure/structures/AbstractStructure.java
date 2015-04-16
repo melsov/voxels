@@ -18,6 +18,6 @@ public abstract class AbstractStructure {
     }
 
     public abstract Coord3 viablePlot(Coord3 global, TerrainMap map);
-    public abstract HashMap<Coord3, BlockType> getOuterBlocks();
+    public abstract HashMap<Coord3, BlockType> getBlocks();
     public abstract HashMap<Coord3, BlockType> getInnerBlocks();
 }

@@ -42,7 +42,7 @@ public class Pyramid extends AbstractStructure {
     }
 
     @Override
-    public HashMap<Coord3, BlockType> getOuterBlocks() {
+    public HashMap<Coord3, BlockType> getBlocks() {
         if (seed % 2 == 0) {
             return outerBlocks[0];
         } else {
