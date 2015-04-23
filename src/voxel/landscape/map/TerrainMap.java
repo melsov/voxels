@@ -42,6 +42,7 @@ public class TerrainMap implements IBlockDataProvider
     private ConcurrentHashMapCoord3D<Chunk> chunks = new ConcurrentHashMapCoord3D<Chunk>(Chunk.class);
 	private SunLightMap sunLightmap = new SunLightMap();
 	private LightMap lightmap = new LightMap();
+
     private WaterLevelMap liquidLevelMap = new WaterLevelMap();
     private LiquidUpdater liquidUpdaterWater = new LiquidUpdater(LiquidFlowTimeStepSeconds(WATER.ordinal()));
 

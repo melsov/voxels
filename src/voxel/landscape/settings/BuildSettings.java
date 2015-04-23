@@ -10,7 +10,7 @@ import voxel.landscape.coord.ICoordXZ;
  */
 public class BuildSettings {
 
-    public static int ADD_COLUMN_RADIUS = 3;
+    public static int ADD_COLUMN_RADIUS = 6;
     public static int REMOVE_OUTSIDE_OF_COLUMN_RADIUS = ADD_COLUMN_RADIUS + 2;
 
     public static boolean ChunkCoordOutsideOfRemoveRadius(Vector3f camera, Coord3 chunkCoord) {

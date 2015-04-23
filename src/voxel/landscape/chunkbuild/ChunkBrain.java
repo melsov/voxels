@@ -26,14 +26,8 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
 {
 	private Chunk chunk;
 	private boolean dirty, lightDirty, liquidDirty;
-	private AsyncBuildMesh asyncBuildMesh = null;
-//	private boolean shouldApplyMesh = false;
-    private boolean testHiding = false;
 
     public boolean isHiding() {
-        if (testHiding) {
-            Asserter.assertTrue(getSpatial() != null, "wha. spatial should not be null at this point");
-        }
         if (getSpatial() == null) return false;
         return getSpatial().getParent() == null;
     }
@@ -119,7 +113,6 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
 
     public void attachToTerrainNode(Node terrainNode) {
         terrainNode.attachChild(getRootSpatial());
-        testHiding = false;
     }
     public void attachTerrainMaterial(Material terrainMaterial) {
         getGeometry().setMaterial(terrainMaterial);
@@ -172,8 +165,7 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
         geom.setModelBound(new BoundingBox(Vector3f.ZERO.clone(), new Vector3f(Chunk.XLENGTH,Chunk.YLENGTH,Chunk.ZLENGTH)));
         geom.updateModelBound();
     }
-	public class AsyncBuildMesh extends ResponsiveRunnable
-	{
+	public class AsyncBuildMesh extends ResponsiveRunnable {
 		private boolean onlyLight;
 		private MeshSet mset = new MeshSet(false, false);
         private MeshSet waterMSet = new MeshSet(true, false);
@@ -190,7 +182,6 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
 	@Override
 	public void notifyThreadComplete(ResponsiveRunnable responsizeRunnable) {
 		if (responsizeRunnable.getClass() == AsyncBuildMesh.class) {
-//			shouldApplyMesh = true;
 		}
 	}
 
@@ -209,9 +200,7 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
         chunkMeshBuildingSet.isOnlyLiquid = onlyLiquid;
         chunkMeshBuildingSet.isOnlyLight = onlyLight;
         chunkMeshBuildingSet.chunkPosition = chunk.position;
-
         chunk.getTerrainMap().getApp().getWorldGenerator().enqueueChunkMeshSets(chunkMeshBuildingSet);
-
     }
 
     /*
@@ -228,7 +217,6 @@ public class ChunkBrain extends AbstractControl implements Cloneable, Savable, T
             //TEST
             Asserter.assertTrue(getSpatial() != null, "we want to still have a non-null spatial despite detaching.");
             Asserter.assertTrue(getSpatial().getParent() == null, "parent not null?");
-            testHiding = true;
         }
     }
 

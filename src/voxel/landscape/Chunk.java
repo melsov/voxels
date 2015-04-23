@@ -32,7 +32,7 @@ public class Chunk
 
     private LocalBlockMap blocks = new LocalBlockMap(new Coord3(XLENGTH, YLENGTH, ZLENGTH));
 
-    // (SYNCHRONIZING) LOCKS FOR BLOCKS
+    //SYNCHRONIZING LOCKS FOR BLOCKS
     private ConcurrentHashMapCoord3D<Object> blockLocks = new ConcurrentHashMapCoord3D<Object>(Object.class);
 
 	public static final int SIZE_X_BITS = 4;

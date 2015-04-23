@@ -1,4 +1,4 @@
-package voxel.landscape.debugmesh;
+package voxel.landscape.debug.debugmesh;
 
 import com.google.common.primitives.Floats;
 import com.google.common.primitives.Ints;
@@ -12,7 +12,7 @@ import com.jme3.scene.Node;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.shape.Quad;
 import com.jme3.util.BufferUtils;
-import voxel.landscape.BlockMeshUtil;
+import voxel.landscape.chunkbuild.BlockMeshUtil;
 import voxel.landscape.MeshSet;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.light.SunLightComputer;

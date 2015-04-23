@@ -6,9 +6,9 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import voxel.landscape.Chunk;
 import voxel.landscape.collection.ColumnMap;
+import voxel.landscape.coord.Box2;
 import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
-import voxel.landscape.coord.Box2;
 import voxel.landscape.coord.VektorUtil;
 import voxel.landscape.map.TerrainMap;
 import voxel.landscape.settings.BuildSettings;
@@ -277,7 +277,6 @@ public class ChunkFinder {
             }
             return new Coord3(0);
         }
-        // TODO: ensure we're not providing chunks that will be culled because they're far away.
         Coord3 result = ClosestColumn(cam, terrainMap, columnMap); // ***** WANT
         if (limitToAddRadius && result != null && !BuildSettings.ChunkCoordWithinAddRadius(cam.getLocation(), result)) return null;
         return result;

@@ -1,6 +1,6 @@
 package voxel.landscape.noise.fake;
 
-import voxel.landscape.Axis;
+import voxel.landscape.coord.Axis;
 import voxel.landscape.BlockType;
 import voxel.landscape.Chunk;
 import voxel.landscape.chunkbuild.ChunkFinder;
@@ -8,7 +8,7 @@ import voxel.landscape.coord.Box;
 import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
-import voxel.landscape.map.structure.structures.Pyramid;
+import voxel.landscape.map.structure.structures.surface.Pyramid;
 
 import java.util.ArrayList;
 import java.util.List;

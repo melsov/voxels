@@ -1,8 +1,9 @@
-package voxel.landscape.map.structure.structures;
+package voxel.landscape.map.structure.structures.surface;
 
 import voxel.landscape.BlockType;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.map.TerrainMap;
+import voxel.landscape.map.structure.structures.AbstractStructure;
 
 import java.util.HashMap;
 

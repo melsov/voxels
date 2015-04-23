@@ -40,12 +40,13 @@ public class WorldGenerator {
     private BlockingQueue<ChunkMeshBuildingSet> completedChunkMeshSets;
 
     //Chunk disposal
-    private BlockingQueue<Coord3> unloadChunks = new ArrayBlockingQueue<>(80);
-    private BlockingQueue<Coord3> deletableChunks = new ArrayBlockingQueue<>(80);
+    private BlockingQueue<Coord3> unloadChunks = new ArrayBlockingQueue<>(240);
+    private BlockingQueue<Coord3> deletableChunks = new ArrayBlockingQueue<>(240);
     ExecutorService chunkUnloadService;
 
-    private static final int COLUMN_DATA_BUILDER_THREAD_COUNT = 1;
-    private static final int CHUNK_MESH_BUILD_THREAD_COUNT = 1;
+    private static final int COLUMN_DATA_BUILDER_THREAD_COUNT = 5;
+    private static final int CHUNK_MESH_BUILD_THREAD_COUNT = 5;
+    private static final int CHUNK_UNLOAD_THREAD_COUNT = 5;
 
     private ExecutorService colDataPool;
     private ExecutorService chunkMeshBuildPool;
@@ -53,8 +54,6 @@ public class WorldGenerator {
 
 
     private AtomicBoolean columnBuildingThreadsShouldKeepGoing = new AtomicBoolean(true);
-    private static int COLUMN_CULLING_MIN = (int) ((BuildSettings.ADD_COLUMN_RADIUS * 1 + 2)*(BuildSettings.ADD_COLUMN_RADIUS * 1 + 2));
-    private static int COLUMN_DELETING_MIN = (int)(COLUMN_CULLING_MIN * 1.2);
 
     private FurthestChunkFinder furthestChunkFinder = new FurthestChunkFinder();
 
@@ -106,7 +105,6 @@ public class WorldGenerator {
 
 
     private void initUnloadService() {
-        int CHUNK_UNLOAD_THREAD_COUNT = 5;
         chunkUnloadService = Executors.newFixedThreadPool(CHUNK_UNLOAD_THREAD_COUNT);
         for (int i = 0; i < CHUNK_UNLOAD_THREAD_COUNT; ++i) {
             ChunkUnloader chunkUnloader = new ChunkUnloader(
@@ -160,7 +158,7 @@ public class WorldGenerator {
         }
     }
 
-
+//TODO: new remove and add policy: do complete add/write-purge in every frame
     /*
      * Update
      */
@@ -260,7 +258,10 @@ public class WorldGenerator {
         }
     }
     private void slateForUnload(Chunk chunk) {
-        if (chunk != null && !unloadChunks.contains(chunk.position) && chunk.isWriteDirty() && !chunk.hasStartedWriting.get()) {
+        if (chunk == null) {
+            return;
+        }
+        if (!unloadChunks.contains(chunk.position) && chunk.isWriteDirty() && !chunk.hasStartedWriting.get()) {
             chunk.hasStartedWriting.set(true);
             chunk.getChunkBrain().detachNodeFromParent();
             unloadChunks.add(chunk.position);

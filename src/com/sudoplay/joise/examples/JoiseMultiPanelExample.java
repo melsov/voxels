@@ -20,12 +20,10 @@ public class JoiseMultiPanelExample extends JPanel {
     private static int panelsPerColumn = 2;
     private static long seed = 1236;
 
-//    private java.util.List<JoiseDemoPanel> demoPanels = new ArrayList<JoiseDemoPanel>(20);
     private HashMap<String, JoiseDemoPanel> demoPanels = new HashMap<String, JoiseDemoPanel> (20);
 
     public JoiseMultiPanelExample() {
         loadModules();
-
         for (JoiseDemoPanel demoPanel : demoPanels.values()) {
             demoPanel.updateImage();
         }

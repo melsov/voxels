@@ -8,7 +8,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
-import voxel.landscape.BlockMeshUtil;
 import voxel.landscape.BlockType;
 import voxel.landscape.Chunk;
 import voxel.landscape.MeshSet;
@@ -67,6 +66,26 @@ public class ChunkBuilder
 			}
 		}
 	}
+
+
+//for(i = 0; i < Chunk.XLENGTH; ++i) {
+//    for(j = 0; j < Chunk.ZLENGTH; ++j) {
+//        for (k = 0; k < Chunk.YLENGTH; ++k) {
+//            // ....set-up code ..... //
+//                for (int dir = 0; dir <= Direction.ZPOS; ++dir) {
+//                    if (IsFaceVisible(map, worldCoord, dir)) {
+//                        BlockMeshUtil.AddFaceMeshData(posi, mset, btype, dir, triIndex, map);
+//
+//                        /* ****ADD LIGHT DATA AT worldCoord TO THE MESHSET (mset)**** */
+//                        BlockMeshUtil.AddFaceMeshLightData(worldCoord, mset, dir, map);
+//
+//                        triIndex += 4;
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
 
 //    /*
 //     * Chunk Block Face Map Build

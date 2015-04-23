@@ -1,6 +1,6 @@
 package voxel.landscape.noise.fake;
 
-import voxel.landscape.Axis;
+import voxel.landscape.coord.Axis;
 import voxel.landscape.coord.Box;
 import voxel.landscape.coord.Coord3;
 

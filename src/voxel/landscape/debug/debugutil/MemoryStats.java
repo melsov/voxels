@@ -1,4 +1,4 @@
-package voxel.landscape.debugutil;
+package voxel.landscape.debug.debugutil;
 
 import com.jme3.util.BufferUtils;
 

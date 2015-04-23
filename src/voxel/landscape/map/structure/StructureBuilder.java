@@ -18,7 +18,7 @@ import java.util.Set;
  */
 public class StructureBuilder {
 
-    private SurfaceStructureDataProvider surfaceStructureDataProvider = new SurfaceStructureDataProvider();
+    private SurfaceStructureGenerator surfaceStructureGenerator = new SurfaceStructureGenerator();
 
     /*
      * Iterate over the x,z surface of a chunk column
@@ -26,7 +26,6 @@ public class StructureBuilder {
      * adjacent chunks.
      */
     public void addStructures(Coord2 chunkColumn, TerrainMap map, TerrainDataProvider dataProvider, HashSet<Coord3> touchedChunkCoords) {
-//        if (true) return; // **************!
         // TODO: contemplate how to really deal with detecting already-built-from-file chunks
         if (WorldGenerator.TEST_DONT_BUILD || !VoxelLandscape.BUILD_STRUCTURES) return;
 
@@ -54,7 +53,7 @@ public class StructureBuilder {
                         continue;
                     }
                 }
-                AbstractStructure structure = surfaceStructureDataProvider.structureAt(global);
+                AbstractStructure structure = surfaceStructureGenerator.structureAt(global);
                 if (structure == null) continue;
                 Coord3 shiftPlot = structure.viablePlot(global, map);
                 if (shiftPlot == null) continue; //structure refuses to be placed

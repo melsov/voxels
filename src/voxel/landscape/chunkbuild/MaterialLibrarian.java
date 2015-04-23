@@ -5,6 +5,7 @@ import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.texture.Texture;
+import voxel.landscape.player.B;
 
 import java.util.HashMap;
 
@@ -45,6 +46,7 @@ public class MaterialLibrarian
 
     private Material makeTexMapMaterial() {
         Material mat = new Material(assetManager, "MatDefs/BlockTexNuevo.j3md");
+        B.bugln("material error? (block material)");
         Texture blockTex = assetManager.loadTexture("Textures/dog_64d_.jpg");
 //        Texture blockTex = assetManager.loadTexture("Textures/dog_4096d.jpg");
         blockTex.setMagFilter(Texture.MagFilter.Nearest);
@@ -54,6 +56,7 @@ public class MaterialLibrarian
     }
     private Material makeTranslucentAnimatedTexMapMaterial() {
         Material mat = new Material(assetManager, "MatDefs/BlockTexTranslucentAnimated.j3md");
+        B.bugln("material error? (block material translu-anim)");
         Texture blockTex = assetManager.loadTexture("Textures/dog_64d_.png");
         blockTex.setMagFilter(Texture.MagFilter.Nearest);
         blockTex.setWrap(Texture.WrapMode.Repeat);

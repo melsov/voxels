@@ -1,6 +1,5 @@
-package voxel.landscape;
+package voxel.landscape.coord;
 
-import voxel.landscape.coord.Coord3;
 import voxel.landscape.util.Asserter;
 
 public class Axis

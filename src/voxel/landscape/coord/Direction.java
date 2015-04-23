@@ -1,9 +1,8 @@
 package voxel.landscape.coord;
 
 import com.jme3.math.Vector3f;
-import voxel.landscape.Axis;
 
-import static voxel.landscape.Axis.X;
+import static voxel.landscape.coord.Axis.X;
 
 public class Direction {
     public static final int XNEG = 0, XPOS = 1, YNEG = 2, YPOS = 3, ZNEG = 4, ZPOS = 5;

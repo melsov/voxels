@@ -1,7 +1,6 @@
 package voxel.landscape.coord;
 
 import com.jme3.math.Vector3f;
-import voxel.landscape.Axis;
 import voxel.landscape.util.Asserter;
 
 import java.io.Serializable;

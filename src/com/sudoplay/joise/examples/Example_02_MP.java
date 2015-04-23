@@ -1,9 +1,11 @@
 package com.sudoplay.joise.examples;
 
+import com.sudoplay.joise.ThresholdModuleSet;
 import com.sudoplay.joise.module.*;
 import com.sudoplay.joise.module.ModuleBasisFunction.BasisType;
 import com.sudoplay.joise.module.ModuleBasisFunction.InterpolationType;
 import com.sudoplay.joise.module.ModuleFractal.FractalType;
+import com.sudoplay.joise.test.ModuleTestValues;
 
 import javax.swing.*;
 import java.awt.*;
@@ -36,9 +38,9 @@ public class Example_02_MP {
     public static void main(String[] args) {
 
         int width = 400;
-        int height = 400;
+        int height = 300;
 
-        JFrame frame = new JFrame("Joise Example 02");
+        JFrame frame = new JFrame("Joise Example 021");
         frame.setPreferredSize(new Dimension(width, height));
 
         final Canvas canvas = new Canvas(width, height);
@@ -86,6 +88,8 @@ public class Example_02_MP {
         // = Joise module chain
         // ========================================================================
 
+
+
         Random random = new Random();
         long seed = 1236; // random.nextLong();
 
@@ -96,13 +100,56 @@ public class Example_02_MP {
         ModuleGradient groundGradient = new ModuleGradient();
         groundGradient.setGradient(0, 0, 0, 1, 0, 0);
 
+        ModuleCellGen moduleCellGen = new ModuleCellGen();
+        moduleCellGen.setSeed(seed);
+        ModuleCellular moduleCellular = new ModuleCellular();
+        moduleCellular.setCoefficients(12, .4, 0, 0);
+        moduleCellular.setCellularSource(moduleCellGen);
+
+        ModuleScaleOffset moduleScaleOffset = new ModuleScaleOffset();
+        moduleScaleOffset.setScale(1);
+        moduleScaleOffset.setOffset(0d);
+        moduleScaleOffset.setSource(moduleCellular);
+
+        ModuleScaleDomain moduleScaleDomain = new ModuleScaleDomain();
+        moduleScaleDomain.setScaleX(1);
+        moduleScaleDomain.setScaleY(1);
+        moduleScaleDomain.setSource(moduleScaleOffset);
+
+//        canvas.updateImage(moduleScaleDomain);
+//        if (true) return;
+        ModuleTestValues moduleTestValues = new ModuleTestValues();
+        moduleTestValues.testValue = .21d;
+        ModuleSelectChain moduleSelectChain = new ModuleSelectChain();
+        ThresholdModuleSet[] treeTypes = new ThresholdModuleSet[] {
+                new ThresholdModuleSet(new ScalarParameter(0d), .4),
+                new ThresholdModuleSet(new ScalarParameter(3.1d), .14),
+                new ThresholdModuleSet(new ScalarParameter(2.1d), .18),
+                new ThresholdModuleSet(new ScalarParameter(1.1d), .2),
+                new ThresholdModuleSet(new ScalarParameter(4.1d), .05),
+        };
+        moduleSelectChain.setChain(moduleScaleDomain, treeTypes);
+
+        ModuleSelect moduleSelect = new ModuleSelect();
+        moduleSelect.setHighSource(0d);
+        moduleSelect.setLowSource(moduleSelectChain);
+        moduleSelect.setThreshold(.4d);
+        moduleSelect.setControlSource(moduleScaleDomain); // should be cached
+
+//        ModuleCombiner moduleCombiner = new ModuleCombiner(ModuleCombiner.CombinerType.MULT);
+//        moduleCombiner.setSource(0, moduleSelect);
+//        moduleCombiner.setSource(1, moduleSelectChain);
+
+        canvas.updateImage(moduleSelectChain);
+        if (true) return;
+
         /*
          * lowland
          */
         // lowland_shape_fractal
-        ModuleFractal lowlandShapeFractal = new ModuleFractal(FractalType.BILLOW, BasisType.GRADIENT, InterpolationType.QUINTIC);
+        ModuleFractal lowlandShapeFractal = new ModuleFractal(FractalType.FBM, BasisType.GRADIENT, InterpolationType.QUINTIC);
         lowlandShapeFractal.setNumOctaves(2);
-        lowlandShapeFractal.setFrequency(0.25);
+        lowlandShapeFractal.setFrequency(.0325);
         lowlandShapeFractal.setSeed(seed);
 
         // lowland_autocorrect
@@ -110,13 +157,24 @@ public class Example_02_MP {
         lowlandAutoCorrect.setSource(lowlandShapeFractal);
         lowlandAutoCorrect.calculate();
 
+
+
+        ModuleTranslateDomain moduleTranslateDomain = new ModuleTranslateDomain();
+//        moduleTranslateDomain.setAxisXSource(lowlandScale);
+//        moduleTranslateDomain.setAxisYSource(lowlandScale);
+        moduleTranslateDomain.setAxisXSource(.002);
+        moduleTranslateDomain.setAxisYSource(.002);
+        moduleTranslateDomain.setSource(moduleCellular);
+
+        canvas.updateImage(moduleTranslateDomain);
+        if (true) return;
+
         // lowland_scale
         ModuleScaleOffset lowlandScale = new ModuleScaleOffset();
-//        lowlandScale.setScale(0.425);
-//        lowlandScale.setOffset(-0.45);
-        lowlandScale.setScale(1);
-        lowlandScale.setOffset(0);
-        lowlandScale.setSource(lowlandAutoCorrect);
+        lowlandScale.setScale(2);
+        lowlandScale.setOffset(123);
+        lowlandScale.setSource(moduleCellular);
+
 
         // lowland_y_scale
         ModuleScaleDomain lowlandYScale = new ModuleScaleDomain();

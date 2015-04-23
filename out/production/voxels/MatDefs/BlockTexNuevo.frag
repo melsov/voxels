@@ -13,5 +13,5 @@ void main(){
     // tweak these values to adjust the color, distance and fall-off of the mist
     vec3 distFadeColor = mix(texColor.rgb, vec3(0.4, 0.8, 1.0), min(1.1, pow(distToCamera, 3.0)/3000000.0));
 
-    gl_FragColor = vec4(mix(m_Color.rgb, distFadeColor, texColor.a), 1.0) * shadow; 
+    gl_FragColor = vec4(mix(m_Color.rgb, distFadeColor, texColor.a), 1.0) * shadow; //WANT
 }

@@ -1,7 +1,10 @@
-package voxel.landscape;
+package voxel.landscape.chunkbuild;
 
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import voxel.landscape.BlockType;
+import voxel.landscape.MeshSet;
+import voxel.landscape.coord.Axis;
 import voxel.landscape.coord.Coord3;
 import voxel.landscape.coord.Direction;
 import voxel.landscape.map.TerrainMap;

@@ -1,6 +1,6 @@
 package voxel.landscape.map.structure.structures;
 
-import voxel.landscape.Axis;
+import voxel.landscape.coord.Axis;
 import voxel.landscape.BlockType;
 import voxel.landscape.coord.Coord2;
 import voxel.landscape.coord.Coord3;
@@ -14,11 +14,16 @@ import java.util.HashMap;
 public class StructureUtil {
 
     public static void AddPyramid(HashMap<Coord3, BlockType> blocks, Coord3 baseCenter, Coord2 baseHalfDimensions, int normal, BlockType blockType, boolean hollow) {
+        AddPyramid(blocks, baseCenter, baseHalfDimensions, normal, blockType, hollow, false);
+    }
+
+    public static void AddPyramid(HashMap<Coord3, BlockType> blocks, Coord3 baseCenter, Coord2 baseHalfDimensions, int normal, BlockType blockType, boolean hollow, boolean oddBase) {
         Coord3 startCorner = baseCenter.add(new Coord3(baseHalfDimensions.getX(), 0, baseHalfDimensions.getZ()).multy(-1));
         for (int i = 0; i < baseHalfDimensions.getX(); ++i) {
             Coord2 dims = (baseHalfDimensions.minus(i,i)).multy(2);
+            if (oddBase) { dims = dims.add(new Coord2(1)); }
             if (dims.getX() == 0 || dims.getZ() == 0) break;
-            StructureUtil.AddRectangle(blocks, startCorner.add(i,i,i), dims, Axis.Y, BlockType.SAND, !hollow || (i == 0));
+            StructureUtil.AddRectangle(blocks, startCorner.add(i,i,i), dims, Axis.Y, blockType, !hollow || (i == 0));
         }
     }
 
@@ -36,6 +41,11 @@ public class StructureUtil {
                     }
                 }
             }
+        }
+    }
+    public static void AddVertical(HashMap<Coord3, BlockType> blocks, BlockType blockType, Coord3 start, int height) {
+        for (int y = start.y; y < start.y + height; ++y) {
+            blocks.put(new Coord3(start.x, y, start.z), blockType);
         }
     }
 
@@ -75,4 +85,5 @@ public class StructureUtil {
             }
         }
     }
+
 }

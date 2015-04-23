@@ -35,6 +35,7 @@ public class BuildUtils {
 			d = pos.add(new Coord3(dx, dy, dz));
 		}
         ColorRGBA res;
+        //If, for example, 'UP' or 'LEFT' neighbor blocks are translucent, then UP-AND-LEFT neighbor block matters
         if(map.blockAtWorldCoordIsTranslucent(b) || map.blockAtWorldCoordIsTranslucent(c)) {
             ColorRGBA c1 = GetBlockLight(map, a);
             ColorRGBA c2 = GetBlockLight(map, b);

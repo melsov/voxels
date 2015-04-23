@@ -1,6 +1,6 @@
 package voxel.landscape.collection.chunkface;
 
-import voxel.landscape.BlockMeshUtil;
+import voxel.landscape.chunkbuild.BlockMeshUtil;
 import voxel.landscape.BlockType;
 import voxel.landscape.Chunk;
 import voxel.landscape.MeshSet;
